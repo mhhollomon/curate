@@ -41,7 +41,7 @@ class Album(OwnableMusic) :
 
     def add_track(self, music : MusicFile, name : str, track_number : int ) :
 
-        if track_number in [ t.number for t in self.tracks ] :
+        if track_number in [ t.pos for t in self.tracks ] :
             raise Exception(f"Duplicate track number in album {self.name} ({track_number})")
         self.tracks.append(AlbumTrack(music, name, track_number))
 

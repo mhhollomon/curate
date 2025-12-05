@@ -63,10 +63,6 @@ class Curate :
         self.albums : List[Albums] = []
 
     ##########################################################
-    def add_artist(self, name : str, sort_name : str | None = None) -> str :
-        return self.artists.add_artist(name, sort_name)
-
-    ##########################################################
     def add_album(self, name : str, sort_name : str | None = None) -> Album :
         album = Album()
         self.albums.append(album)
@@ -170,8 +166,27 @@ class Curate :
     
     ##########################################################
     def read_album(self, dir : Path, index_data : Dict[str, Any], prefix : str) -> None :
-        pass
-    
+        if 'tracks' not in index_data :
+            print(f"{prefix} == No tracks in index - ignoring")
+            return
+        if 'sort_name' not in index_data :
+            index_data['sort_name'] = index_data['name']
+
+        if 'artist' in index_data :
+            artist = self.artists.add_artist(index_data['artist'])
+        else :
+            artist = self.artists.unknown()
+
+        album = Album(index_data['name'], index_data['sort_name'])
+        artist.add_music(album)
+
+        for index, t in enumerate(index_data['tracks']) :
+            full_path = dir / t['file']
+            rel_path = full_path.relative_to(self.directory)
+            if full_path.exists() :
+                music_obj = read_music_file(full_path, rel_path)
+                album.add_track(music_obj, t['name'], index+1)
+
     ##########################################################
     def read_index_file(self, file : Path) -> Dict[str, Any] :
         index_data : Dict[str, Any] = {type : 'album'}
@@ -186,35 +201,6 @@ class Curate :
     ##########################################################
     def is_music(self, file : Path) -> bool :
         return (file.is_file() & (file.suffix in ('.wav', '.mp3', '.flac')))
-
-    ##########################################################
-    def reconcile(self, d : MusicFile, tags : Dict[str, Any], index : Dict[str, Any]) -> MusicFile :
-        filename = d.path.parts[-1]
-        print(f"Reconciling - {filename}")
-
-
-        # start with the tags
-        merged = { **tags }
-
-        # override with anything in the index file at the 'global' level
-        merged.update(index)
-
-        # override that with anything specific about the file
-        if 'files' in index and filename in index['files'] :
-            print(" -- specific data exists")
-            merged.update(index['files'][filename])
-
-        artist = merged['artist'] if 'artist' in merged else 'unknown'
-        artist_id = self.add_artist(artist)
-        d.artist = artist_id
-
-        if 'type' in merged :
-            d.ftype = merged['type']
-
-        if 'name' in merged :
-            d.name = merged['name']
-
-        return d
 
     ##########################################################
     def output_data(self) -> None :
@@ -272,7 +258,7 @@ class Curate :
                 self.output.write(f"{prefix}name : {a.name}\n")
                 self.output.write(f"{prefix}sort_name : {a.sort_name}\n")
                 self.output.write(f"{prefix}tracks : \n")
-                for t in a.track :
+                for t in a.tracks :
                     prefix = '    - '
                     self.output.write(f"{prefix}name : {t.name}\n")
                     prefix = '      '
