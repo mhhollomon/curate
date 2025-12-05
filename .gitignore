@@ -1,0 +1,8 @@
+# vim temp files
+.*.swp
+
+# virtual environment
+.venv/
+
+# python code cache
+__pycache__
