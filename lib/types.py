@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from nanoid import generate
 from pathlib import Path
-from typing import List, Dict, Any, NamedTuple
+from typing import List, Dict, Any
 
 def get_id() -> str :
     """Generate a random ID string

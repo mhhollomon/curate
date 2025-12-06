@@ -6,9 +6,7 @@ from argparse import ArgumentParser, Namespace
 from pathlib import Path
 import yaml
 
-from dataclasses import dataclass, field
-
-from typing import Any, List, Dict, Set
+from typing import Any, List, Dict, Set, cast
 import sys
 
 
@@ -60,11 +58,15 @@ class Curate :
         self.output=output
         self.tracks : List[MusicFile] = []
         self.artists = ArtistManager()
-        self.albums : List[Albums] = []
+        self.albums : List[Album] = []
+
+        if self.output.closed :
+            raise Exception("closed")
 
     ##########################################################
     def add_album(self, name : str, sort_name : str | None = None) -> Album :
-        album = Album()
+        sort_name = sort_name if sort_name else name
+        album = Album(name, sort_name)
         self.albums.append(album)
         return album
 
@@ -109,15 +111,6 @@ class Curate :
         else :
             raise Exception(f"Unknown type '{index_data['type']}' in {dir}")
 
-        #for entry in dir.iterdir() :
-        #    if self.is_music(entry) :
-        #        print(f"{prefix} - {entry.name} -- ", end="")
-        #        print("music file")
-        #        rel_path = entry.relative_to(self.directory)
-        #        music_obj = read_music_file(entry, rel_path)
-        #        musicData.append(music_obj)
-
-
         print(f"{prefix}-- Finished directory {dir}")
 
     ##########################################################
@@ -134,19 +127,19 @@ class Curate :
             rel_path = full_path.relative_to(self.directory)
             if full_path.exists() :
                 music_obj = read_music_file(full_path, rel_path)
-                data = {**music_obj.tags, **template, **v}
+                data = {**(music_obj.tags if music_obj.tags else {}), **template, **v}
                 data['filename'] = filename
                 self.add_to_artist(music_obj, data)
                 seen_files.add(filename)
             else :
-                print(f"{prefix} - {f} does not exist - ignoring")
+                print(f"{prefix} - {filename} does not exist - ignoring")
             
         for f in dir.iterdir() :
             filename = f.parts[-1]
             if self.is_music(f) and filename not in seen_files :
                 rel_path = f.relative_to(self.directory)
                 music_obj = read_music_file(f, rel_path)
-                data = {**music_obj.tags, **template}
+                data = {**(music_obj.tags if music_obj.tags else {}), **template}
                 data['filename'] = filename
                 self.add_to_artist(music_obj, data)
 
@@ -189,7 +182,7 @@ class Curate :
 
     ##########################################################
     def read_index_file(self, file : Path) -> Dict[str, Any] :
-        index_data : Dict[str, Any] = {type : 'album'}
+        index_data : Dict[str, Any] = {'type' : 'album'}
         with open(file, 'r') as f :
             index_data.update(yaml.safe_load(f))
 
@@ -205,9 +198,9 @@ class Curate :
     ##########################################################
     def output_data(self) -> None :
 
-        music : List[OwnableMusic] = []
-        albums : List[OwnableMusic] = []
-        self.output.write("artists :\n")
+        music : List[Track] = []
+        albums : List[Album] = []
+        print("artists :", file=self.output)
         for a in self.artists :
             prefix = '  - '
             self.output.write(f"{prefix}id : {a.id}\n")
@@ -221,11 +214,11 @@ class Curate :
                 for m in a.assoc :
                     self.output.write(f"{prefix} {{ id : {m.id}, kind : {m.kind} }}\n")
                     if m.kind == 'Track' : 
-                        music.append(m)
+                        music.append(cast(Track, m))
                     elif m.kind == 'Album' :
-                        albums.append(m)
+                        albums.append(cast(Album, m))
                     else :
-                        raise Exception(f"Unknown ownableMusic kind '{m.kind}'")
+                        raise Exception(f"Unknown OwnableMusic kind '{m.kind}'")
 
         if len(music) > 0 :
             self.output.write("tracks :\n")
@@ -280,6 +273,7 @@ def getargs() -> Namespace :
 
     return parser.parse_args()
 
+##########################################################
 if __name__ == '__main__' :
 
     args = getargs()
@@ -291,9 +285,10 @@ if __name__ == '__main__' :
         need_to_close = True
 
     obj = Curate(directory=args.dir, output=output)
+    retval = obj.launch()
+
     if need_to_close :
         output.close()
 
 
-    retval = obj.launch()
     exit(retval)

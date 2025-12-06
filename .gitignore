@@ -4,5 +4,7 @@
 # virtual environment
 .venv/
 
+resources.yml
+
 # python code cache
 __pycache__
