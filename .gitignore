@@ -4,7 +4,11 @@
 # virtual environment
 .venv/
 
+# VSCode settings
+.vscode/
+
 resources.yml
 
 # python code cache
 __pycache__
+.pytest_cache/

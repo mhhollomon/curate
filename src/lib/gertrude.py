@@ -28,7 +28,7 @@ class gertrude :
                 if key is None :
                     key_func : Callable[[Any], str]  = lambda x : cast(str, x.__g_getkey())
                 elif isinstance(key, str) :
-                    key_func : Callable[[Any], str] = lambda x : cast(str, getattr(x, key))
+                    key_func : Callable[[Any], str] = lambda x : cast(str, x.get(key))
                 else :
                     key_func = key
                 self.key_func = key_func
@@ -40,6 +40,12 @@ class gertrude :
                     key = self.key_func(value)
                 self.dict[key] = value
 
+            def delete(self, key : Any) -> None:
+                if isinstance(key, str) :
+                    del self.dict[key]
+                else :
+                    del self.dict[self.key_func(key)]
+
         def get(self, key : str, index : str | None = None) -> Any :
             if index is not None :
                 return self.index[index].get(key)
@@ -47,8 +53,18 @@ class gertrude :
         
         def set(self, value : Any, key : str | None = None) -> None :
             self.main.set(value, key)
+            for i in self.index.values() :
+                i.set(value, key)
+
+        def remove_value(self, key : Any) -> None :
+            self.main.delete(key)
+            for i in self.index.values() :
+                i.delete(key)
 
         def add_index(self, name : str, key : Callable[[Any], str] | str | None = None) :
             self.index[name] = gertrude.gtable.storage(key)
             for v in self.main.dict.values() :
                 self.index[name].set(v)
+        
+        def remove_index(self, name : str) :
+            del self.index[name]
