@@ -6,15 +6,13 @@ from argparse import ArgumentParser, Namespace
 from pathlib import Path
 import yaml
 
-from dataclasses import asdict
-
 from typing import Any, Dict
 import sys
 
 
 
 
-class Curate :
+class GenerateData :
     def __init__(self, directory: str, output) -> None :
         self.directory=Path(directory)
         self.output=output
@@ -214,9 +212,7 @@ def getargs() -> Namespace :
 
     return parser.parse_args()
 
-##########################################################
-if __name__ == '__main__' :
-
+def main() :
     args = getargs()
     need_to_close = False
     if args.out == '-' :
@@ -225,11 +221,17 @@ if __name__ == '__main__' :
         output = open(args.out, 'w')
         need_to_close = True
 
-    obj = Curate(directory=args.dir, output=output)
+    obj = GenerateData(directory=args.dir, output=output)
     retval = obj.launch()
 
     if need_to_close :
         output.close()
 
+    return retval
+
+##########################################################
+if __name__ == '__main__' :
+
+    retval = main()
 
     exit(retval)
