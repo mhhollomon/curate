@@ -1,6 +1,7 @@
 #!/bin/env python
-from lib.types import *
-from lib.music_file import read_music_file
+from .lib.types import *
+from .lib.music_file import read_music_file
+from .lib.database import *
 
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
@@ -9,7 +10,6 @@ import yaml
 from typing import Any, Dict
 import sys
 
-from lib.database import *
 
 
 class GenerateData :
@@ -219,13 +219,33 @@ class GenerateData :
 
     ##########################################################
     def build_db(self) -> None :
-        db.init(self.output_directory / 'curate.db')
+        db_file = self.output_directory / 'curate.db'
+        if db_file.exists() :
+            db_file.unlink()
+
+        db.init(db_file)
         with db.atomic() :
             dbAlbum.create_table()
             dbArtist.create_table()
             dbTrack.create_table()
             dbAlbumTrack.create_table()
             dbArtistAssociation.create_table()
+
+        with db.atomic() :
+            artists = [{"id" : a.id, "name" : a.name, "sort_name" : a.sort_name} for a in self.artists]
+            dbArtist.insert_many(artists).execute()
+
+            tracks = [{"id" : t.id, "name" : t.name, "sort_name" : t.sort_name, "path" : t.file.path, "digest" : t.file.digest, "format" : t.file.format} for t in trackList]
+            dbTrack.insert_many(tracks).execute()
+
+            albums = [{"id" : a.id, "name" : a.name, "sort_name" : a.sort_name} for a in albumList]
+            dbAlbum.insert_many(albums).execute()
+
+            album_tracks = [{"album" : at.album, "track" : at.track, "pos" : at.pos} for at in albumTrackList]
+            dbAlbumTrack.insert_many(album_tracks).execute()
+
+            artist_associations = [{"artist" : aa.artist, "item" : aa.music, "kind" : aa.kind} for aa in artistAssociationList]
+            dbArtistAssociation.insert_many(artist_associations).execute()
 
 ##########################################################
 def getargs() -> Namespace :
@@ -239,7 +259,7 @@ def getargs() -> Namespace :
 def main() :
     args = getargs()
 
-    obj = GenerateData(directory=args.dir, output_directory=args.out)
+    obj = GenerateData(directory=args.music, output_directory=args.out)
     retval = obj.launch()
 
     return retval

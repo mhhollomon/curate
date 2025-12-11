@@ -1,4 +1,4 @@
-from peewee import SqliteDatabase, Model, CharField
+from peewee import SqliteDatabase, Model, CharField, TextField
 
 db = SqliteDatabase(None)
 
@@ -19,7 +19,7 @@ class dbTrack(BaseModel):
     id = CharField(primary_key=True)
     name = CharField()
     sort_name = CharField()
-    path = CharField()
+    path = TextField()
     digest = CharField()
     format = CharField()
 
@@ -30,7 +30,7 @@ class dbAlbum(BaseModel):
     id = CharField(primary_key=True)
     name = CharField()
     sort_name = CharField()
-    cover = CharField()
+    cover = TextField(null=True)
 
     class Meta:
         table_name = 'album'
@@ -46,7 +46,7 @@ class dbAlbumTrack(BaseModel):
 class dbArtistAssociation(BaseModel):
     artist = CharField()
     item = CharField()
-    type = CharField()
+    kind = CharField()
 
     class Meta:
         table_name = 'artist_association'

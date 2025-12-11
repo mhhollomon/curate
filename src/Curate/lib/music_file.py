@@ -6,7 +6,7 @@ def hash_file(file : Path) -> str :
     hash = hashlib.sha256()
 
     with open(file, 'rb') as f :
-        read_size = 65536
+        read_size = 1024 * 1024
         while True :
             data = f.read(read_size)
             if not data :

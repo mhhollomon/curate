@@ -7,8 +7,6 @@
 # VSCode settings
 .vscode/
 
-resources.yml
-
 # python code cache
 __pycache__
 .pytest_cache/
@@ -17,4 +15,7 @@ __pycache__
 
 # build
 dist
+
+# test output
+output
 
