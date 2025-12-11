@@ -10,6 +10,7 @@ license-files = ["LICENSE"]
 dynamic = ["version", "description"]
 dependencies = [
     "peewee",
+    "flask",
 ]
 
 [project.scripts]

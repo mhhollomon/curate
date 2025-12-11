@@ -3,4 +3,4 @@ flit
 
 nanoid
 pyyaml
-peewee
+flask

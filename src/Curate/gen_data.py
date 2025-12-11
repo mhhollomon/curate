@@ -9,17 +9,27 @@ import yaml
 from typing import Any, Dict
 import sys
 
-
+from lib.database import *
 
 
 class GenerateData :
-    def __init__(self, directory: str, output) -> None :
+    def __init__(self, directory: str, output_directory : str) -> None :
         self.directory=Path(directory)
-        self.output=output
-        self.artists = ArtistManager()
+        if not self.directory.exists() :
+            raise Exception(f"Directory {self.directory} does not exist")
 
-        if self.output.closed :
-            raise Exception("closed")
+        if not self.directory.is_dir() :
+            raise Exception(f"Directory {self.directory} is not a directory")
+
+        self.output_directory = Path(output_directory)
+        if self.output_directory.exists() and not self.output_directory.is_dir() :
+            raise Exception(f"Output directory {self.output_directory} is not a directory")
+
+        if not self.output_directory.exists() :
+            self.output_directory.mkdir()
+
+        self.output = (self.output_directory / 'data.yml').open('w')
+        self.artists = ArtistManager()
 
     ##########################################################
     def launch(self) -> int :
@@ -28,6 +38,11 @@ class GenerateData :
         self.walk_tree(self.directory)
 
         self.output_data()
+        self.output.close()
+
+        self.build_db()
+
+        print(f"Finished on collection {self.directory}")
 
         return 0
 
@@ -78,7 +93,7 @@ class GenerateData :
                 seen_files.add(filename)
             else :
                 print(f"{prefix} - {filename} does not exist - ignoring")
-            
+
         for f in dir.iterdir() :
             filename = f.parts[-1]
             if self.is_music(f) and filename not in seen_files :
@@ -101,7 +116,7 @@ class GenerateData :
             artist = self.artists.unknown()
 
         artist.add_track(track)
-    
+
     ##########################################################
     def read_album(self, dir : Path, index_data : Dict[str, Any], prefix : str) -> None :
         if 'tracks' not in index_data :
@@ -135,7 +150,7 @@ class GenerateData :
 
         if 'type' not in index_data :
             index_data['type'] = 'album'
-        
+
         return index_data
 
     ##########################################################
@@ -149,7 +164,7 @@ class GenerateData :
 
         def prt(self, s : str) -> None :
             self.output.write(self.prefix + s + '\n')
-        
+
     ##########################################################
     def output_data(self) -> None :
         out = self.outputter(self.output)
@@ -161,7 +176,7 @@ class GenerateData :
             out.prefix = "    "
             out.prt(f"name : {artist.name}")
             out.prt(f"sort_name : {artist.sort_name}")
-        
+
         out.prefix = ""
         out.prt("tracks :")
         for track in trackList :
@@ -183,7 +198,7 @@ class GenerateData :
             out.prefix = "    "
             out.prt(f"name : {album.name}")
             out.prt(f"sort_name : {album.sort_name}")
-        
+
         out.prefix = ""
         out.prt("artist_music :")
         for association in artistAssociationList :
@@ -202,30 +217,30 @@ class GenerateData :
             out.prt(f"album : {track.album}")
             out.prt(f"pos : {track.pos}")
 
+    ##########################################################
+    def build_db(self) -> None :
+        db.init(self.output_directory / 'curate.db')
+        with db.atomic() :
+            dbAlbum.create_table()
+            dbArtist.create_table()
+            dbTrack.create_table()
+            dbAlbumTrack.create_table()
+            dbArtistAssociation.create_table()
 
 ##########################################################
 def getargs() -> Namespace :
     parser = ArgumentParser()
 
-    parser.add_argument('--dir', default='/mnt/music/Bandcamp')
-    parser.add_argument('--out', default='-')
+    parser.add_argument('--music', default='/mnt/music/Bandcamp')
+    parser.add_argument('--out', required=True)
 
     return parser.parse_args()
 
 def main() :
     args = getargs()
-    need_to_close = False
-    if args.out == '-' :
-        output = sys.stdout
-    else :
-        output = open(args.out, 'w')
-        need_to_close = True
 
-    obj = GenerateData(directory=args.dir, output=output)
+    obj = GenerateData(directory=args.dir, output_directory=args.out)
     retval = obj.launch()
-
-    if need_to_close :
-        output.close()
 
     return retval
 
