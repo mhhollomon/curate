@@ -1,4 +1,4 @@
-from lib.gertrude import gertrude
+from Curate.lib.gertrude import gertrude
 
 import pytest
 

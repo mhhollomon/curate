@@ -12,3 +12,9 @@ resources.yml
 # python code cache
 __pycache__
 .pytest_cache/
+
+.coverage
+
+# build
+dist
+
