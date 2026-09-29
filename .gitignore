@@ -19,3 +19,6 @@ dist
 # test output
 output
 
+# node
+node_modules
+

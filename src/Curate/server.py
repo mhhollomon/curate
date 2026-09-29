@@ -46,7 +46,16 @@ def get_artist_music(artist_id):
 def list_albums():
     with db.atomic() :
         # Retrieve the list of albums from the database
-        albums = list(dbAlbum.select().dicts())
+        #albums = list(dbAlbum.select().dicts())
+
+        albums = list(dbAlbum.select(
+            dbAlbum,
+            dbArtist.id.alias('artist_id'),
+            dbArtist.name.alias('artist_name')).join(
+            dbArtistAssociation, on=(dbArtistAssociation.item == dbAlbum.id)
+        ).join(
+            dbArtist, on=(dbArtist.id == dbArtistAssociation.artist)
+        ).dicts())
 
     # Return the list of albums as JSON
     return Response(json.dumps(albums), mimetype='application/json')

@@ -5,11 +5,16 @@ Fun DYI project to stream music
 # Server API
 
 ## /api/artist
-List all artists
+List all artists known to the system.
 
-## /api/artist/<id>
-List music (singles and albums) for that artist
+## /api/artist/\<id\>
+List music (singles and albums) for that artist.
 
+## /api/album
+List all albums known to the system
+
+### /api/album/\<id\>
+List tracks associated with the given album.
 
 # Development
 

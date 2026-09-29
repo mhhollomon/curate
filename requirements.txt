@@ -4,3 +4,4 @@ flit
 nanoid
 pyyaml
 flask
+peewee

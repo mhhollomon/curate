@@ -57,7 +57,7 @@ class GenerateData :
                 self.walk_tree(dir / entry, prefix + '  ')
 
 
-        # For now, only lool at directories that have an index file
+        # For now, only look at directories that have an index file
         index_path = dir / '_index.yml'
         if not index_path.exists() :
             print(f"{prefix}-- no index. returning")
@@ -223,7 +223,7 @@ class GenerateData :
         if db_file.exists() :
             db_file.unlink()
 
-        db.init(db_file)
+        db.init(str(db_file))
         with db.atomic() :
             dbAlbum.create_table()
             dbArtist.create_table()
