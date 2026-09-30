@@ -1,0 +1,15 @@
+[project]
+name = "Curate"
+version = "0.1.0"
+authors = [{name = "Mark Hollomon"}]
+description = "A thing"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.14"
+dependencies = [
+    "fastapi[standard]>=0.142.2",
+    "flit>=4.1.0",
+    "nanoid>=2.0.0",
+    "peewee>=4.5.2",
+    "pyyaml>=6.0.3",
+]
