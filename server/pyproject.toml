@@ -13,3 +13,6 @@ dependencies = [
     "peewee>=4.5.2",
     "pyyaml>=6.0.3",
 ]
+
+[tool.fastapi]
+entrypoint = "src.main:app"

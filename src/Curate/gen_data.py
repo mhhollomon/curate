@@ -1,7 +1,7 @@
 #!/bin/env python
-from .lib.types import *
-from .lib.music_file import read_music_file
-from .lib.database import *
+from ...server.src.lib.types import *
+from ...server.src.lib.music_file import read_music_file
+from ...server.src.lib.database import *
 
 from argparse import ArgumentParser, Namespace
 from pathlib import Path

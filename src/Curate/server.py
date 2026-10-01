@@ -1,7 +1,7 @@
 from flask import Flask, Response, send_file
 import json
 
-from .lib.database import db, dbAlbum, dbAlbumTrack, dbArtist, dbArtistAssociation, dbTrack
+from ...server.src.lib.database import db, dbAlbum, dbAlbumTrack, dbArtist, dbArtistAssociation, dbTrack
 
 from peewee import JOIN
 
@@ -74,4 +74,3 @@ def get_album_tracks(album_id):
 
 if __name__ == '__main__':
     db.init('output/curate.db', pragmas={'foreign_keys': 1})
-    app.run(port=9999, debug=True)
