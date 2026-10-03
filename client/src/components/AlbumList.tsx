@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { Table } from "react-bootstrap"
 import { type Album } from "../types/album"
+import { Link } from "wouter"
 
 export default function AlbumList() {
     const [albumList, setAlbumList] = useState<Album[] | undefined>(undefined)
@@ -24,11 +25,15 @@ return <>
 
     <Table striped>
         <thead>
-            <th>name</th>
+            <tr><th>name</th>
             <th>artist</th>
+            </tr>
         </thead>
         <tbody>
-            {albumList && albumList.map(a => <tr key={a.id}><td>{a.name}</td><td>{a.artist_name}</td></tr>)}
+            {albumList && albumList.map(a => <tr key={a.id}>
+                <td><Link href={`/album/${a.id}`}>{a.name}</Link></td>
+                <td><Link href={`/artist/${a.artist_id}`}>{a.artist_name}</Link></td>
+                </tr>)}
         </tbody>
     </Table>
 

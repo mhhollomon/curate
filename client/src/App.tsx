@@ -1,25 +1,24 @@
 import './App.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import { Tab, Tabs } from 'react-bootstrap'
+import HomeScreen from './components/Home';
+import Album from './components/Album';
 
-import ArtistList from './components/ArtistList';
-import AlbumList from './components/AlbumList';
+import { Route, Redirect } from 'wouter';
 
-function App() {
-
-    return <>
-        <div>
-            <Tabs defaultActiveKey="artists">
-                <Tab eventKey="artists" title="Artists">
-                    <ArtistList/>
-                </Tab>
-                <Tab eventKey="album" title="Albums">
-                    <AlbumList/>
-                </Tab>
-            </Tabs>
-        </div>
-    </>
+export default function App() {
+    return (<>
+        <Route path="/" >
+            <Redirect to="/artists" />
+        </Route>
+        <Route path="/artists" >
+            <HomeScreen tab="artists" />
+        </Route>
+        <Route path="/albums" >
+            <HomeScreen tab="albums" />
+        </Route>
+        <Route path="/album/:album_id">
+            {params => <Album album_id={params.album_id}/>}
+        </Route>
+    </>)
 }
-
-export default App

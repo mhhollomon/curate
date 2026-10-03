@@ -1,0 +1,12 @@
+.artistBlock {
+    border-color : black;
+    border-width: 1px;
+    border-style : solid;
+}
+
+.coverBlock {
+    background-color: gainsboro;
+    width : 300px;
+    min-width : 300px;
+    min-height : 300px;
+}

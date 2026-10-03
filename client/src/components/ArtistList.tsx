@@ -24,7 +24,7 @@ return <>
 
     <Table striped>
         <thead>
-            <th>name</th>
+            <tr><th>name</th></tr>
         </thead>
         <tbody>
             {artistList && artistList.map(a => <tr key={a.id}><td>{a.name}</td></tr>)}
