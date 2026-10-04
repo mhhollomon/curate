@@ -128,7 +128,15 @@ class GenerateData :
         else :
             artist = self.artists.unknown()
 
-        album = Album(index_data['name'], index_data['sort_name'])
+        cover = None
+        if 'cover' in index_data :
+            full_cover_path = dir / index_data['cover']
+            if full_cover_path.exists() :
+                cover = Cover(path=full_cover_path.relative_to(self.directory))
+                coverList.append(cover)
+
+
+        album = Album(index_data['name'], index_data['sort_name'], cover=cover.id if cover else None)
         artist.add_album(album)
 
         for index, t in enumerate(index_data['tracks']) :
@@ -196,6 +204,7 @@ class GenerateData :
             out.prefix = "    "
             out.prt(f"name : {album.name}")
             out.prt(f"sort_name : {album.sort_name}")
+            out.prt(f"cover : {album.cover}")
 
         out.prefix = ""
         out.prt("artist_music :")
@@ -214,6 +223,15 @@ class GenerateData :
             out.prefix = "    "
             out.prt(f"album : {track.album}")
             out.prt(f"pos : {track.pos}")
+
+        out.prefix = ""
+        out.prt("cover :")
+        for cover in coverList :
+            out.prefix = "  - "
+            out.prt(f"id : {cover.id}")
+            out.prefix = "    "
+            out.prt(f"path : '{cover.path}'")
+
 
     ##########################################################
     def build_db(self) -> None :
@@ -237,7 +255,7 @@ class GenerateData :
             tracks = [{"id" : t.id, "name" : t.name, "sort_name" : t.sort_name, "path" : t.file.path, "digest" : t.file.digest, "format" : t.file.format} for t in trackList]
             dbTrack.insert_many(tracks).execute()
 
-            albums = [{"id" : a.id, "name" : a.name, "sort_name" : a.sort_name} for a in albumList]
+            albums = [{"id" : a.id, "name" : a.name, "sort_name" : a.sort_name, "cover" : a.cover} for a in albumList]
             dbAlbum.insert_many(albums).execute()
 
             album_tracks = [{"album" : at.album, "track" : at.track, "pos" : at.pos} for at in albumTrackList]
@@ -245,6 +263,9 @@ class GenerateData :
 
             artist_associations = [{"artist" : aa.artist, "item" : aa.music, "kind" : aa.kind} for aa in artistAssociationList]
             dbArtistAssociation.insert_many(artist_associations).execute()
+
+            covers = [{"id" : c.id, "path" : c.path} for c in coverList]
+            dbCover.insert_many(covers).execute()
 
 ##########################################################
 def getargs() -> Namespace :

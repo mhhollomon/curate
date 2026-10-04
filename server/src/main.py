@@ -1,9 +1,11 @@
 import os
 import subprocess
-from typing import Annotated
+from typing import Annotated, Dict
 from pathlib import Path
 
-from .lib.database import db, dbAlbum, dbAlbumTrack, dbArtist, dbArtistAssociation, dbTrack
+from .lib.database import (db, dbAlbum, dbAlbumTrack,
+                           dbArtist, dbArtistAssociation, dbTrack,
+                           dbCover)
 from playhouse.pydantic_utils import to_pydantic
 from fastapi import FastAPI, HTTPException, Header
 from fastapi.responses import StreamingResponse
@@ -119,13 +121,55 @@ def get_album_tracks(album_id : str) -> respAlbumTracks :
         raise HTTPException(status_code=404, detail="Item not found")
 
 
+
     return respAlbumTracks(album=album, artist=artist, tracks=list(tracks)) # type: ignore
 
-def stream_track(path : Path | str, start_byte : int = 0) :
+
+def mtype(ext : str) -> str :
+    """cf https://www.iana.org/assignments/media-types"""
+    return {
+        '.webm' : 'audio/webm',
+        '.jpg'  : 'image/jpeg',
+        '.jpeg' : 'image/jpeg'
+    }[ext]
+
+
+def read_streaming_file(path : Path | str, start_byte : int = 0) :
     with open(file=path, mode='br') as f :
         if start_byte > 0 :
             f.seek(start_byte)
         yield from f
+
+
+def stream_file(path : Path, *,
+                range_header : str | None = None,
+                media_type : str | None = None,
+                headers : Dict[str, str] | None = None) -> StreamingResponse :
+
+    content_size = os.path.getsize(path)
+
+    if range_header :
+        # Range will look like `bytes=<start>-<stop?>`
+        start_byte = int(range_header[6:].split('-', 2)[0])
+    else :
+        start_byte = 0
+
+    if not media_type :
+        ext = path.suffix
+        media_type = mtype(ext)
+
+    if headers is None :
+        headers = {}
+
+    headers['Content-Length'] = str(content_size - start_byte)
+
+    print(f"""-- Streaming file
+      path = {path}
+      start = {start_byte}
+      media_type = {media_type}
+      headers = {repr(headers)}""")
+
+    return StreamingResponse(read_streaming_file(path, start_byte), media_type=media_type, headers=headers)
 
 # ffmpeg -i sound1.wav -dash 1 sound1.webm
 
@@ -140,18 +184,24 @@ def play_track(track_id : str, range : Annotated[str | None, Header()] = None) :
     content_type = f"audio/{track.format}"
     full_path = TOP_LEVEL / track.path
 
+    # be sure to put the extension on it.
     cache_path = CACHE / f"{track_id}.webm"
     if not cache_path.exists() :
         subprocess.run([FFMPEG, "-i", str(full_path), '-dash', '1', str(cache_path)] )
 
+    return stream_file(cache_path, range_header=range, headers={'Accept-Ranges' : 'bytes'})
 
-    file_size = os.path.getsize(cache_path)
+@app.get('/api/cover/{cover_id}')
+def get_cover(cover_id : str) :
+    try :
+        with db.atomic() :
+            cover = dbCover.select().where(dbCover.id == cover_id).get()
+    except dbCover.DoesNotExist : # type: ignore
+        raise HTTPException(status_code=404, detail="image not found")
 
-    print(f"--- range = {range}")
-    if range :
-        # Range will look like `bytes=<start>-<stop?>`
-        start_byte = int(range[6:].split('-', 2)[0])
+    full_path = TOP_LEVEL / cover.path
+    print(f"--cover full path = {full_path}")
 
-    print(f"--- content_type = {content_type}, file_size = {file_size}, path = {str(cache_path)}")
-    return StreamingResponse(stream_track(cache_path), media_type="audio/webm",
-                             headers={'Content-Length' : str(file_size), 'Accept-Ranges' : 'bytes'})
+    return stream_file(full_path)
+
+

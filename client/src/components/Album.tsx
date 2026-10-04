@@ -20,6 +20,7 @@ export default function Album({ album_id }: AlbumProps) {
     const [artist, setArtist] = useState<respAlbumArtist>()
     const [album, setAlbum] = useState<respAlbumAlbum>()
     const [playTrackDataState, setPlayTrackData] = useState<playTrackData>()
+    const [coverId, setCoverId] = useState<string>()
 
     useEffect(() => {
         fetch(
@@ -36,10 +37,18 @@ export default function Album({ album_id }: AlbumProps) {
                 setArtist(data.artist as respAlbumArtist)
 
                 setAlbum(data.album as respAlbumAlbum)
+
+                console.log(JSON.stringify(data.album))
+
             }
         )
 
     }, [album_id])
+
+    useEffect(() => {
+        if (album === undefined || album.cover === null) return;
+        setCoverId(album.cover)
+    }, [album])
 
     function playTrack(t : respAlbumTrack) {
         setPlayTrackData({'id' : t.id, 'name' : t.name })
@@ -62,7 +71,9 @@ export default function Album({ album_id }: AlbumProps) {
     return (<>
 
         <div className="container d-flex flex-column justify-content-center align-items-center">
-        <div className="coverBlock mt-2 mb-2" />
+        <div className="coverBlock mt-2 mb-2">
+            { <img src={`/api/cover/${coverId}`} width={300}/>}
+        </div>
         <div>
             <span className="fw-bold fs-4">{album?.name}</span>
         </div>

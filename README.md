@@ -16,7 +16,6 @@ to build a database of music references.
 1. User logins - security.
 1. User based playlists.
 1. Play queue.
-1. Actual support for album covers.
 
 (internals)
 

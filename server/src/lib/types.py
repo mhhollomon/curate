@@ -27,6 +27,11 @@ class Track :
             self.sort_name = self.name
 
 @dataclass
+class Cover :
+    path : str
+    id : str = field(default_factory=get_id)
+
+@dataclass
 class Album :
     name : str
     sort_name : str | None = None
@@ -119,8 +124,12 @@ trackList : List[Track] = []
 albumList : List[Album] = []
 albumTrackList : List[AlbumTrack] = []
 artistAssociationList : List[ArtistAssociation] = []
+coverList : List[Cover] = []
 
 __ALL__ = [
-    trackList, albumList, albumTrackList, artistAssociationList, 
-    ArtistManager, MusicFile, Track, Album, AlbumTrack, Artist, ArtistAssociation
+    trackList, albumList, albumTrackList, artistAssociationList,
+    coverList,
+
+    ArtistManager, MusicFile, Track, Album, AlbumTrack, Artist, ArtistAssociation,
+    Cover
 ]
