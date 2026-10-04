@@ -1,14 +1,12 @@
-#!/bin/env python
-from ...server.src.lib.types import *
-from ...server.src.lib.music_file import read_music_file
-from ...server.src.lib.database import *
+from .lib.types import *
+from .lib.music_file import read_music_file
+from .lib.database import *
 
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
 import yaml
 
 from typing import Any, Dict
-import sys
 
 
 
@@ -230,6 +228,7 @@ class GenerateData :
             dbTrack.create_table()
             dbAlbumTrack.create_table()
             dbArtistAssociation.create_table()
+            dbCover.create_table()
 
         with db.atomic() :
             artists = [{"id" : a.id, "name" : a.name, "sort_name" : a.sort_name} for a in self.artists]

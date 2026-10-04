@@ -1,17 +1,26 @@
-# React + TypeScript + Vite
+# Curate client
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+React based client to allow you to listen to your tunz.
 
-Currently, two official plugins are available:
+## Routes
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+### /artists
+Lists all the artists known by the server. Links will take you to a list of
+the artist's music. (future)
 
-## React Compiler
+### /albums
+List all the albums known by the server. Each album has a link to list the tracks.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### /album/\<id>
+List tracks for the album along with an audio player to play them.
 
-## Expanding the Oxlint configuration
+## Stuff for future thought.
+
+### Pydantic-to-typescript
+
+https://github.com/phillipdupuis/pydantic-to-typescript
+
+### Expanding the Oxlint configuration
 
 If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
 

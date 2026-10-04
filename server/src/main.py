@@ -1,12 +1,13 @@
 import os
 import subprocess
+from typing import Annotated
+from pathlib import Path
 
 from .lib.database import db, dbAlbum, dbAlbumTrack, dbArtist, dbArtistAssociation, dbTrack
 from playhouse.pydantic_utils import to_pydantic
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from pathlib import Path
+from fastapi import FastAPI, HTTPException, Header
 from fastapi.responses import StreamingResponse
+from pydantic import BaseModel
 
 TOP_LEVEL = Path("/mnt/music/Bandcamp/")
 FFMPEG = "/usr/bin/ffmpeg"
@@ -120,14 +121,16 @@ def get_album_tracks(album_id : str) -> respAlbumTracks :
 
     return respAlbumTracks(album=album, artist=artist, tracks=list(tracks)) # type: ignore
 
-def stream_track(path : Path | str) :
+def stream_track(path : Path | str, start_byte : int = 0) :
     with open(file=path, mode='br') as f :
+        if start_byte > 0 :
+            f.seek(start_byte)
         yield from f
 
 # ffmpeg -i sound1.wav -dash 1 sound1.webm
 
 @app.get('/api/play/{track_id}')
-def play_track(track_id : str) :
+def play_track(track_id : str, range : Annotated[str | None, Header()] = None) :
     try :
         with db.atomic() :
             track = dbTrack.select().where(dbTrack.id == track_id).get()
@@ -144,7 +147,11 @@ def play_track(track_id : str) :
 
     file_size = os.path.getsize(cache_path)
 
+    print(f"--- range = {range}")
+    if range :
+        # Range will look like `bytes=<start>-<stop?>`
+        start_byte = int(range[6:].split('-', 2)[0])
 
     print(f"--- content_type = {content_type}, file_size = {file_size}, path = {str(cache_path)}")
     return StreamingResponse(stream_track(cache_path), media_type="audio/webm",
-                             headers={'Content-Length' : str(file_size)})
+                             headers={'Content-Length' : str(file_size), 'Accept-Ranges' : 'bytes'})

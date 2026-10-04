@@ -75,7 +75,7 @@ export default function Album({ album_id }: AlbumProps) {
 
         <Table striped>
             <thead>
-                <tr><th>track</th></tr>
+                <tr><th>Tracks</th></tr>
             </thead>
             <tbody>
                 {trackList && trackList.map(a => <tr key={a.id}>

@@ -30,7 +30,7 @@ class dbAlbum(BaseModel):
     id = CharField(primary_key=True)
     name = CharField()
     sort_name = CharField()
-    cover = TextField(null=True)
+    cover = CharField(null=True)
 
     class Meta:
         table_name = 'album'
@@ -50,3 +50,10 @@ class dbArtistAssociation(BaseModel):
 
     class Meta:
         table_name = 'artist_association'
+
+class dbCover(BaseModel):
+    id = CharField()
+    path = TextField()
+
+    class Meta:
+        table_name = 'cover'
