@@ -12,7 +12,6 @@ def get_id() -> str :
 class MusicFile :
     path   : Path
     format : str # currently one of 'wav' or 'mp3'
-    digest : str # sha256 hash of the file
     tags   : Dict[str, Any] | None = None
 
 @dataclass

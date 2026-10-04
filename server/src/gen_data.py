@@ -193,7 +193,6 @@ class GenerateData :
             out.prt(f"sort_name : {track.sort_name}")
             out.prt(f"file :")
             out.prt(f"  path : {track.file.path}")
-            out.prt(f"  digest : {track.file.digest}")
             out.prt(f"  format : {track.file.format}")
 
         out.prefix = ""
@@ -252,7 +251,7 @@ class GenerateData :
             artists = [{"id" : a.id, "name" : a.name, "sort_name" : a.sort_name} for a in self.artists]
             dbArtist.insert_many(artists).execute()
 
-            tracks = [{"id" : t.id, "name" : t.name, "sort_name" : t.sort_name, "path" : t.file.path, "digest" : t.file.digest, "format" : t.file.format} for t in trackList]
+            tracks = [{"id" : t.id, "name" : t.name, "sort_name" : t.sort_name, "path" : t.file.path, "format" : t.file.format} for t in trackList]
             dbTrack.insert_many(tracks).execute()
 
             albums = [{"id" : a.id, "name" : a.name, "sort_name" : a.sort_name, "cover" : a.cover} for a in albumList]

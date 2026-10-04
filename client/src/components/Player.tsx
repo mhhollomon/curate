@@ -3,11 +3,14 @@ import { Howl } from 'howler';
 import { Button, ProgressBar } from 'react-bootstrap';
 
 import './Player.css'
+import { play_fill, pause_fill, rewind_fill, fast_forward_fill } from '../icons'
 
 export interface PlayerProps {
     src: string | null;
     name: string;
-    onEnd: () => void
+    onEnd: () => void;
+    onPrevious?: () => void;
+    onNext?: () => void;
 }
 
 function formatTime(seconds: number) {
@@ -17,7 +20,7 @@ function formatTime(seconds: number) {
     return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 }
 
-export default function Player({ src, name, onEnd }: PlayerProps) {
+export default function Player({ src, name, onEnd, onPrevious, onNext }: PlayerProps) {
     const soundRef = useRef<Howl>(null);
     const animationId = useRef<number>(undefined);
 
@@ -65,13 +68,13 @@ export default function Player({ src, name, onEnd }: PlayerProps) {
         };
     }, [src]);
 
-    function animateProgressBar(_ : number) {
+    function animateProgressBar(_: number) {
         if (soundRef.current && soundRef.current.playing()) {
             const newCurrentTime = soundRef.current.seek();
 
             // Can't use the state `duration` - need to query the howl instance
             // directly. Not sure why.
-            const fill_percent = Math.max(0, Math.min(100, Math.round(newCurrentTime /  soundRef.current.duration() * 100.0)));
+            const fill_percent = Math.max(0, Math.min(100, Math.round(newCurrentTime / soundRef.current.duration() * 100.0)));
 
             setProgPercent(fill_percent)
             setCurrentTime(formatTime(newCurrentTime));
@@ -123,6 +126,24 @@ export default function Player({ src, name, onEnd }: PlayerProps) {
         }
     };
 
+    function handlePreviousButtonClick() {
+        if (soundRef.current) {
+            soundRef.current.stop();
+        }
+
+        if (onPrevious) onPrevious();
+
+    }
+
+    function handleNextButtonClick() {
+        if (soundRef.current) {
+            soundRef.current.stop();
+        }
+
+        if (onNext) onNext();
+
+    }
+
     return (
         <div className="audio-player mt-2">
             <ProgressBar now={progPercent} />
@@ -132,13 +153,17 @@ export default function Player({ src, name, onEnd }: PlayerProps) {
                 <span id="duration">{formatTime(duration)}</span>
             </div>
 
-            {/* Play/Pause Button  */}
-            {buttonCaption &&
-                <Button onClick={handlePlayPauseButtonClick}>{buttonCaption}</Button>
-            }
-            <div>
+            <div className="mb-2">
                 <span className="fs-6">{name}</span>
             </div>
+
+            {buttonCaption && <>
+                {onPrevious && <Button onClick={handlePreviousButtonClick}>{rewind_fill} Previous</Button>}
+                <Button onClick={handlePlayPauseButtonClick}>
+                    {isPlaying ? <>{pause_fill} Pause</> : <>{play_fill} Play</>}</Button>
+                {onNext && <Button onClick={handleNextButtonClick}>{fast_forward_fill} Next</Button>}
+            </>
+            }
         </div>
     );
 };

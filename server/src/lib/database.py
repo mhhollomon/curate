@@ -20,7 +20,6 @@ class dbTrack(BaseModel):
     name = CharField()
     sort_name = CharField()
     path = TextField()
-    digest = CharField()
     format = CharField()
 
     class Meta:

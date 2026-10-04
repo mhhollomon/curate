@@ -130,7 +130,8 @@ def mtype(ext : str) -> str :
     return {
         '.webm' : 'audio/webm',
         '.jpg'  : 'image/jpeg',
-        '.jpeg' : 'image/jpeg'
+        '.jpeg' : 'image/jpeg',
+        '.mp3'  : 'audio/mpeg'
     }[ext]
 
 
@@ -173,6 +174,8 @@ def stream_file(path : Path, *,
 
 # ffmpeg -i sound1.wav -dash 1 sound1.webm
 
+CONVERTABLE_TYPES = ['wav']
+
 @app.get('/api/play/{track_id}')
 def play_track(track_id : str, range : Annotated[str | None, Header()] = None) :
     try :
@@ -184,12 +187,17 @@ def play_track(track_id : str, range : Annotated[str | None, Header()] = None) :
     content_type = f"audio/{track.format}"
     full_path = TOP_LEVEL / track.path
 
-    # be sure to put the extension on it.
-    cache_path = CACHE / f"{track_id}.webm"
-    if not cache_path.exists() :
-        subprocess.run([FFMPEG, "-i", str(full_path), '-dash', '1', str(cache_path)] )
+    stream_path = full_path
 
-    return stream_file(cache_path, range_header=range, headers={'Accept-Ranges' : 'bytes'})
+    if track.format in CONVERTABLE_TYPES :
+        # be sure to put the extension on it.
+        cache_path = CACHE / f"{track_id}.webm"
+        if not cache_path.exists() :
+            subprocess.run([FFMPEG, "-i", str(full_path), '-dash', '1', str(cache_path)] )
+
+        stream_path = cache_path
+
+    return stream_file(stream_path, range_header=range, headers={'Accept-Ranges' : 'bytes'})
 
 @app.get('/api/cover/{cover_id}')
 def get_cover(cover_id : str) :
