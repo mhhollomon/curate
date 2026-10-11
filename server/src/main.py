@@ -14,10 +14,12 @@ from pydantic import BaseModel
 TOP_LEVEL = Path("/mnt/music/Bandcamp/")
 FFMPEG = "/usr/bin/ffmpeg"
 CACHE = Path("./cache/")
+#DB_FILE = 'output/curate.db'
+DB_FILE = 'output/test.sql3'
 
 os.makedirs(CACHE, exist_ok=True)
 
-db.init('output/curate.db', pragmas={'foreign_keys': 1})
+db.init(DB_FILE, pragmas={'foreign_keys': 1})
 
 app = FastAPI()
 
@@ -53,6 +55,7 @@ respArtistItem = to_pydantic(dbArtist)
 class respAlbumItem(pyAlbum) :
     artist_id : str
     artist_name : str
+    artist_sort_name : str
 
 
 #
@@ -73,7 +76,7 @@ async def root():
 def list_artists() -> list[dbArtist]:
     with db.atomic() :
         # Retrieve the list of artists from the database
-        artists = list(dbArtist.select())
+        artists = list(dbArtist.select().order_by(dbArtist.sort_name))
 
     # Return the list of artists as JSON
     return artists
@@ -87,11 +90,12 @@ def list_albums():
         albums_list = list(dbAlbum.select(
             dbAlbum,
             dbArtist.id.alias('artist_id'),
-            dbArtist.name.alias('artist_name')).join(
+            dbArtist.name.alias('artist_name'),
+            dbArtist.sort_name.alias('artist_sort_name')).join(
             dbArtistAssociation, on=(dbArtistAssociation.item == dbAlbum.id)
         ).join(
             dbArtist, on=(dbArtist.id == dbArtistAssociation.artist)
-        ).dicts())
+        ).order_by(dbAlbum.sort_name).dicts())
 
     # Return the list of albums as JSON
     return albums_list
@@ -129,9 +133,11 @@ def mtype(ext : str) -> str :
     """cf https://www.iana.org/assignments/media-types"""
     return {
         '.webm' : 'audio/webm',
+        '.mp3'  : 'audio/mpeg',
+        '.flac' : 'audio/flac',
         '.jpg'  : 'image/jpeg',
         '.jpeg' : 'image/jpeg',
-        '.mp3'  : 'audio/mpeg'
+        '.png'  : 'image/png',
     }[ext]
 
 

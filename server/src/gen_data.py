@@ -1,78 +1,246 @@
+import re
+
 from .lib.types import *
 from .lib.music_file import read_music_file
 from .lib.database import *
 
-from argparse import ArgumentParser, Namespace
+from argparse import ArgumentParser, Namespace, BooleanOptionalAction
 from pathlib import Path
 import yaml
 
 from typing import Any, Dict
 
-
-
 class GenerateData :
-    def __init__(self, directory: str, output_directory : str) -> None :
+    def __init__(self, directory: str, database : str, rebuild : bool = False) -> None :
         self.directory=Path(directory)
+        self.db_file=Path(database)
+        self.rebuild = rebuild
+
         if not self.directory.exists() :
             raise Exception(f"Directory {self.directory} does not exist")
 
         if not self.directory.is_dir() :
             raise Exception(f"Directory {self.directory} is not a directory")
 
-        self.output_directory = Path(output_directory)
-        if self.output_directory.exists() and not self.output_directory.is_dir() :
-            raise Exception(f"Output directory {self.output_directory} is not a directory")
+        if not self.db_file.parent.exists() :
+            raise Exception(f"Output directory {self.db_file.parent} does not exist.")
 
-        if not self.output_directory.exists() :
-            self.output_directory.mkdir()
-
-        self.output = (self.output_directory / 'data.yml').open('w')
-        self.artists = ArtistManager()
 
     ##########################################################
     def launch(self) -> int :
+
+        self.open_db()
+
         print(f"Starting on collection {self.directory}")
 
-        self.walk_tree(self.directory)
+        level = 0
+        self.tree_top(self.directory, level)
 
-        self.output_data()
-        self.output.close()
 
-        self.build_db()
+        print(f"Finished with collection {self.directory}")
 
-        print(f"Finished on collection {self.directory}")
+        self.update_db()
 
         return 0
 
     ##########################################################
-    def walk_tree(self, dir : Path, prefix : str = '') -> None :
-        print(f"{prefix}-- Walking directory {dir}")
+    def open_db(self) -> None :
 
+        print(f"db file = {self.db_file}")
+        db.init(str(self.db_file))
+
+        if self.rebuild :
+            print("!!!!! Dropping tables for rebuild")
+            with db :
+                db.drop_tables([dbArtist, dbTrack, dbAlbum,
+                              dbAlbumTrack, dbArtistAssociation,
+                              dbCover], safe=True)
+        with db :
+            db.create_tables([dbArtist, dbTrack, dbAlbum,
+                              dbAlbumTrack, dbArtistAssociation,
+                              dbCover], safe=True)
+
+        artistManager.load_existing()
+        trackManager.load_existing()
+        artistAssocManager.load_existing()
+        coverManager.load_existing()
+        albumManager.load_existing()
+        albumTrackManager.load_existing()
+
+    ##########################################################
+    def update_db(self) -> None :
+
+        artistManager.update_db()
+        trackManager.update_db()
+        artistAssocManager.update_db()
+        coverManager.update_db()
+        albumManager.update_db()
+        albumTrackManager.update_db()
+
+    ##########################################################
+    def clean_name(self, name : str, *frags) :
+        for z in frags :
+            name = name.replace(z, '', 1)
+
+        name = re.sub(r"-?(:?ALBUM|EP)-?", "", name)
+
+        name = name.strip(" -")
+
+
+
+        return name
+
+    ##########################################################
+    def tree_top(self, dir : Path, level : int,  prefix : str = '') -> None :
         # Run through subdirectories
         for entry in dir.iterdir() :
             if entry.is_dir() :
-                print(f"{prefix} - recursing {entry}")
-                self.walk_tree(dir / entry, prefix + '  ')
+                print(f"{prefix} - artist {entry}")
+                self.artist_dir(dir / entry, level+1, prefix + '  ')
+        # handle the index if there
+        print(f"top {dir}")
+        self.handle_index(dir, prefix)
+
+    ##########################################################
+    def artist_dir(self, dir : Path, level : int,  prefix : str = '') -> None :
+        artist_name = dir.name.strip(" -")
+        music : list[Path] = []
+        for entry in dir.iterdir() :
+            if entry.is_dir() :
+                print(f"{prefix} - album {entry}")
+                self.album_dir(dir / entry, level+1, artist_name, prefix + '  ')
+            elif self.is_music(entry) :
+                music.append(entry)
+
+        if self.handle_index(dir, prefix):
+            # If there is an index, then don't try to
+            # something with any music files.
+            return
+
+        if not music :
+            return
+
+        if (dir / '.album').exists() :
+            self.discover_album(dir, music)
+            return
+
+        artist = artistManager.add_artist(artist_name)
+        for f in music :
+            rel_path = f.relative_to(self.directory)
+            music_obj = read_music_file(f, rel_path)
+            track_name = self.clean_name(f.stem, artist_name)
+            track = Track(music_obj, track_name)
+            artist.add_track(track)
+
+    ##########################################################
+    def album_dir(self, dir : Path, level : int,  artist : str, prefix : str) -> None :
+        album = self.clean_name(dir.name, artist)
+        music : list[Path] = []
+        for entry in dir.iterdir() :
+            if entry.is_dir() :
+                print(f"{prefix} - lower {entry}")
+                self.lower_dir(dir / entry, level+1, prefix + '  ')
+            elif self.is_music(entry) :
+                music.append(entry)
+
+        if self.handle_index(dir, prefix) :
+            return
+
+        if music :
+            # For now, ignore the names passed in
+            # and let discover do the parsing.
+            self.discover_album(dir, music)
 
 
-        # For now, only look at directories that have an index file
+    ##########################################################
+    def lower_dir(self, dir : Path, level : int,  prefix : str) -> None :
+        for entry in dir.iterdir() :
+            if entry.is_dir() :
+                print(f"{prefix} - lower {entry}")
+                self.lower_dir(dir / entry, level+1, prefix + '  ')
+
+        self.handle_index(dir, prefix)
+
+    ##########################################################
+    def find_track_position(self, track_name : str) -> tuple[str, int | None] :
+
+        match = re.match(r"\d+", track_name)
+        pos : int | None = None
+        if match :
+            pos_str = match.group()
+            track_name = self.clean_name(track_name, pos_str)
+            pos = int(pos_str)
+
+        return (track_name, pos)
+
+
+    ##########################################################
+    def discover_album(self, dir : Path, music : list[Path], artist_name : str | None = None) -> None :
+        """The user marked this as an album using ``.album``.
+        Try to make sense of the directory."""
+
+        # The directory must contain both the artist and album name.
+        # <sp><dash><sp> is used by bandcamp.
+        pieces = dir.name.split(" - ", 1)
+        if len(pieces) < 2 :
+            print(f"$$$$$ could not discover in {dir}")
+            return
+
+        if not artist_name :
+           artist_name = pieces[0]
+
+        album_name = pieces[1]
+
+        artist_name = artist_name.strip()
+        album_name = self.clean_name(album_name.strip())
+
+        cover = None
+        if (dir / "cover.jpg").exists() :
+            cover = Cover(path=(dir / 'cover.jpg').relative_to(self.directory))
+            cover = coverManager.add_cover(cover)
+
+        artist = artistManager.add_artist(artist_name)
+
+        album = Album(album_name, cover=cover.id if cover else None, digest=path_digest(dir))
+        album = artist.add_album(album)
+
+        index : int = 0
+        for f in music :
+            music_obj = read_music_file(f, f.relative_to(self.directory))
+            track_name = self.clean_name(f.stem, *pieces)
+            (track_name, position) = self.find_track_position(track_name)
+            if not position :
+                index += 1
+                position = index
+            track = Track(music_obj, track_name)
+            album.add_track(track, position)
+
+
+    ##########################################################
+    def handle_index(self, dir : Path, prefix : str) -> bool :
+
         index_path = dir / '_index.yml'
         if not index_path.exists() :
             print(f"{prefix}-- no index. returning")
-            return
+            return False
 
+        print(f"{prefix}-- has index.")
         index_data : Dict[str, Any] = self.read_index_file(index_path)
         if index_data['type'] == 'single' :
-            self.read_singles(dir, index_data, prefix)
+            self.read_singles_index(dir, index_data, prefix)
         elif index_data['type'] == 'album' :
-            self.read_album(dir, index_data, prefix)
+            self.read_album_index(dir, index_data, prefix)
         else :
             raise Exception(f"Unknown type '{index_data['type']}' in {dir}")
 
         print(f"{prefix}-- Finished directory {dir}")
+        return True
+
 
     ##########################################################
-    def read_singles(self, dir : Path, index_data : Dict[str, Any], prefix : str) -> None :
+    def read_singles_index(self, dir : Path, index_data : Dict[str, Any], prefix : str) -> None :
+        print(f"{prefix}-- singles")
+
         if 'files' not in index_data :
             print(f"{prefix} == No files in index - ignoring")
             return
@@ -106,47 +274,65 @@ class GenerateData :
         if 'name' not in data :
             data['name'] = Path(data['filename']).stem
         if 'sort_name' not in data :
-            data['sort_name'] = data['name']
+            data['sort_name'] = data['name'].lower()
         track = Track(music, data['name'], data['sort_name'])
         if 'artist' in data :
-            artist = self.artists.add_artist(data['artist'])
+            artist = artistManager.add_artist(data['artist'])
         else :
-            artist = self.artists.unknown()
+            artist = artistManager.unknown()
 
         artist.add_track(track)
 
     ##########################################################
-    def read_album(self, dir : Path, index_data : Dict[str, Any], prefix : str) -> None :
+    def read_album_index(self, dir : Path, index_data : Dict[str, Any], prefix : str) -> None :
+        print(f"{prefix}-- album")
         if 'tracks' not in index_data :
             print(f"{prefix} == No tracks in index - ignoring")
             return
         if 'sort_name' not in index_data :
-            index_data['sort_name'] = index_data['name']
+            index_data['sort_name'] = index_data['name'].lower()
 
         if 'artist' in index_data :
-            artist = self.artists.add_artist(index_data['artist'])
+            artist = artistManager.add_artist(index_data['artist'])
         else :
-            artist = self.artists.unknown()
+            artist = artistManager.unknown()
 
         cover = None
         if 'cover' in index_data :
             full_cover_path = dir / index_data['cover']
             if full_cover_path.exists() :
                 cover = Cover(path=full_cover_path.relative_to(self.directory))
-                coverList.append(cover)
-
+                # It may already exist. Let the manager tell us.
+                cover = coverManager.add_cover(cover)
+        elif (dir / 'cover.jpg').exists() :
+            cover = Cover(path=(dir / 'cover.jpg').relative_to(self.directory))
+            cover = coverManager.add_cover(cover)
 
         album = Album(index_data['name'], index_data['sort_name'], cover=cover.id if cover else None)
-        artist.add_album(album)
+        album = artist.add_album(album)
 
-        for index, t in enumerate(index_data['tracks']) :
-            full_path = dir / t['file']
-            rel_path = full_path.relative_to(self.directory)
-            if full_path.exists() :
-                music_obj = read_music_file(full_path, rel_path)
-                sort_name = t['sort_name'] if 'sort_name' in t else None
-                track = Track(music_obj, t['name'], sort_name)
-                album.add_track(track, index+1)
+        if index_data['tracks'] == 'auto' :
+            index = 0
+            for entry in dir.iterdir() :
+                if self.is_music(entry) :
+                    rel_path = entry.relative_to(self.directory)
+                    music_obj = read_music_file(entry, rel_path)
+                    track_name = self.clean_name(entry.stem, artist.name, album.name)
+                    (track_name, position) = self.find_track_position(track_name)
+                    if not position :
+                        index += 1
+                        position = index
+                    track = Track(music_obj, track_name)
+                    album.add_track(track, position)
+        else :
+            for index, t in enumerate(index_data['tracks']) :
+                full_path = dir / t['file']
+                rel_path = full_path.relative_to(self.directory)
+                if full_path.exists() :
+                    music_obj = read_music_file(full_path, rel_path)
+                    sort_name = t['sort_name'] if 'sort_name' in t else None
+                    track = Track(music_obj, t['name'], sort_name)
+                    album.add_track(track, index+1)
 
     ##########################################################
     def read_index_file(self, file : Path) -> Dict[str, Any] :
@@ -161,7 +347,7 @@ class GenerateData :
 
     ##########################################################
     def is_music(self, file : Path) -> bool :
-        return (file.is_file() & (file.suffix in ('.wav', '.mp3', '.flac')))
+        return (file.is_file() & (file.suffix in ('.wav', '.mp3', '.flac', '.webm')))
 
     class outputter :
         def __init__(self, output) -> None :
@@ -171,114 +357,21 @@ class GenerateData :
         def prt(self, s : str) -> None :
             self.output.write(self.prefix + s + '\n')
 
-    ##########################################################
-    def output_data(self) -> None :
-        out = self.outputter(self.output)
-
-        out.prt("artists :")
-        for artist in self.artists :
-            out.prefix = "  - "
-            out.prt(f"id : {artist.id}")
-            out.prefix = "    "
-            out.prt(f"name : {artist.name}")
-            out.prt(f"sort_name : {artist.sort_name}")
-
-        out.prefix = ""
-        out.prt("tracks :")
-        for track in trackList :
-            out.prefix = "  - "
-            out.prt(f"id : {track.id}")
-            out.prefix = "    "
-            out.prt(f"name : {track.name}")
-            out.prt(f"sort_name : {track.sort_name}")
-            out.prt(f"file :")
-            out.prt(f"  path : {track.file.path}")
-            out.prt(f"  format : {track.file.format}")
-
-        out.prefix = ""
-        out.prt("albums :")
-        for album in albumList :
-            out.prefix = "  - "
-            out.prt(f"id : {album.id}")
-            out.prefix = "    "
-            out.prt(f"name : {album.name}")
-            out.prt(f"sort_name : {album.sort_name}")
-            out.prt(f"cover : {album.cover}")
-
-        out.prefix = ""
-        out.prt("artist_music :")
-        for association in artistAssociationList :
-            out.prefix = "  - "
-            out.prt(f"artist : {association.artist}")
-            out.prefix = "    "
-            out.prt(f"music : {association.music}")
-            out.prt(f"kind : {association.kind}")
-
-        out.prefix = ""
-        out.prt("album_track :")
-        for track in albumTrackList :
-            out.prefix = "  - "
-            out.prt(f"track : {track.track}")
-            out.prefix = "    "
-            out.prt(f"album : {track.album}")
-            out.prt(f"pos : {track.pos}")
-
-        out.prefix = ""
-        out.prt("cover :")
-        for cover in coverList :
-            out.prefix = "  - "
-            out.prt(f"id : {cover.id}")
-            out.prefix = "    "
-            out.prt(f"path : '{cover.path}'")
-
-
-    ##########################################################
-    def build_db(self) -> None :
-        db_file = self.output_directory / 'curate.db'
-        if db_file.exists() :
-            db_file.unlink()
-
-        db.init(str(db_file))
-        with db.atomic() :
-            dbAlbum.create_table()
-            dbArtist.create_table()
-            dbTrack.create_table()
-            dbAlbumTrack.create_table()
-            dbArtistAssociation.create_table()
-            dbCover.create_table()
-
-        with db.atomic() :
-            artists = [{"id" : a.id, "name" : a.name, "sort_name" : a.sort_name} for a in self.artists]
-            dbArtist.insert_many(artists).execute()
-
-            tracks = [{"id" : t.id, "name" : t.name, "sort_name" : t.sort_name, "path" : t.file.path, "format" : t.file.format} for t in trackList]
-            dbTrack.insert_many(tracks).execute()
-
-            albums = [{"id" : a.id, "name" : a.name, "sort_name" : a.sort_name, "cover" : a.cover} for a in albumList]
-            dbAlbum.insert_many(albums).execute()
-
-            album_tracks = [{"album" : at.album, "track" : at.track, "pos" : at.pos} for at in albumTrackList]
-            dbAlbumTrack.insert_many(album_tracks).execute()
-
-            artist_associations = [{"artist" : aa.artist, "item" : aa.music, "kind" : aa.kind} for aa in artistAssociationList]
-            dbArtistAssociation.insert_many(artist_associations).execute()
-
-            covers = [{"id" : c.id, "path" : c.path} for c in coverList]
-            dbCover.insert_many(covers).execute()
 
 ##########################################################
 def getargs() -> Namespace :
     parser = ArgumentParser()
 
     parser.add_argument('--music', default='/mnt/music/Bandcamp')
-    parser.add_argument('--out', required=True)
+    parser.add_argument('--rebuild', action=BooleanOptionalAction, default=False)
+    parser.add_argument('--out', required=True, help="Name of file for the database.")
 
     return parser.parse_args()
 
 def main() :
     args = getargs()
 
-    obj = GenerateData(directory=args.music, output_directory=args.out)
+    obj = GenerateData(directory=args.music, database=args.out, rebuild=args.rebuild)
     retval = obj.launch()
 
     return retval

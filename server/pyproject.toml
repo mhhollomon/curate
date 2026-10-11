@@ -12,6 +12,7 @@ dependencies = [
     "nanoid>=2.0.0",
     "peewee>=4.5.2",
     "pyyaml>=6.0.3",
+    "tinytag>=2.3.2",
 ]
 
 [tool.fastapi]

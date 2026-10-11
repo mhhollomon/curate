@@ -28,10 +28,13 @@ export default function Player({ src, name, onEnd, onPrevious, onNext }: PlayerP
     const [duration, setDuration] = useState(0.0);
     const [currentTime, setCurrentTime] = useState(''); // string from formatTime
     const [buttonCaption, setButtonCaption] = useState<string>()
-    const [progPercent, setProgPercent] = useState<number>(100)
+    const [progPercent, setProgPercent] = useState<number>(0)
 
     useEffect(() => {
         if (src === null) {
+            setButtonCaption(undefined)
+            setCurrentTime('')
+            setProgPercent(0)
             return
         }
         console.log("PLAYER source = ", src)
@@ -52,7 +55,8 @@ export default function Player({ src, name, onEnd, onPrevious, onNext }: PlayerP
             onpause: () => setIsPlaying(false),
             onstop: () => setIsPlaying(false),
             onend: handleEndEvent,
-            onload: handleLoadEvent
+            onload: handleLoadEvent,
+            onseek: () => animateProgressBar('onseek')
         });
 
         // Clean up and unload the sound when the component unmounts
@@ -68,8 +72,17 @@ export default function Player({ src, name, onEnd, onPrevious, onNext }: PlayerP
         };
     }, [src]);
 
-    function animateProgressBar(_: number) {
-        if (soundRef.current && soundRef.current.playing()) {
+    function animateProgressBar(id: number|string) {
+
+        if (id === 'onseek') {
+            console.log("animate (from onseek)")
+        }
+
+        // howler seems to return false for playing() right after a seek, but
+        // doesn't then give a play event. So we need to cature the onseek
+        // related event.
+        if (soundRef.current && (soundRef.current.playing() || (id === 'onseek'))) {
+
             const newCurrentTime = soundRef.current.seek();
 
             // Can't use the state `duration` - need to query the howl instance
@@ -82,7 +95,7 @@ export default function Player({ src, name, onEnd, onPrevious, onNext }: PlayerP
             animationId.current = requestAnimationFrame(animateProgressBar)
 
         } else {
-            console.log("--- else leg")
+            console.log(`animate --- else leg - id = ${id}`)
         }
     }
 
@@ -120,12 +133,6 @@ export default function Player({ src, name, onEnd, onPrevious, onNext }: PlayerP
         }
     };
 
-    function handleStopButtonClick() {
-        if (soundRef.current) {
-            soundRef.current.stop();
-        }
-    };
-
     function handlePreviousButtonClick() {
         if (soundRef.current) {
             soundRef.current.stop();
@@ -144,25 +151,36 @@ export default function Player({ src, name, onEnd, onPrevious, onNext }: PlayerP
 
     }
 
+    function handleSeek10ButtonClick(forward : boolean) {
+        if (!soundRef.current) return
+
+        const delta = 10 * (forward ? +1 : -1)
+
+        soundRef.current.seek(soundRef.current.seek() + delta)
+    }
+
     return (
         <div className="audio-player mt-2">
             <ProgressBar now={progPercent} />
-            {/* <!-- Time Displays --> */}
+            { currentTime &&
             <div className="time-display">
-                <span id="currentTime">{currentTime}</span>
-                <span id="duration">{formatTime(duration)}</span>
+                <span>{currentTime}</span>
+                <a onClick={() => handleSeek10ButtonClick(false)}>-</a>
+                <a onClick={() => handleSeek10ButtonClick(true)}>+</a>
+                <span>{formatTime(duration)}</span>
             </div>
+            }
 
             <div className="mb-2">
                 <span className="fs-6">{name}</span>
             </div>
 
-            {buttonCaption && <>
-                {onPrevious && <Button onClick={handlePreviousButtonClick}>{rewind_fill} Previous</Button>}
+            {buttonCaption && <div className='d-flex  gap-1'>
+                {onPrevious && <Button onClick={handlePreviousButtonClick}>{rewind_fill} Prev</Button>}
                 <Button onClick={handlePlayPauseButtonClick}>
                     {isPlaying ? <>{pause_fill} Pause</> : <>{play_fill} Play</>}</Button>
                 {onNext && <Button onClick={handleNextButtonClick}>{fast_forward_fill} Next</Button>}
-            </>
+            </div>
             }
         </div>
     );

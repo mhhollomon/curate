@@ -4,4 +4,5 @@ export interface Album {
     sort_name : string;
     artist_id : string;
     artist_name : string;
+    artist_sort_name : string;
 }
