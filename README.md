@@ -23,6 +23,8 @@ to build a database of music references.
 1. Fix cache locking.
 1. Switch to async for api.
 
+## Install
+see [INSTALL.md](./docs/INSTALL.md) for one solution.
 
 ## Tech stack
 
