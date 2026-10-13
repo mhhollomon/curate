@@ -7,21 +7,43 @@ from .lib.database import (db, dbAlbum, dbAlbumTrack,
                            dbArtist, dbArtistAssociation, dbTrack,
                            dbCover)
 from playhouse.pydantic_utils import to_pydantic
-from fastapi import FastAPI, HTTPException, Header
+from fastapi import FastAPI, HTTPException, Header, Depends, Response
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
-TOP_LEVEL = Path("/mnt/music/Bandcamp/")
-FFMPEG = "/usr/bin/ffmpeg"
-CACHE = Path("./cache/")
-#DB_FILE = 'output/curate.db'
-DB_FILE = 'output/test.sql3'
+from .lib.config import get_required_config, get_config
 
-os.makedirs(CACHE, exist_ok=True)
+from .routes.auth import auth_router, manager
+
+######################################################
+# SETUP CODE
+######################################################
+
+MUSIC_DIRECTORY = Path(get_required_config('MUSIC_DIRECTORY'))
+
+FFMPEG = get_config('FFMPEG_PATH', "/usr/bin/ffmpeg")
+CACHE_PATH = Path(get_config('CACHE_PATH', "./cache/"))
+DB_FILE = get_required_config("DB_FILE")
+
+
+print(f"""--- CONFIG ---
+MUSIC_DIRECTORY = {MUSIC_DIRECTORY}
+FFMPEG = {FFMPEG}
+CACHE_PATH = {CACHE_PATH}
+DB_FILE = {DB_FILE}
+""")
+
+os.makedirs(CACHE_PATH, exist_ok=True)
 
 db.init(DB_FILE, pragmas={'foreign_keys': 1})
 
+######################################################
+# END SETUP CODE
+######################################################
+
+
 app = FastAPI()
+app.include_router(auth_router)
 
 
 class pyAlbum(to_pydantic(dbAlbum)):
@@ -41,7 +63,7 @@ class respAlbumTrack(BaseModel) :
     position : int
 
 #
-# Response rturned when getting a list artists.
+# Response returned when getting a list of artists.
 # This is one artist in the list.
 #
 respArtistItem = to_pydantic(dbArtist)
@@ -68,6 +90,7 @@ class respAlbumTracks(BaseModel) :
     tracks : list[respAlbumTrack]
 
 
+
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
@@ -82,7 +105,7 @@ def list_artists() -> list[dbArtist]:
     return artists
 
 
-@app.get('/api/album', response_model=list[respAlbumItem])
+@app.get('/api/album',  dependencies=[Depends(manager)], response_model=list[respAlbumItem])
 def list_albums():
     with db.atomic() :
         # Retrieve the list of albums from the database
@@ -101,7 +124,7 @@ def list_albums():
     return albums_list
 
 
-@app.get('/api/album/{album_id}', )
+@app.get('/api/album/{album_id}', dependencies=[Depends(manager)], )
 def get_album_tracks(album_id : str) -> respAlbumTracks :
     try :
         with db.atomic() :
@@ -182,7 +205,7 @@ def stream_file(path : Path, *,
 
 CONVERTABLE_TYPES = ['wav']
 
-@app.get('/api/play/{track_id}')
+@app.get('/api/play/{track_id}', dependencies=[Depends(manager)], )
 def play_track(track_id : str, range : Annotated[str | None, Header()] = None) :
     try :
         with db.atomic() :
@@ -191,13 +214,13 @@ def play_track(track_id : str, range : Annotated[str | None, Header()] = None) :
         raise HTTPException(status_code=404, detail="Track not found")
 
     content_type = f"audio/{track.format}"
-    full_path = TOP_LEVEL / track.path
+    full_path = MUSIC_DIRECTORY / track.path
 
     stream_path = full_path
 
     if track.format in CONVERTABLE_TYPES :
         # be sure to put the extension on it.
-        cache_path = CACHE / f"{track_id}.webm"
+        cache_path = CACHE_PATH / f"{track_id}.webm"
         if not cache_path.exists() :
             subprocess.run([FFMPEG, "-i", str(full_path), '-dash', '1', str(cache_path)] )
 
@@ -205,7 +228,7 @@ def play_track(track_id : str, range : Annotated[str | None, Header()] = None) :
 
     return stream_file(stream_path, range_header=range, headers={'Accept-Ranges' : 'bytes'})
 
-@app.get('/api/cover/{cover_id}')
+@app.get('/api/cover/{cover_id}', dependencies=[Depends(manager)], )
 def get_cover(cover_id : str) :
     try :
         with db.atomic() :
@@ -213,7 +236,7 @@ def get_cover(cover_id : str) :
     except dbCover.DoesNotExist : # type: ignore
         raise HTTPException(status_code=404, detail="image not found")
 
-    full_path = TOP_LEVEL / cover.path
+    full_path = MUSIC_DIRECTORY / cover.path
     print(f"--cover full path = {full_path}")
 
     return stream_file(full_path)

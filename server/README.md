@@ -25,6 +25,11 @@ This is currently extremely slow.
 uv run -m src.gen_data --music /mnt/music/Bandcamp --out output
 ```
 
+```bash
+uv run -m src.user_admin add <username> <password>
+uv run -m src.user_admin change <username> <password>
+```
+
 
 # Development
 

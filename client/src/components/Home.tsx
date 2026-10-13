@@ -19,9 +19,6 @@ export default function HomeScreen({tab} : HomeScreenProps) {
 
     }
 
-    // Need to rethink this. Navigating on tab changes means both
-    // tabs get rerender forcing two calls to the server.
-    // Maybe switch to simple navigation bar.
     return <>
             <div className="container" >
                 <Nav activeKey={tab} variant="pills"

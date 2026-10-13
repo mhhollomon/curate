@@ -5,9 +5,13 @@ import HomeScreen from './components/Home';
 import Album from './components/Album';
 
 import { Route, Redirect } from 'wouter';
+import Login from './components/Login';
 
 export default function App() {
     return (<>
+        <Route path="/login" >
+            <Login msg="Please Login"/>
+        </Route>
         <Route path="/" >
             <Redirect to="/artists" />
         </Route>

@@ -56,9 +56,13 @@ class GenerateData :
                               dbAlbumTrack, dbArtistAssociation,
                               dbCover], safe=True)
         with db :
+            # We don't drop dbUser since we don't want to lose
+            # that even on a rebuild. But we will check if needs
+            # to be created for when creating fresh.
+            #
             db.create_tables([dbArtist, dbTrack, dbAlbum,
                               dbAlbumTrack, dbArtistAssociation,
-                              dbCover], safe=True)
+                              dbCover, dbUser], safe=True)
 
         artistManager.load_existing()
         trackManager.load_existing()

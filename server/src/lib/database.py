@@ -6,6 +6,13 @@ class BaseModel(Model):
     class Meta:
         database = db
 
+class dbUser(BaseModel):
+    id = CharField(primary_key=True)
+    hash = CharField()
+
+    class Meta :
+        table_name = 'user'
+
 
 class dbArtist(BaseModel):
     id = CharField(primary_key=True)

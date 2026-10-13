@@ -9,6 +9,9 @@ import Toggle from './Toggle'
 
 import { play_btn_fill } from '../icons'
 
+import { useProtectedData } from "../lib/hook"
+
+
 export interface AlbumProps {
     album_id: string
 }
@@ -28,28 +31,22 @@ export default function Album({ album_id }: AlbumProps) {
     const [loopAlbum, setLoopAlbum] = useState<boolean>(false)
     const [playSrc, setPlaySrc] = useState<string|null>(null)
 
-    useEffect(() => {
-        fetch(
-            '/api/album/' + album_id
-        ).then(
-            response => response.json()
-        ).then(
-            data => {
-                const tracks = data.tracks
-                if (tracks.length > 1) {
-                    setTrackList(tracks)
-                }
-
-                setArtist(data.artist as respAlbumArtist)
-
-                setAlbum(data.album as respAlbumAlbum)
-
-                console.log(JSON.stringify(data.album))
-
+    useProtectedData({
+        url : '/api/album/' + album_id,
+        data_proc : (data) => {
+            const tracks = data.tracks
+            if (tracks.length > 1) {
+                setTrackList(tracks)
             }
-        )
 
-    }, [album_id])
+            setArtist(data.artist as respAlbumArtist)
+
+            setAlbum(data.album as respAlbumAlbum)
+
+            console.log(JSON.stringify(data.album))
+        }
+    })
+
 
     useEffect(() => {
         if (album === undefined || album.cover === null) return;

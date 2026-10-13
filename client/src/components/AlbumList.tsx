@@ -1,25 +1,19 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { Table } from "react-bootstrap"
 import { type Album } from "../types/album"
 import { Link } from "wouter"
+import { useProtectedData } from "../lib/hook"
 
 export default function AlbumList() {
     const [albumList, setAlbumList] = useState<Album[] | undefined>(undefined)
 
-    useEffect( () => {
-        fetch(
-            '/api/album'
-        ).then(
-            response => response.json()
-        ).then(
-            data => {
-                if (data.length > 0) {
-                    setAlbumList((data as Album[]))
-                }
-            }
-        )
+        useProtectedData({ url: '/api/album',
+            data_proc : (data) => {
+                    if (data.length > 0) {
+                        setAlbumList((data as Album[]))
+                    }
 
-    },[])
+        }})
 
 return <>
 

@@ -8,10 +8,12 @@ license-files = ["LICENSE"]
 requires-python = ">=3.14"
 dependencies = [
     "dotenv>=0.9.9",
+    "fastapi-login[asymmetric]>=1.10.3",
     "fastapi[standard]>=0.142.2",
     "flit>=4.1.0",
     "nanoid>=2.0.0",
     "peewee>=4.5.2",
+    "pwdlib[argon2]>=0.3.1",
     "pyyaml>=6.0.3",
     "tinytag>=2.3.2",
 ]

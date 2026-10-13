@@ -1,24 +1,19 @@
-import { useEffect, useState } from "react"
-import { Table } from "react-bootstrap"
-import { type Artist } from "../types/artist"
+import { useState } from "react";
+import { Table } from "react-bootstrap";
+import { type Artist } from "../types/artist";
+
+import { useProtectedData } from "../lib/hook";
 
 export default function ArtistList() {
     const [artistList, setArtistList] = useState<Artist[] | undefined>(undefined)
 
-    useEffect( () => {
-        fetch(
-            '/api/artist'
-        ).then(
-            response => response.json()
-        ).then(
-            data => {
+    useProtectedData({ url: '/api/artist',
+        data_proc : (data) => {
                 if (data.length > 1) {
                     setArtistList((data as Artist[]).filter(x => x.id !== '--unknown--'))
                 }
-            }
-        )
 
-    },[])
+    }})
 
 return <>
 
