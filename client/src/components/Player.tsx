@@ -175,7 +175,7 @@ export default function Player({ src, name, onEnd, onPrevious, onNext }: PlayerP
                 <span className="fs-6">{name}</span>
             </div>
 
-            {buttonCaption && <div className='d-flex  gap-1'>
+            {buttonCaption && <div className='d-flex gap-1 justify-content-center'>
                 {onPrevious && <Button onClick={handlePreviousButtonClick}>{rewind_fill} Prev</Button>}
                 <Button onClick={handlePlayPauseButtonClick}>
                     {isPlaying ? <>{pause_fill} Pause</> : <>{play_fill} Play</>}</Button>

@@ -34,6 +34,8 @@ DB_FILE = {DB_FILE}
 """)
 
 os.makedirs(CACHE_PATH, exist_ok=True)
+os.makedirs(CACHE_PATH / 'full', exist_ok=True)
+os.makedirs(CACHE_PATH / 'thumb', exist_ok=True)
 
 db.init(DB_FILE, pragmas={'foreign_keys': 1})
 
@@ -161,6 +163,7 @@ def mtype(ext : str) -> str :
         '.jpg'  : 'image/jpeg',
         '.jpeg' : 'image/jpeg',
         '.png'  : 'image/png',
+        '.webp' : 'image/webp',
     }[ext]
 
 
@@ -222,23 +225,36 @@ def play_track(track_id : str, range : Annotated[str | None, Header()] = None) :
         # be sure to put the extension on it.
         cache_path = CACHE_PATH / f"{track_id}.webm"
         if not cache_path.exists() :
-            subprocess.run([FFMPEG, "-i", str(full_path), '-dash', '1', str(cache_path)] )
+            subprocess.run([FFMPEG, "-i", str(full_path), '-dash', '1', '-v', 'fatal', str(cache_path)] )
 
         stream_path = cache_path
 
     return stream_file(stream_path, range_header=range, headers={'Accept-Ranges' : 'bytes'})
 
-@app.get('/api/cover/{cover_id}', dependencies=[Depends(manager)], )
-def get_cover(cover_id : str) :
+
+@app.get('/api/cover/{ctype}/{cover_id}', dependencies=[Depends(manager)], )
+def get_cover(ctype : str, cover_id : str) :
+    ctype = ctype.lower()
+
+    if ctype not in ('full', 'thumb') :
+        raise HTTPException(status_code=404, detail="invalid type")
     try :
         with db.atomic() :
             cover = dbCover.select().where(dbCover.id == cover_id).get()
     except dbCover.DoesNotExist : # type: ignore
         raise HTTPException(status_code=404, detail="image not found")
 
-    full_path = MUSIC_DIRECTORY / cover.path
-    print(f"--cover full path = {full_path}")
+    src_path = MUSIC_DIRECTORY / cover.path
+    cache_path = CACHE_PATH / ctype / f"{cover_id}.webp"
 
-    return stream_file(full_path)
+    if not cache_path.exists() :
+        from PIL import Image
+        img = Image.open(src_path)
+        size = (30, 30) if ctype == 'thumb' else (300, 300)
+        img.thumbnail(size)
+        img.save(str(cache_path))
 
+    print(f"--cover cache path = {cache_path}")
+
+    return stream_file(cache_path)
 

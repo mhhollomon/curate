@@ -143,7 +143,7 @@ export default function Album({ album_id }: AlbumProps) {
 
         <div className="container d-flex flex-column justify-content-center align-items-center">
             <div className="coverBlock mt-2 mb-2">
-                {coverId && <img src={`/api/cover/${coverId}`} width={300} height={300} />}
+                {coverId && <img src={`/api/cover/full/${coverId}`} width={300} height={300} />}
             </div>
             <div>
                 <span className="fw-bold fs-4">{album?.name}</span>
@@ -159,7 +159,7 @@ export default function Album({ album_id }: AlbumProps) {
             <Table striped>
                 <thead>
                     <tr>
-                        <th colSpan={2}><div className='d-flex gap-2'>
+                        <th colSpan={2}><div className='d-flex gap-2 justify-content-center'>
                             <Toggle state={autoPlay} title="Auto" onStateChange={onAutoPlay} />
                             <Toggle title="Loop" state={loopAlbum} onStateChange={changeLoop} />
 
