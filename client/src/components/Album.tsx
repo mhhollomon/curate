@@ -3,13 +3,13 @@ import './Album.css'
 import { useEffect, useState } from "react"
 import { Table } from "react-bootstrap"
 
-import { type respAlbumAlbum, type respAlbumArtist, type respAlbumTrack } from '../responses'
+import { type respAlbumAlbum, type respAlbumArtist, type respAlbumTrack } from '~/responses'
 import Player from './Player'
 import Toggle from './Toggle'
 
-import { play_btn_fill } from '../icons'
+import { play_btn_fill } from '~/icons'
 
-import { useProtectedData } from "../lib/hook"
+import { useProtectedData } from "~/lib/hook"
 
 
 export interface AlbumProps {

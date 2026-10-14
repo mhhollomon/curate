@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Table } from "react-bootstrap";
-import { type Artist } from "../types/artist";
+import { type Artist } from "~/types/artist";
 
-import { useProtectedData } from "../lib/hook";
+import { useProtectedData } from "~/lib/hook";
 
 export default function ArtistList() {
     const [artistList, setArtistList] = useState<Artist[] | undefined>(undefined)

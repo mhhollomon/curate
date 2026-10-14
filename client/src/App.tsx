@@ -1,8 +1,8 @@
 import './App.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import HomeScreen from './components/Home';
-import Album from './components/Album';
+import HomeScreen from '~/components/Home';
+import Album from '~/components/Album';
 
 import { Route, Redirect } from 'wouter';
 import Login from './components/Login';

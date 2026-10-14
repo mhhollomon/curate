@@ -1,8 +1,8 @@
 import { useState } from "react"
 import { Table } from "react-bootstrap"
-import { type Album } from "../types/album"
+import { type Album } from "~/types/album"
 import { Link } from "wouter"
-import { useProtectedData } from "../lib/hook"
+import { useProtectedData } from "~/lib/hook"
 
 export default function AlbumList() {
     const [albumList, setAlbumList] = useState<Album[] | undefined>(undefined)

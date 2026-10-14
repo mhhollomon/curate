@@ -3,7 +3,7 @@ import { Howl } from 'howler';
 import { Button, ProgressBar } from 'react-bootstrap';
 
 import './Player.css'
-import { play_fill, pause_fill, rewind_fill, fast_forward_fill } from '../icons'
+import { play_fill, pause_fill, rewind_fill, fast_forward_fill } from '~/icons'
 
 export interface PlayerProps {
     src: string | null;

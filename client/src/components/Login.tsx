@@ -2,7 +2,7 @@
 import { useAtom } from 'jotai';
 import { Button, Form } from 'react-bootstrap'
 import { useLocation } from 'wouter';
-import { nextRouteAtom } from '../atoms';
+import { nextRouteAtom } from '~/atoms';
 import { useEffect, useState } from 'react';
 
 export interface loginProps {

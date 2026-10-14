@@ -1,5 +1,5 @@
 import { useLocation } from "wouter";
-import { nextRouteAtom } from "../atoms";
+import { nextRouteAtom } from "~/atoms";
 import { useSetAtom } from "jotai";
 import { useEffect } from "react";
 
