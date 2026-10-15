@@ -93,7 +93,7 @@ class respAlbumTracks(BaseModel) :
 
 
 
-@app.get("/")
+@app.get("/api/hello")
 async def root():
     return {"message": "Hello World"}
 

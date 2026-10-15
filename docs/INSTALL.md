@@ -52,7 +52,7 @@ able to update the `.env` file and other configuration.
 sudo useradd -d /home/appowner -m -U -s /bin/bash appowner
 sudo useradd -d /home/apprunner -m -U -s /bin/bash apprunner
 
-usermod -aG appowner apprunner
+sudo usermod -aG appowner apprunner
 ```
 
 ### Install uv
@@ -68,7 +68,6 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 ```bash
 sudo su - appowner
 git clone https://github.com/mhhollomon/curate.git
-chmod -r o-rwx,g-w curate
 ```
 
 ## Build the client
@@ -82,8 +81,52 @@ npm run build
 The files will be placed in the `dist` directory.
 
 ## Prep the server
+
+### Install python modules in virtual environment
 ```bash
 sudo su - appowner
 cd curate/server
 uv sync
+```
+
+### Create .env file
+Copy the .env.template file to .env and edit to taste.
+
+For `SECRET`, use something like the following to generate the string.
+```bash
+python -c "import secrets; print(secrets.token_hex(24))"
+```
+
+This will generate a random string using sources of true randomness on you server.
+
+```bash
+chmod -R o-rwx,g-w curate
+```
+
+### Generate the database
+
+Create the database file and populate it based on what it finds in the
+configured `MUSIC_DIRECTORY`. Depending on how big your music collection is,
+this can take a while.
+
+_Note_ : This must be done as the `apprunner` account since the db file needs to writable
+by that account.
+
+```bash
+sudo su - apprunner
+cd ~appowner/curate/server
+. .venv/bin/activate
+python -m src.gen_data --out ~/curate/curate.db
+```
+
+### Create User
+
+Since there is no user admin functionality in the frontend UI, this must be done
+from here. Add a user and password:
+
+```bash
+sudo su - apprunner
+cd ~appowner/curate/server
+. .venv/bin/activate
+python -m src.user_admin add $username $password
 ```

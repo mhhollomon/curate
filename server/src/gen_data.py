@@ -10,6 +10,8 @@ import yaml
 
 from typing import Any, Dict
 
+from .lib.config import get_required_config
+
 class GenerateData :
     def __init__(self, directory: str, database : str, rebuild : bool = False) -> None :
         self.directory=Path(directory)
@@ -368,14 +370,16 @@ def getargs() -> Namespace :
 
     parser.add_argument('--music', default='/mnt/music/Bandcamp')
     parser.add_argument('--rebuild', action=BooleanOptionalAction, default=False)
-    parser.add_argument('--out', required=True, help="Name of file for the database.")
+    parser.add_argument('--out',  help="Name of file for the database.")
 
     return parser.parse_args()
 
 def main() :
     args = getargs()
+    dir = args.music or get_required_config('MUSIC_DIRECTORY')
+    database_file = args.out or get_required_config('DB_FILE')
 
-    obj = GenerateData(directory=args.music, database=args.out, rebuild=args.rebuild)
+    obj = GenerateData(directory=dir, database=database_file, rebuild=args.rebuild)
     retval = obj.launch()
 
     return retval
