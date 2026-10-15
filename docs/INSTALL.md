@@ -1,11 +1,14 @@
 # Install on ubuntu server.
 
+**NOTE** This is only for Home LAN use. More info on getting
+things secured for the Wicked World Web to follow.
+
 THere are other ways I'm sure.
 
-This will use `nginx` to serve the client and as the `https` termination for
-the server.
+This will use `nginx` to serve the client and as the `https`
+ termination for the server.
 
-`nginx` will listen on port 8080 and proxy things like `/api/...` to the server.
+`nginx` will listen on port 9956 and proxy things like `/api/...` to the server.
 
 ## Install needed system software
 
@@ -193,9 +196,7 @@ sudo systemctl restart nginx.service
 Start the server (we'll make this automatic in a bit)
 
 ```bash
-sudo su - apprunner
-. ~appowner/curate/server/.venv/bin/activate
-uvicorn --app-dir ~appowner/curate/server src.main:app
+~appowner/curate/server/scripts/start-server.bash
 ```
 Now you should be able to get replies from the following :
 ```bash
@@ -207,10 +208,19 @@ curl http://localhost:9956/
 ```
 ## Configure supervisor
 ```bash
-cat > /etc/conf.d/curate-server.conf <<_EOF_
+sudo cat > /etc/supervisor/conf.d/curate-server.conf <<_EOF_
 [program:curate-server]
 user=apprunner
-command=/home/appowner/curate/server/scripts/start_app.sh
+command=/home/appowner/curate/server/scripts/start-server.bash
 directory=/home/apprunner/curate
 _EOF_
+
+# Force supervisor to read the new config
+sudo supervisorctl reload
+
+# Start the server
+sudo supervisorctl start curate-server
 ```
+
+And you should be good to go!
+
