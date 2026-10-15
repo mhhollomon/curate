@@ -10,8 +10,7 @@ the server.
 ## Install needed system software
 
 ```bash
-# Nginx and supervisor
-sudo apt install nginx supervisor ffmpeg
+sudo apt install nginx supervisor ffmpeg uvicorn
 
 # If these aren't already installed
 sudo apt install nodejs npm
@@ -99,6 +98,8 @@ python -c "import secrets; print(secrets.token_hex(24))"
 
 This will generate a random string using sources of true randomness on you server.
 
+### Lock things down
+
 ```bash
 chmod -R o-rwx,g-w curate
 ```
@@ -129,4 +130,87 @@ sudo su - apprunner
 cd ~appowner/curate/server
 . .venv/bin/activate
 python -m src.user_admin add $username $password
+```
+
+## Configure Nginx
+
+### site configuration
+
+```bash
+NGINX_USER=`ps -ef | grep nginx | grep worker | head -1 | cut -w -f1`
+
+# Add the user that nginx runs as to the appowner group
+# so it can read the static files.
+sudo chmod -a -G appowner $NGINX_USER
+
+# Create the site configuration
+sudo cat > /etc/nginx/sites-available/curate <<_EOF_
+upstream curate_api_server {
+        # Talk to the server port 8000
+        server 127.0.0.1:8000;
+}
+
+server {
+        # change as needed.
+        listen 9956;
+
+        server_name _;
+
+        location / {
+                # Try to serve the client files
+                root /home/appowner/curate/client/dist;
+                index index.html;
+                try_files $uri $uri/ =404;
+        }
+
+        location ^~ /api/ {
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header Host $http_host;
+          proxy_set_header X-NginX-Proxy true;
+
+          expires -1;
+          add_header Cache-Control no-store;
+
+
+          proxy_pass http://curate_api_server;
+          proxy_redirect off;
+         }
+}
+_EOF_
+
+# Make it enabled
+sudo ln -s /etc/nginx/sites-available/curate /etc/nginx/sites-enabled/curate
+```
+
+Restart `nginx` to make sure things are okay.
+
+```bash
+sudo systemctl restart nginx.service
+```
+
+### Quick test to see if things are okay
+Start the server (we'll make this automatic in a bit)
+
+```bash
+sudo su - apprunner
+. ~appowner/curate/server/.venv/bin/activate
+uvicorn --app-dir ~appowner/curate/server src.main:app
+```
+Now you should be able to get replies from the following :
+```bash
+# Server responds through nginx
+curl http://localhost:9956/api/hello
+
+# nginx is serving the client static files
+curl http://localhost:9956/
+```
+## Configure supervisor
+```bash
+cat > /etc/conf.d/curate-server.conf <<_EOF_
+[program:curate-server]
+user=apprunner
+command=/home/appowner/curate/server/scripts/start_app.sh
+directory=/home/apprunner/curate
+_EOF_
 ```
