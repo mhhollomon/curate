@@ -13,7 +13,6 @@ to build a database of music references.
 ## Roadmap
 (User visible - in no particular order)
 
-1. User logins - security.
 1. User based playlists.
 1. Play queue.
 
@@ -30,10 +29,12 @@ see [INSTALL.md](./docs/INSTALL.md) for one solution.
 
 ### Server
 - [Fastapi](https://fastapi.tiangolo.com/)
+- [Fastapi-login](https://fastapi-login.readthedocs.io/)
 - [Sqlite](https://sqlite.org/index.html)
 - [PeeWee ORM](https://docs.peewee-orm.com/en/latest/index.html)
 - [uv](https://docs.astral.sh/uv/)
 - [ffmpeg](https://ffmpeg.org/)
+- [pillow](https://pillow.readthedocs.io/en/stable/)
 - [nanio](https://github.com/puyuan/py-nanoid)
 
 ### Client
@@ -41,4 +42,6 @@ see [INSTALL.md](./docs/INSTALL.md) for one solution.
 - [React](https://react.dev/)
 - [Wouter](https://www.npmjs.com/package/wouter)
 - [Bootstrap](https://getbootstrap.com/)
+- [react-bootstrap](https://react-bootstrap.github.io/)
+- [jotai](https://jotai.org/)
 - [vite](https://vite.dev/)
