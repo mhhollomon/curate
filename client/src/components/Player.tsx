@@ -8,6 +8,9 @@ import { play_fill, pause_fill, rewind_fill, fast_forward_fill } from '~/icons'
 export interface PlayerProps {
     src: string | null;
     name: string;
+    album : string;
+    artist : string;
+    cover : string; // url
     onEnd: () => void;
     onPrevious?: () => void;
     onNext?: () => void;
@@ -20,7 +23,7 @@ function formatTime(seconds: number) {
     return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 }
 
-export default function Player({ src, name, onEnd, onPrevious, onNext }: PlayerProps) {
+export default function Player({ src, name, album, artist, cover, onEnd, onPrevious, onNext }: PlayerProps) {
     const soundRef = useRef<Howl>(null);
     const animationId = useRef<number>(undefined);
 
@@ -35,9 +38,13 @@ export default function Player({ src, name, onEnd, onPrevious, onNext }: PlayerP
             setButtonCaption(undefined)
             setCurrentTime('')
             setProgPercent(0)
+            if ("mediaSession" in navigator) {
+                navigator.mediaSession.playbackState = "none";
+            }
             return
         }
         console.log("PLAYER source = ", src)
+
         // Initialize the Howl instance
         soundRef.current = new Howl({
             src: [src],
@@ -59,6 +66,7 @@ export default function Player({ src, name, onEnd, onPrevious, onNext }: PlayerP
             onseek: () => animateProgressBar('onseek')
         });
 
+
         // Clean up and unload the sound when the component unmounts
         return () => {
             if (animationId.current) {
@@ -68,6 +76,9 @@ export default function Player({ src, name, onEnd, onPrevious, onNext }: PlayerP
             if (soundRef.current) {
                 console.log("Cleaning up howl")
                 soundRef.current.unload();
+            }
+            if ("mediaSession" in navigator) {
+                navigator.mediaSession.playbackState = "none";
             }
         };
     }, [src]);
@@ -104,18 +115,61 @@ export default function Player({ src, name, onEnd, onPrevious, onNext }: PlayerP
         setIsPlaying(true);
         animationId.current = requestAnimationFrame(animateProgressBar)
         console.log(`--- setting up animation ${animationId.current}`)
+        if ("mediaSession" in navigator) {
+            navigator.mediaSession.playbackState = "playing"
+            if (soundRef.current){
+                navigator.mediaSession.setPositionState({
+                    duration : soundRef.current.duration(),
+                    playbackRate : 1.0,
+                    position : soundRef.current.seek(),
+                })
+            }
+
+        }
 
     }
 
     function handleEndEvent() {
         setIsPlaying(false);
+        if ("mediaSession" in navigator) {
+            navigator.mediaSession.playbackState = "none"
+        }
+
         onEnd();
     }
 
     function handleLoadEvent() {
         if (soundRef.current) {
-            setDuration(soundRef.current.duration())
-            setButtonCaption('pause')
+            const duration = soundRef.current.duration();
+            setDuration(duration);
+            setButtonCaption('pause');
+
+            // Initialize  (maybe)
+            if ("mediaSession" in navigator) {
+                console.log("Setting up mediaSession")
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title : name,
+                    artist : artist,
+                    album : album,
+                    artwork : [
+                        {
+                            src: cover,
+                            sizes: "128x128",
+                            type: "image/webp",
+                        },
+                    ]
+                });
+                navigator.mediaSession.setPositionState({
+                    duration : duration,
+                    playbackRate : 1.0,
+                    position : 0.0,
+                })
+                navigator.mediaSession.setActionHandler('play', handlePlayPauseButtonClick)
+                navigator.mediaSession.setActionHandler('pause', handlePlayPauseButtonClick)
+                navigator.mediaSession.setActionHandler('seekforward', () => () => handleSeek10ButtonClick(true))
+                navigator.mediaSession.setActionHandler('seekbackward', () => () => handleSeek10ButtonClick(false))
+            }
+
         }
     }
 
@@ -126,10 +180,16 @@ export default function Player({ src, name, onEnd, onPrevious, onNext }: PlayerP
             console.log("Pausing howl")
             soundRef.current.pause();
             setButtonCaption('play')
+            if ("mediaSession" in navigator) {
+                navigator.mediaSession.playbackState = "paused"
+            }
         } else {
             console.log("Playing howl")
             soundRef.current.play();
             setButtonCaption('pause')
+            if ("mediaSession" in navigator) {
+                navigator.mediaSession.playbackState = "playing"
+            }
         }
     };
 
@@ -165,8 +225,8 @@ export default function Player({ src, name, onEnd, onPrevious, onNext }: PlayerP
             { currentTime &&
             <div className="time-display">
                 <span>{currentTime}</span>
-                <a onClick={() => handleSeek10ButtonClick(false)}>-</a>
-                <a onClick={() => handleSeek10ButtonClick(true)}>+</a>
+                <a style={{cursor : 'pointer' }} onClick={() => handleSeek10ButtonClick(false)}>-</a>
+                <a style={{cursor : 'pointer' }} onClick={() => handleSeek10ButtonClick(true)}>+</a>
                 <span>{formatTime(duration)}</span>
             </div>
             }

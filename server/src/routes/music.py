@@ -160,12 +160,19 @@ def play_track(track_id : str, range : Annotated[str | None, Header()] = None) :
 
     return stream_file(stream_path, range_header=range, headers={'Accept-Ranges' : 'bytes'})
 
+COVER_SIZES = {
+    'full' : (300, 300),
+    'media': (128, 128),
+    'thumb': (30, 30),
+}
+
 @music_router.get('/cover/{ctype}/{cover_id}', dependencies=[Depends(login_manager)], )
 def get_cover(ctype : str, cover_id : str) :
     ctype = ctype.lower()
 
-    if ctype not in ('full', 'thumb') :
+    if ctype not in COVER_SIZES :
         raise HTTPException(status_code=404, detail="invalid type")
+
     try :
         with db.atomic() :
             cover = dbCover.select().where(dbCover.id == cover_id).get()
@@ -178,7 +185,7 @@ def get_cover(ctype : str, cover_id : str) :
     if not cache_path.exists() :
         from PIL import Image
         img = Image.open(src_path)
-        size = (30, 30) if ctype == 'thumb' else (300, 300)
+        size = COVER_SIZES[ctype]
         img.thumbnail(size)
         img.save(str(cache_path))
 

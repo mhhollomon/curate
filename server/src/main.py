@@ -7,7 +7,7 @@ from fastapi import FastAPI
 from .lib.config import get_required_config, get_config
 
 from .routes.auth import auth_router
-from .routes.music import music_router
+from .routes.music import music_router, COVER_SIZES
 
 ######################################################
 # SETUP CODE
@@ -17,8 +17,8 @@ CACHE_PATH = Path(get_config('CACHE_PATH', "./cache/"))
 DB_FILE = get_required_config("DB_FILE")
 
 os.makedirs(CACHE_PATH, exist_ok=True)
-os.makedirs(CACHE_PATH / 'full', exist_ok=True)
-os.makedirs(CACHE_PATH / 'thumb', exist_ok=True)
+for t in COVER_SIZES.keys() :
+    os.makedirs(CACHE_PATH / t, exist_ok=True)
 
 db.init(DB_FILE, pragmas={'foreign_keys': 1})
 

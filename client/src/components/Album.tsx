@@ -153,7 +153,9 @@ export default function Album({ album_id }: AlbumProps) {
                 <span>{artist?.name}</span>
             </div>
 
-            <Player src={playSrc} name={track_name} onEnd={onPlayEnd}
+            <Player src={playSrc} name={track_name} album={album?.name || "unknown"}
+                    artist={artist?.name || "unknown"} cover={`/api/cover/media/${coverId}`}
+                onEnd={onPlayEnd}
                 onPrevious={onPrevious} onNext={onNext} />
 
             <Table striped>
