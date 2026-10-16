@@ -4,11 +4,31 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import HomeScreen from '~/components/Home';
 import Album from '~/components/Album';
 
-import { Route, Redirect } from 'wouter';
+import { Route, Redirect, useLocation } from 'wouter';
 import Login from './components/Login';
+import { useEffect, useState } from 'react';
 
 export default function App() {
-    return (<>
+    const [location, navigate] = useLocation()
+    const [rerouted, setRerouted] = useState(false)
+
+    useEffect(() => {
+        console.log("--- Hash effect")
+        console.log("location =", location)
+        console.log("window location = ", window.location)
+        const hash = window.location.hash;
+        console.log("--- raw hash = ", hash)
+        if (hash !== "" ) {
+            let loc = hash.replace(/^#\/?/, '');
+            loc = '/' + loc;
+            console.log(`--- new loc = ${loc}`);
+            navigate(loc, {replace : true})
+        }
+
+        setRerouted(true)
+
+    }, [])
+    return (rerouted && <>
         <Route path="/login" >
             <Login msg="Please Login"/>
         </Route>
