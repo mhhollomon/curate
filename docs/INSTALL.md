@@ -149,36 +149,46 @@ sudo chmod -a -G appowner $NGINX_USER
 # Create the site configuration
 sudo cat > /etc/nginx/sites-available/curate <<_EOF_
 upstream curate_api_server {
-        # Talk to the server port 8000
-        server 127.0.0.1:8000;
+    # Talk to the server port 8000
+    server 127.0.0.1:8000;
 }
 
 server {
-        # change as needed.
-        listen 9956;
+    # change as needed.
+    listen 9956;
 
-        server_name _;
+    server_name _;
 
-        location / {
-                # Try to serve the client files
-                root /home/appowner/curate/client/dist;
-                index index.html;
-                try_files $uri $uri/ =404;
+    # Serve the client static files.
+    location / {
+        root /home/appowner/curate/client/dist;
+        index index.html;
+        try_files $uri $uri/ =404;
+    }
+
+    # Handle the client side routing when reloading
+    location ^~ /album {
+        return 301 /#$request_uri;
+    }
+
+    location ^~ /artist {
+        return 301 /#$request_uri;
+    }
+
+    # Hand API calls off to the backend.
+    location ^~ /api/ {
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $http_host;
+        proxy_set_header X-NginX-Proxy true;
+
+        expires -1;
+        add_header Cache-Control no-store;
+
+
+        proxy_pass http://curate_api_server;
+        proxy_redirect off;
         }
-
-        location ^~ /api/ {
-          proxy_set_header X-Real-IP $remote_addr;
-          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-          proxy_set_header Host $http_host;
-          proxy_set_header X-NginX-Proxy true;
-
-          expires -1;
-          add_header Cache-Control no-store;
-
-
-          proxy_pass http://curate_api_server;
-          proxy_redirect off;
-         }
 }
 _EOF_
 
