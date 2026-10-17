@@ -20,6 +20,7 @@ interface playTrackData {
     id: string;
     name: string;
 }
+
 export default function Album({ album_id }: AlbumProps) {
 
     const [trackList, setTrackList] = useState<respAlbumTrack[]>([])

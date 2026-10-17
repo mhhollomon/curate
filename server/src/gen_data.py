@@ -197,6 +197,14 @@ class GenerateData :
         self.handle_index(dir, prefix)
 
     ##########################################################
+    def find_cover(self, dir : Path) -> Cover | None :
+        for ptype in ('jpg', 'png') :
+            file = dir / f"cover.{ptype}";
+            if file.exists() :
+                return Cover(path=file.relative_to(self.directory))
+        return None
+
+    ##########################################################
     def find_track_position(self, track_name : str) -> tuple[str, int | None] :
 
         match = re.match(r"\d+", track_name)
@@ -229,9 +237,8 @@ class GenerateData :
         artist_name = artist_name.strip()
         album_name = self.clean_name(album_name.strip())
 
-        cover = None
-        if (dir / "cover.jpg").exists() :
-            cover = Cover(path=(dir / 'cover.jpg').relative_to(self.directory))
+        cover = self.find_cover(dir)
+        if cover :
             cover = coverManager.add_cover(cover)
 
         artist = artistManager.add_artist(artist_name)
@@ -339,9 +346,10 @@ class GenerateData :
                 cover = Cover(path=full_cover_path.relative_to(self.directory))
                 # It may already exist. Let the manager tell us.
                 cover = coverManager.add_cover(cover)
-        elif (dir / 'cover.jpg').exists() :
-            cover = Cover(path=(dir / 'cover.jpg').relative_to(self.directory))
-            cover = coverManager.add_cover(cover)
+        else :
+            cover = self.find_cover(dir)
+            if cover :
+                cover = coverManager.add_cover(cover)
 
         album = Album(index_data['name'], index_data['sort_name'], cover=cover.id if cover else None)
         album = artist.add_album(album)

@@ -19,10 +19,12 @@ Uses `ffmpeg` to recode the file when necessary.
 # gen_data
 Script to create/update the database by scanning the configured directory.
 
-This is currently extremely slow.
+This is currently slow.
+
+**Note** This depends on the entries in the `.env` file to run correctly.
 
 ```bash
-uv run -m src.gen_data --music /mnt/music --out output
+uv run -m src.gen_data
 ```
 
 ```bash
@@ -32,7 +34,6 @@ uv run -m src.user_admin change <username> <password>
 
 
 # Development
-
 
 ## Run the server in debug mode
 ```bash

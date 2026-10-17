@@ -68,7 +68,8 @@ albums. The artist name will be removed if it is at the start of the album name.
 Music files (.wav, .mp3, etc) found in these second level directories will
 be registered as tracks for the album they are contained in.
 
-If there is a file with the name `cover.jpg` it will be used as the cover art.
+If there is a file with the name `cover.jpg` or `cover.png`
+it will be used as the cover art.
 
 Any subdirectories will be scanned but will only be registered if one of the
 previous conditions are met.
