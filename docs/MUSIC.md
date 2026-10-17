@@ -6,7 +6,26 @@ that belong together .
 Below are the various ways you can help it. This goes from highest priority
 to lowest.
 
-## _index.yml (highest)
+All items marked "Flag File" are empty files. It is the fact that they are present
+in the directory that matters.
+
+## .ignore Flag File
+
+This directory and all its subdirectories are ignored. No data will be collected.
+
+This is not active in the top level directory.
+
+## .skip Flag File
+
+This directory is skipped when using the [directory layout](#directory-layout-lowest)
+method. If this would
+have been the artist directory, then its subdirectories become artist directories
+instead. And similar for album.
+
+This can be used along with `_index.txt`, `.album`, or `.singles` in the same
+directory.
+
+## _index.yml
 
 If a directory contains a file named `_index.yml`, this is used to decide what -
 if anything - to do with the rest of the files in directory. Any files not mentioned
@@ -14,7 +33,8 @@ are ignored. Subdirectories are scanned, however, for other index files, etc.
 
 See [INDEX_FILE.md](./INDEX_FILE.md) on the format of the `_index.yml` file
 
-## .singles
+
+## .singles Flag File
 
 If a file named `.singles` is in a directory, any music files will be registered
 as singles. The name of the directory will be used as artist name.
@@ -22,7 +42,7 @@ as singles. The name of the directory will be used as artist name.
 If the music file names start with the same string as the directory name, it
 will be removed to yield the track name.
 
-## .album
+### .album Flag File
 
 If a file named `.album` is in a directory, any music files will be registered
 as tracks of an album. The album name and the artist name is derived from the
@@ -66,7 +86,7 @@ previous conditions are met.
 ```
 
 THis will result in the registration of two artists - "Harpy" and "Flowman".
-Harpy will be creditted with two albums :
+Harpy will be credited with two albums :
 - What's not to Love (<- artist name removed)
 - The second album
 

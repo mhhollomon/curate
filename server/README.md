@@ -22,7 +22,7 @@ Script to create/update the database by scanning the configured directory.
 This is currently extremely slow.
 
 ```bash
-uv run -m src.gen_data --music /mnt/music/Bandcamp --out output
+uv run -m src.gen_data --music /mnt/music --out output
 ```
 
 ```bash

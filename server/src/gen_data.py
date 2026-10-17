@@ -92,8 +92,6 @@ class GenerateData :
 
         name = name.strip(" -")
 
-
-
         return name
 
     ##########################################################
@@ -109,12 +107,25 @@ class GenerateData :
 
     ##########################################################
     def artist_dir(self, dir : Path, level : int,  prefix : str = '') -> None :
+
+        if (dir / '.ignore').exists() :
+            print(f"{prefix} -  .ignore")
+            return
+
+        skipping = (dir / '.skip').exists()
+        if skipping :
+            print(f"{prefix} -  .skip")
+
         artist_name = dir.name.strip(" -")
         music : list[Path] = []
         for entry in dir.iterdir() :
             if entry.is_dir() :
-                print(f"{prefix} - album {entry}")
-                self.album_dir(dir / entry, level+1, artist_name, prefix + '  ')
+                if skipping :
+                    print(f"{prefix} - artist {entry}")
+                    self.artist_dir(dir / entry, level+1, prefix + '  ')
+                else :
+                    print(f"{prefix} - album {entry}")
+                    self.album_dir(dir / entry, level+1, artist_name, prefix + '  ')
             elif self.is_music(entry) :
                 music.append(entry)
 
@@ -140,12 +151,26 @@ class GenerateData :
 
     ##########################################################
     def album_dir(self, dir : Path, level : int,  artist : str, prefix : str) -> None :
+
+        if (dir / '.ignore').exists() :
+            print(f"{prefix} -  .ignore")
+            return
+
+        skipping = (dir / '.skip').exists()
+        if skipping :
+            print(f"{prefix} -  .skip")
+
         album = self.clean_name(dir.name, artist)
         music : list[Path] = []
         for entry in dir.iterdir() :
             if entry.is_dir() :
-                print(f"{prefix} - lower {entry}")
-                self.lower_dir(dir / entry, level+1, prefix + '  ')
+                if skipping :
+                    print(f"{prefix} - album {entry}")
+                    self.album_dir(dir / entry, level+1, artist, prefix + '  ')
+                else :
+                    print(f"{prefix} - lower {entry}")
+                    self.lower_dir(dir / entry, level+1, prefix + '  ')
+
             elif self.is_music(entry) :
                 music.append(entry)
 
@@ -160,6 +185,10 @@ class GenerateData :
 
     ##########################################################
     def lower_dir(self, dir : Path, level : int,  prefix : str) -> None :
+        if (dir / '.ignore').exists() :
+            print(f"{prefix} -  .ignore")
+            return
+
         for entry in dir.iterdir() :
             if entry.is_dir() :
                 print(f"{prefix} - lower {entry}")
@@ -368,7 +397,7 @@ class GenerateData :
 def getargs() -> Namespace :
     parser = ArgumentParser()
 
-    parser.add_argument('--music', default='/mnt/music/Bandcamp')
+    parser.add_argument('--music', default='/mnt/music')
     parser.add_argument('--rebuild', action=BooleanOptionalAction, default=False)
     parser.add_argument('--out',  help="Name of file for the database.")
 
