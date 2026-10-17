@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { NavbarCollapse, Table } from "react-bootstrap";
+import { Table } from "react-bootstrap";
 import { type Album } from "~/types/album";
 import { Link } from "wouter";
 import { useProtectedData } from "~/lib/hook";

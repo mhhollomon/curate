@@ -86,7 +86,7 @@ previous conditions are met.
 
 ```
 
-THis will result in the registration of two artists - "Harpy" and "Flowman".
+This will result in the registration of two artists - "Harpy" and "Flowman".
 Harpy will be credited with two albums :
 - What's not to Love (<- artist name removed)
 - The second album
