@@ -10,6 +10,7 @@ import Toggle from './Toggle'
 import { play_btn_fill } from '~/icons'
 
 import { useProtectedData } from "~/lib/hook"
+import BackLink from '~/components/BackLink'
 
 
 export interface AlbumProps {
@@ -141,6 +142,9 @@ export default function Album({ album_id }: AlbumProps) {
     }
 
     return (<>
+        <div className="text-start">
+            <BackLink />
+        </div>
 
         <div className="container d-flex flex-column justify-content-center align-items-center">
             <div className="coverBlock mt-2 mb-2">

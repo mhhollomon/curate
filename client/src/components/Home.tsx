@@ -4,6 +4,7 @@ import ArtistList from './ArtistList';
 import AlbumList from './AlbumList';
 
 import { useLocation } from 'wouter';
+import Queue from '~/components/Queue';
 
 export interface HomeScreenProps {
     tab : string
@@ -26,11 +27,12 @@ export default function HomeScreen({tab} : HomeScreenProps) {
                     <Nav.Link eventKey="artists">Artists</Nav.Link>
                     <Nav.Link eventKey="albums" >Albums</Nav.Link>
                     <Nav.Link eventKey="playlists" disabled>Playlists</Nav.Link>
-                    <Nav.Link eventKey="queue" disabled>Queue</Nav.Link>
+                    <Nav.Link eventKey="queue">Queue</Nav.Link>
                 </Nav>
 
                 {tab === 'artists' && <ArtistList/>}
                 {tab === 'albums' && <AlbumList/>}
+                {tab === 'queue' && <Queue />}
             </div>
         </>
 }

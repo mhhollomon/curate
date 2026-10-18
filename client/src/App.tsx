@@ -48,6 +48,9 @@ export default function App() {
         <Route path="/artist/:artist_id">
             {params => <ArtistWorks artist_id={params.artist_id}/>}
         </Route>
+        <Route path="/queue">
+            <HomeScreen tab="queue" />
+        </Route>
 
     </>)
 }
