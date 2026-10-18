@@ -77,6 +77,15 @@ class respAlbumTracks(BaseModel) :
     artist : pyArtist
     tracks : list[respAlbumTrack]
 
+#
+# Response returned when asking forthe works associated
+# with a particular artist
+#
+class respArtistWorks(BaseModel) :
+    artist : pyArtist
+    singles : list[pyTrack]
+    albums : list[pyAlbum]
+
 #########################################
 # ROUTES
 #########################################
@@ -89,6 +98,26 @@ def list_artists() -> list[dbArtist]:
 
     # Return the list of artists as JSON
     return artists
+
+@music_router.get('/artist/{artist_id}', response_model=respArtistWorks)
+def get_artist_works(artist_id : str) :
+    try :
+        with db :
+            artist = dbArtist.select().where(dbArtist.id == artist_id).get()
+
+            singles = list(dbTrack.select(dbTrack).join(
+                dbArtistAssociation, on=(dbArtistAssociation.item == dbTrack.id)
+            ).where(dbArtistAssociation.artist == artist_id).dicts())
+
+            albums = list(dbAlbum.select(dbAlbum).join(
+                dbArtistAssociation, on=(dbArtistAssociation.item == dbAlbum.id)
+            ).where(dbArtistAssociation.artist == artist_id).dicts())
+
+    except dbArtist.DoesNotExist : # type: ignore
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    return { 'artist' : artist, 'singles' : singles, 'albums' : albums}
+
 
 @music_router.get('/album', response_model=list[respAlbumItem])
 def list_albums():

@@ -7,6 +7,7 @@ import Album from '~/components/Album';
 import { Route, Redirect, useLocation } from 'wouter';
 import Login from './components/Login';
 import { useEffect, useState } from 'react';
+import ArtistWorks from '~/components/ArtistWorks';
 
 export default function App() {
     const [location, navigate] = useLocation()
@@ -44,5 +45,9 @@ export default function App() {
         <Route path="/album/:album_id">
             {params => <Album album_id={params.album_id}/>}
         </Route>
+        <Route path="/artist/:artist_id">
+            {params => <ArtistWorks artist_id={params.artist_id}/>}
+        </Route>
+
     </>)
 }

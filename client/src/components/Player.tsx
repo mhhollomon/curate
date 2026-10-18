@@ -8,10 +8,10 @@ import { play_fill, pause_fill, rewind_fill, fast_forward_fill } from '~/icons'
 export interface PlayerProps {
     src: string | null;
     name: string;
-    album : string;
+    album? : string;
     artist : string;
-    cover : string; // url
-    onEnd: () => void;
+    cover? : string; // url
+    onEnd?: () => void;
     onPrevious?: () => void;
     onNext?: () => void;
 }
@@ -135,7 +135,7 @@ export default function Player({ src, name, album, artist, cover, onEnd, onPrevi
             navigator.mediaSession.playbackState = "none"
         }
 
-        onEnd();
+        if (onEnd) onEnd();
     }
 
     function handleLoadEvent() {
@@ -151,13 +151,14 @@ export default function Player({ src, name, album, artist, cover, onEnd, onPrevi
                     title : name,
                     artist : artist,
                     album : album,
-                    artwork : [
+                    ...(cover ?
+                    {artwork : [
                         {
                             src: cover,
                             sizes: "128x128",
                             type: "image/webp",
                         },
-                    ]
+                    ]} : {} )
                 });
                 navigator.mediaSession.setPositionState({
                     duration : duration,

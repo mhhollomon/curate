@@ -3,6 +3,7 @@ import { Table } from "react-bootstrap";
 import { type Artist } from "~/types/artist";
 
 import { useProtectedData } from "~/lib/hook";
+import { Link } from "wouter";
 
 export default function ArtistList() {
     const [artistList, setArtistList] = useState<Artist[] | undefined>(undefined)
@@ -22,7 +23,7 @@ return <>
             <tr><th>name</th></tr>
         </thead>
         <tbody>
-            {artistList && artistList.map(a => <tr key={a.id}><td>{a.name}</td></tr>)}
+            {artistList && artistList.map(a => <tr key={a.id}><td><Link href={`/artist/${a.id}`}>{a.name}</Link></td></tr>)}
         </tbody>
     </Table>
 
