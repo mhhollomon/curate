@@ -9,7 +9,6 @@ import { useAtom } from "jotai";
 import { queueListAtom } from "~/atoms";
 import ForwardLink from "~/components/ForwardLink";
 import type { QueueItem } from "~/types/queue_item";
-import type { respAlbumTrack } from "~/responses";
 
 interface sorting {
     column: string;

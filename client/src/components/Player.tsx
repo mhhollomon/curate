@@ -132,7 +132,7 @@ export default function Player({ src, name, album, artist, cover, onEnd, onPrevi
     function handleEndEvent() {
         setIsPlaying(false);
         if ("mediaSession" in navigator) {
-            navigator.mediaSession.playbackState = "none"
+            navigator.mediaSession.playbackState = "paused"
         }
 
         if (onEnd) onEnd();
