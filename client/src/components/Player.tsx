@@ -95,13 +95,23 @@ export default function Player({ src, name, album, artist, cover, onEnd, onPrevi
         if (soundRef.current && (soundRef.current.playing() || (id === 'onseek'))) {
 
             const newCurrentTime = soundRef.current.seek();
+            const duration = soundRef.current.duration();
 
             // Can't use the state `duration` - need to query the howl instance
             // directly. Not sure why.
-            const fill_percent = Math.max(0, Math.min(100, Math.round(newCurrentTime / soundRef.current.duration() * 100.0)));
+            const fill_percent = Math.max(0, Math.min(100, Math.round((newCurrentTime / duration) * 100.0)));
 
             setProgPercent(fill_percent)
             setCurrentTime(formatTime(newCurrentTime));
+
+            if ("mediaSession" in navigator) {
+                navigator.mediaSession.setPositionState({
+                    duration : duration,
+                    playbackRate : 1.0,
+                    position : newCurrentTime,
+                });
+            }
+
 
             animationId.current = requestAnimationFrame(animateProgressBar)
 
