@@ -86,7 +86,7 @@ export default function Player({ src, name, album, artist, cover, onEnd, onPrevi
     function animateProgressBar(id: number|string) {
 
         if (id === 'onseek') {
-            console.log("animate (from onseek)")
+            console.log("animate (from onseek)");
         }
 
         // howler seems to return false for playing() right after a seek, but
