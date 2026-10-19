@@ -116,13 +116,13 @@ export default function Player({ src, name, album, artist, cover, onEnd, onPrevi
         animationId.current = requestAnimationFrame(animateProgressBar)
         console.log(`--- setting up animation ${animationId.current}`)
         if ("mediaSession" in navigator) {
-            navigator.mediaSession.playbackState = "playing"
+            navigator.mediaSession.playbackState = "playing";
             if (soundRef.current){
                 navigator.mediaSession.setPositionState({
                     duration : soundRef.current.duration(),
                     playbackRate : 1.0,
                     position : soundRef.current.seek(),
-                })
+                });
             }
 
         }
@@ -131,10 +131,6 @@ export default function Player({ src, name, album, artist, cover, onEnd, onPrevi
 
     function handleEndEvent() {
         setIsPlaying(false);
-        if ("mediaSession" in navigator) {
-            navigator.mediaSession.playbackState = "paused"
-        }
-
         if (onEnd) onEnd();
     }
 
@@ -146,7 +142,7 @@ export default function Player({ src, name, album, artist, cover, onEnd, onPrevi
 
             // Initialize  (maybe)
             if ("mediaSession" in navigator) {
-                console.log("Setting up mediaSession")
+                console.log("Setting up mediaSession");
                 navigator.mediaSession.metadata = new MediaMetadata({
                     title : name,
                     artist : artist,
@@ -164,11 +160,13 @@ export default function Player({ src, name, album, artist, cover, onEnd, onPrevi
                     duration : duration,
                     playbackRate : 1.0,
                     position : 0.0,
-                })
-                navigator.mediaSession.setActionHandler('play', handlePlayPauseButtonClick)
-                navigator.mediaSession.setActionHandler('pause', handlePlayPauseButtonClick)
-                navigator.mediaSession.setActionHandler('seekforward', () => () => handleSeek10ButtonClick(true))
-                navigator.mediaSession.setActionHandler('seekbackward', () => () => handleSeek10ButtonClick(false))
+                });
+                navigator.mediaSession.setActionHandler('play', handlePlayPauseButtonClick);
+                navigator.mediaSession.setActionHandler('pause', handlePlayPauseButtonClick);
+                navigator.mediaSession.setActionHandler('seekforward', () => () => handleSeek10ButtonClick(true));
+                navigator.mediaSession.setActionHandler('seekbackward', () => () => handleSeek10ButtonClick(false));
+                // Not true, but will be in a millisecond
+                navigator.mediaSession.playbackState = "playing";
             }
 
         }
