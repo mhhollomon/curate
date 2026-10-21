@@ -23,6 +23,8 @@ function formatTime(seconds: number) {
     return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 }
 
+const ANIMATE_MILLSEC = 100;
+
 export default function Player({ src, name, album, artist, cover, onEnd, onPrevious, onNext }: PlayerProps) {
     const soundRef = useRef<Howl>(null);
     const animationId = useRef<number>(undefined);
@@ -71,7 +73,7 @@ export default function Player({ src, name, album, artist, cover, onEnd, onPrevi
         return () => {
             if (animationId.current) {
                 console.log("Canceling animation")
-                cancelAnimationFrame(animationId.current)
+                clearTimeout(animationId.current)
             }
             if (soundRef.current) {
                 console.log("Cleaning up howl")
@@ -113,7 +115,7 @@ export default function Player({ src, name, album, artist, cover, onEnd, onPrevi
             }
 
 
-            animationId.current = requestAnimationFrame(animateProgressBar)
+            animationId.current = setTimeout(animateProgressBar,  ANIMATE_MILLSEC)
 
         } else {
             console.log(`animate --- else leg - id = ${id}`)
@@ -123,7 +125,7 @@ export default function Player({ src, name, album, artist, cover, onEnd, onPrevi
     function handlePlayEvent() {
         console.log("Got play event");
         setIsPlaying(true);
-        animationId.current = requestAnimationFrame(animateProgressBar)
+        animationId.current = setTimeout(animateProgressBar, ANIMATE_MILLSEC)
         console.log(`--- setting up animation ${animationId.current}`)
         if ("mediaSession" in navigator) {
             navigator.mediaSession.playbackState = "playing";
