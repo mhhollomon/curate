@@ -25,6 +25,12 @@ export interface Player2Props {
     getNext?: () => (PlayerTrackData | null);
 }
 
+interface  NextTrackState {
+    track : PlayerTrackData | null;
+    hasNext : boolean;
+
+}
+
 function formatTime(seconds: number) {
     if (isNaN(seconds)) return "00:00"; // Handle unloaded audio
     const minutes = Math.floor(seconds / 60);
@@ -33,12 +39,12 @@ function formatTime(seconds: number) {
 }
 
 
-const ANIMATION_MILLSEC = 250;
+const ANIMATION_MILLSEC = 400;
 const SEEK_SECONDS = 10;
 
 // How far for the end of the current track
 // should we start buffering the next track.
-const BUFFER_SECONDS = 60;
+const BUFFER_SECONDS = 30;
 
 
 export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: Player2Props) {
@@ -46,13 +52,15 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
     const [currentTime, setCurrentTime] = useState(''); // string from formatTime
     const [progPercent, setProgPercent] = useState<number>(0);
     const [duration, setDuration] = useState(0.0);
-    const [timeoutId, setTimeoutId] = useState<number>();
+    const timeoutId = useRef<number>(NaN);
 
-    const currentPlayer = useRef<HTMLAudioElement>(null);
-    const nextPlayer = useRef<HTMLAudioElement>(null);
-    const [nextTrack, setNextTrack] = useState<PlayerTrackData>();
-    const [hasNext, setHasNext] = useState(true);
+    const playerA = useRef<HTMLAudioElement>(new Audio());
+    const playerB = useRef<HTMLAudioElement>(new Audio());
+
+    const [currentPlayer, setCurrentPlayer] = useState<string>("A");
     const [tryBuffering, setTryBuffering] = useState(false);
+
+    const nextState = useRef<NextTrackState>({'track' : null, 'hasNext' : true})
 
     //-------------------------------------------------
     // Reactive functions
@@ -61,54 +69,70 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
     useEffect(() => {
         // Don't have anything to do, but register an unmount
         // cleanup function.
+        playerA.current.preload = "auto";
+        playerA.current.id = "A";
+        playerB.current.preload = "auto";
+        playerB.current.id = "B";
+
         return () => {
-            if (currentPlayer.current) {
-                currentPlayer.current.pause;
-            }
-            if (timeoutId !== undefined) {
-                clearTimeout(timeoutId);
-            }
+            console.log("---- CLEANUP ---")
             if ("mediaSession" in navigator) {
                 navigator.mediaSession.metadata = null;
+            }
+            if (! isNaN(timeoutId.current)) {
+                clearTimeout(timeoutId.current);
+                timeoutId.current = NaN;
             }
         }
     }, [])
 
     useEffect(() => {
-        if (!currentPlayer.current)
-            currentPlayer.current = new Audio();
 
         setHasNext(true);
 
         if (track) {
-            if (track.id === nextTrack?.id && nextPlayer.current) {
-                console.log("Swapping to preloaded track");
+            if (track.id === nextTrack()?.id) {
+                console.log(`Swapping to preloaded track ${track.id}`);
+                const old_player = getCurrentPlayer();
+                assert(old_player);
 
-                // cut ties with the old player.
-                currentPlayer.current.onplay = null;
-                currentPlayer.current.onended = null;
+                // turn off the old player.
+                console.log("Turning off player", old_player.id);
+                old_player.onplay = null;
+                old_player.onended = null;
+                if (! isNaN(timeoutId.current)) {
+                    clearTimeout(timeoutId.current);
+                    timeoutId.current = NaN;
+                }
 
-                currentPlayer.current = nextPlayer.current;
 
-                const player = currentPlayer.current;
-                player.onplay = handleAnimation;
+                const player = getNextPlayer();
+                assert(player);
+
+                console.log("Swapping to player", player.id);
+                player.onplay = () => handleAnimation(player.id);
                 player.onended = ended;
+                player.onerror = event_handler;
+                player.onstalled = event_handler;
+                player.onwaiting = event_handler;
                 setup_media_session(track);
                 player.play();
                 setDuration(player.duration);
                 setIsPlaying(true);
 
                 // clean up
-                nextPlayer.current = null;
-                setNextTrack(undefined);
+                setNextTrack(null);
+
+                setCurrentPlayer(currentPlayer === "A" ? "B" : "A")
 
             } else {
-                console.log("Loading new track fresh.")
-                const player = currentPlayer.current;
+                console.log(`Loading track ${track.id} fresh in player ${currentPlayer}`)
+                const player = getCurrentPlayer();
+                assert(player);
                 player.src = track.src
                 player.pause();
                 player.oncanplay = can_play;
-                player.onplay = handleAnimation;
+                player.onplay = () => handleAnimation(player.id);
             }
         } else {
             if ("mediaSession" in navigator) {
@@ -119,11 +143,19 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
     }, [track]);
 
     useEffect(() => {
+        console.log("tryBuffering effect");
         if (! tryBuffering) return;
 
         setTryBuffering(false);
 
-        if (! hasNext || ! getNext || nextTrack) return;
+        const nt = nextTrack();
+
+        if (nt) {
+            console.log("tryBuffering : nextTrack set =", nt.id);
+            return;
+        }
+
+        if (! hasNext() || ! getNext ) return;
         console.log("Looking into buffering");
 
         const next_track = getNext();
@@ -134,38 +166,48 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
         }
 
         setNextTrack(next_track);
-        if (! nextPlayer.current) {
-            console.log("Creating new nextPlayer")
-            nextPlayer.current = new Audio();
-        }
 
-        const player = nextPlayer.current;
+        const player = getNextPlayer();
+        assert(player);
+
         player.autoplay = false;
         player.pause();
         player.src = next_track.src;
-        console.log("Set up to buffer");
+        console.log("Set up to buffer in player", player.id);
 
     }, [tryBuffering]);
+
+    useEffect(() => {
+        if (!isPlaying) return;
+
+        handleAnimation(undefined);
+
+    }, [isPlaying]);
 
     //-------------------------------------------------
     // HTMLAudioElement event handlers
     // These will probably need to change when we add the second device.
     //-------------------------------------------------
+    function event_handler(e : any) {
+        console.log("--- Got event type", e.type)
+    }
 
     function can_play(_: any) {
         // Appease the type gods
-        if (!currentPlayer.current) {
-            throw Error("INTERNAL : Current Player not defined in can_play");
-        }
+        const player = getCurrentPlayer();
+        assert(player);
         assert(track, "INTERNAL : Current track is not defined in can_play");
 
-        const player = currentPlayer.current;
-
+        console.log("can_play: working with player", player.id)
         setDuration(player.duration);
         setIsPlaying(true);
+        player.oncanplay = null;
 
-        player.play();
         player.onended = ended;
+        player.onerror = event_handler;
+        player.onstalled = event_handler;
+        player.onwaiting = event_handler;
+        player.play();
 
         // Set up the MediaSession
         // Initialize  (maybe)
@@ -187,6 +229,38 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
     //-------------------------------------------------
     // Utility functions
     //-------------------------------------------------
+
+    function getNextState() : NextTrackState {
+        return nextState.current;
+    }
+
+    function setHasNext(v : boolean) {
+        getNextState().hasNext = v;
+    }
+
+    function hasNext() {
+        return getNextState().hasNext;
+    }
+
+    function setNextTrack(t : PlayerTrackData | null) {
+        getNextState().track = t;
+    }
+
+    function nextTrack() : PlayerTrackData | null {
+        return getNextState().track;
+    }
+
+    function getCurrentPlayer() : HTMLAudioElement | null {
+        return currentPlayer == "A" ? playerA.current : playerB.current;
+    }
+
+    function getNextPlayer() : HTMLAudioElement | null {
+        return currentPlayer == "A" ? playerB.current : playerA.current;
+    }
+
+    function getPlayer(id : string) : HTMLAudioElement {
+        return id === "A" ? playerA.current : playerB.current;
+    }
 
     function setup_media_session(t : PlayerTrackData) {
         if (!("mediaSession" in navigator)) return;
@@ -214,11 +288,12 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
     //-------------------------------------------------
 
     function handlePlayPauseButtonClick() {
-        if (!currentPlayer.current) return;
+        const player = getCurrentPlayer();
+        assert(player);
 
-        if (currentPlayer.current.paused) {
+        if (player.paused) {
             console.log("Playing audio");
-            currentPlayer.current.play();
+            player.play();
             setIsPlaying(true);
             if ("mediaSession" in navigator) {
                 navigator.mediaSession.playbackState = "playing";
@@ -226,7 +301,7 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
 
         } else {
             console.log("Pausing audio");
-            currentPlayer.current.pause();
+            player.pause();
             setIsPlaying(false);
             if ("mediaSession" in navigator) {
                 navigator.mediaSession.playbackState = "paused";
@@ -242,13 +317,16 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
         if (onNext) onNext();
     }
 
-    function handleAnimation() {
-        if (!track) return;
-        if (!currentPlayer.current) return;
+    function handleAnimation(player_id : string | undefined) {
+        const player = player_id ? getPlayer(player_id) : getCurrentPlayer();
+        assert(player);
 
-        const player = currentPlayer.current;
-
-        if (player.paused) return;
+        console.log("HandleAnimation: on player", player.id)
+        if (player.paused) {
+            console.log("HandleAnimation: player paused");
+            timeoutId.current = NaN;
+            return;
+        }
 
         const new_duration = player.duration;
         const current_time = player.currentTime;
@@ -265,18 +343,18 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
             });
         }
 
-        const id = setTimeout(handleAnimation, ANIMATION_MILLSEC);
-        setTimeoutId(id);
+        timeoutId.current = setTimeout(() => handleAnimation(player_id), ANIMATION_MILLSEC);
 
-        if (hasNext && getNext && (new_duration - current_time < BUFFER_SECONDS) && ! nextTrack)
+
+        if (hasNext() && getNext && (new_duration - current_time < BUFFER_SECONDS) && ! nextTrack())
            setTryBuffering(true);
 
     }
 
 
     function handleSeek10ButtonClick(forward: boolean) {
-        if (!currentPlayer.current) return
-        const player = currentPlayer.current;
+        const player = getCurrentPlayer();
+        assert(player);
 
         const delta = SEEK_SECONDS * (forward ? +1 : -1);
 
