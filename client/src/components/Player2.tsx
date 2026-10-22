@@ -180,7 +180,7 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
     useEffect(() => {
         if (!isPlaying) return;
 
-        handleAnimation(undefined);
+        handleAnimation(currentPlayer);
 
     }, [isPlaying]);
 
@@ -321,7 +321,7 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
         const player = player_id ? getPlayer(player_id) : getCurrentPlayer();
         assert(player);
 
-        console.log("HandleAnimation: on player", player.id)
+        //console.log("HandleAnimation: on player", player.id)
         if (player.paused) {
             console.log("HandleAnimation: player paused");
             timeoutId.current = NaN;
