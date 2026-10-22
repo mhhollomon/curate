@@ -4,7 +4,8 @@ import { useEffect, useState } from "react"
 import { Table } from "react-bootstrap"
 
 import { type respAlbumAlbum, type respAlbumArtist, type respAlbumTrack } from '~/responses'
-import Player from './Player'
+// import Player from './Player'
+import Player2, { type PlayerTrackData } from './Player2'
 import Toggle from './Toggle'
 
 import { play_btn_fill } from '~/icons'
@@ -17,27 +18,23 @@ export interface AlbumProps {
     album_id: string
 }
 
-interface playTrackData {
-    id: string;
-    name: string;
-}
 
 export default function Album({ album_id }: AlbumProps) {
 
-    const [trackList, setTrackList] = useState<respAlbumTrack[]>([])
+    const [trackList, setTrackList] = useState<respAlbumTrack[]>([]);
     const [artist, setArtist] = useState<respAlbumArtist>()
-    const [album, setAlbum] = useState<respAlbumAlbum>()
-    const [playTrackDataState, setPlayTrackData] = useState<playTrackData>()
-    const [coverId, setCoverId] = useState<string>()
-    const [autoPlay, setAutoPlay] = useState<boolean>(false)
-    const [loopAlbum, setLoopAlbum] = useState<boolean>(false)
-    const [playSrc, setPlaySrc] = useState<string|null>(null)
+    const [album, setAlbum] = useState<respAlbumAlbum>();;
+    const [coverId, setCoverId] = useState<string>();
+    const [autoPlay, setAutoPlay] = useState<boolean>(false);
+    const [loopAlbum, setLoopAlbum] = useState<boolean>(false);
+
+    const [currentTrack, setCurrentTrack] = useState<PlayerTrackData>();
 
     useProtectedData({
         url : '/api/album/' + album_id,
         data_proc : (data) => {
             const tracks = data.tracks
-            if (tracks.length > 1) {
+            if (tracks.length > 0) {
                 setTrackList(tracks)
             }
 
@@ -55,26 +52,38 @@ export default function Album({ album_id }: AlbumProps) {
         setCoverId(album.cover)
     }, [album])
 
-    useEffect(() =>{
-        if (!playTrackDataState) {
-            console.log("useEffect - nulling out playSrc")
-            setPlaySrc(null)
+
+
+    function playTrack(t: respAlbumTrack | undefined) {
+        if (! t) {
+            setCurrentTrack(undefined);
         } else {
-            console.log("useEffect - updating playSrc")
-            setPlaySrc(`/api/play/${playTrackDataState.id}`)
+            setCurrentTrack(track2player_data(t));
         }
-
-
-    }, [playTrackDataState])
-
-    function playTrack(t: respAlbumTrack) {
-        setPlayTrackData({ 'id': t.id, 'name': t.name })
 
     }
 
-    function compute_next_track(delta: number = 1) {
+    function track2player_data(t: respAlbumTrack) : PlayerTrackData {
+        return { 'id': t.id,
+                'src' : `/api/play/${t.id}`,
+                'artist' : artist?.name || '',
+                'cover' : `/api/cover/media/${coverId}`,
+                'album' : album?.name,
+                'name': t.name };
+    }
 
-        let index = trackList.findIndex((t) => t.id === playTrackDataState?.id)
+    function getNext() : PlayerTrackData | null {
+        const t = compute_next_track(1);
+        if (t) {
+            return track2player_data(t);
+        } else {
+            return null;
+        }
+    }
+
+    function compute_next_track(delta: number = 1) : respAlbumTrack | undefined {
+
+        let index = trackList.findIndex((t) => t.id === currentTrack?.id)
         const old_index = index
         console.log(`compute_next_track : old_index = ${old_index}`)
         index += delta
@@ -86,28 +95,32 @@ export default function Album({ album_id }: AlbumProps) {
 
         if (!loopAlbum && index != old_index + delta) {
             // we reached the "end"
-            setPlayTrackData(undefined)
-            return
+            console.log("compute_next_track : returning undefined.")
+            return undefined;
         }
 
-        const t = trackList[index]
-        setPlayTrackData({ 'id': t.id, 'name': t.name })
+        const t = trackList[index];
+        console.log("compute_next_track : returning id =", t.id)
+
+        return t;
     }
 
     function onPlayEnd() {
         console.log("Playback ended")
         if (autoPlay) {
-            compute_next_track(1)
+            const t = compute_next_track(1);
+            playTrack(t);
         } else {
-            setPlayTrackData(undefined)
+            playTrack(undefined);
         }
     }
 
     function onAutoPlay() {
-        if (! autoPlay && ! playTrackDataState) {
+        if (! autoPlay && ! currentTrack) {
             // Start the album if not curently playing something.
-            const t = trackList[0]
-            setPlayTrackData({ 'id': t.id, 'name': t.name })
+            const t = trackList[0];
+            playTrack(t);
+
         }
 
         setAutoPlay(! autoPlay)
@@ -115,18 +128,20 @@ export default function Album({ album_id }: AlbumProps) {
 
     function onNext() {
         if (autoPlay) {
-            compute_next_track(1)
+            const t = compute_next_track(1);
+            playTrack(t);
         } else {
-            setPlayTrackData(undefined)
+            playTrack(undefined)
         }
 
     }
 
     function onPrevious() {
         if (autoPlay) {
-            compute_next_track(-1)
+            const t = compute_next_track(-1);
+            playTrack(t);
         } else {
-            setPlayTrackData(undefined)
+            playTrack(undefined)
         }
 
     }
@@ -135,11 +150,6 @@ export default function Album({ album_id }: AlbumProps) {
         setLoopAlbum(! loopAlbum)
     }
 
-    let track_name = ''
-
-    if (playTrackDataState !== undefined) {
-        track_name = playTrackDataState.name
-    }
 
     return (<>
         <div className="text-start">
@@ -158,10 +168,11 @@ export default function Album({ album_id }: AlbumProps) {
                 <span>{artist?.name}</span>
             </div>
 
-            <Player src={playSrc} name={track_name} album={album?.name || "unknown"}
-                    artist={artist?.name || "unknown"} cover={`/api/cover/media/${coverId}`}
+            <Player2 track={currentTrack}
                 onEnd={onPlayEnd}
-                onPrevious={onPrevious} onNext={onNext} />
+                onPrevious={onPrevious}
+                onNext={onNext}
+                getNext={getNext} />
 
             <Table striped>
                 <thead>
@@ -176,7 +187,7 @@ export default function Album({ album_id }: AlbumProps) {
                 </thead>
                 <tbody>
                     {trackList && trackList.map(a => <tr key={a.id}>
-                        <td style={{ width: '2rem' }}>{a.id === playTrackDataState?.id ? '>>>' : <a onClick={() => playTrack(a)}>{play_btn_fill}</a>}</td>
+                        <td style={{ width: '2rem' }}>{a.id === currentTrack?.id ? '>>>' : <a onClick={() => playTrack(a)}>{play_btn_fill}</a>}</td>
                         <td><a onClick={() => playTrack(a)}>{a.name}</a></td>
                     </tr>)}
                 </tbody>

@@ -136,16 +136,16 @@ export default function ArtistWorks({ artist_id }: ArtistWorksProps) {
                     </tr>
                 </thead>
                 <tbody>
-                    {artistWorks && artistWorks.singles.length > 0 && artistWorks.singles.map(a => <>
-                        <tr key={a.id}>
-                            <td style={{ width: '2rem' }}>{a.id === playTrackDataState?.id ? '>>>' : <a onClick={() => playTrack(a)}>{play_btn_fill}</a>}</td>
-                            <td><a onClick={() => playTrack(a)}>{a.name}</a></td>
-                            <td><a className="bare-link" onClick={(e) => showPopover(e, a.id)}>{three_dots_vert}</a></td>
+                    {artistWorks && artistWorks.singles.length > 0 && artistWorks.singles.map(s => <>
+                        <tr key={s.id}>
+                            <td style={{ width: '2rem' }}>{s.id === playTrackDataState?.id ? '>>>' : <a onClick={() => playTrack(s)}>{play_btn_fill}</a>}</td>
+                            <td><a onClick={() => playTrack(s)}>{s.name}</a></td>
+                            <td><a className="bare-link" onClick={(e) => showPopover(e, s.id)}>{three_dots_vert}</a></td>
                         </tr>
-                        <Overlay show={show == a.id} target={target} placement="bottom-end">
+                        <Overlay key={s.id + "-overlay"} show={show == s.id} target={target} placement="bottom-end">
                             <Popover.Body>
                                 <div className="mx-1">
-                                    <a className="bare-link" onClick={() => add_single_to_queue(a)}>Add to Queue</a>
+                                    <a className="bare-link" onClick={() => add_single_to_queue(s)}>Add to Queue</a>
                                 </div>
                             </Popover.Body>
                         </Overlay>
@@ -173,7 +173,7 @@ export default function ArtistWorks({ artist_id }: ArtistWorksProps) {
                             <td><Link href={`/album/${a.id}`}>{a.name}</Link></td>
                             <td><a className="bare-link" onClick={(e) => showPopover(e, a.id)}>{three_dots_vert}</a></td>
                         </tr>
-                        <Overlay show={show == a.id} target={target} placement="bottom-end">
+                        <Overlay key={a.id + "-overlay"} show={show == a.id} target={target} placement="bottom-end">
                             <Popover.Body>
                                 <div className="mx-1">
                                     <a className="bare-link" onClick={() => add_album_to_queue(a.id)}>Add to Queue</a>
