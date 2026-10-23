@@ -143,7 +143,7 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
     }, [track]);
 
     useEffect(() => {
-        console.log("tryBuffering effect");
+        console.log("tryBuffering effect", tryBuffering);
         if (! tryBuffering) return;
 
         setTryBuffering(false);
@@ -323,7 +323,7 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
 
         //console.log("HandleAnimation: on player", player.id)
         if (player.paused) {
-            console.log("HandleAnimation: player paused");
+            console.log("HandleAnimation: player paused", player.id);
             timeoutId.current = NaN;
             return;
         }
