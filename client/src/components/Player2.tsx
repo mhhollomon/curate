@@ -4,6 +4,7 @@ import { Button, ProgressBar } from 'react-bootstrap';
 import './Player.css'
 import { play_fill, pause_fill, rewind_fill, fast_forward_fill } from '~/icons'
 import { assert } from "radashi";
+import * as rad from 'radashi';
 
 export interface PlayerTrackData {
     id: string; // Track ID - mostly for the use by parent.
@@ -26,7 +27,7 @@ export interface Player2Props {
 }
 
 interface  NextTrackState {
-    track : PlayerTrackData | null;
+    nextTrack : PlayerTrackData | null;
     hasNext : boolean;
 
 }
@@ -52,30 +53,25 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
     const [currentTime, setCurrentTime] = useState(''); // string from formatTime
     const [progPercent, setProgPercent] = useState<number>(0);
     const [duration, setDuration] = useState(0.0);
-    const timeoutId = useRef<number>(NaN);
-
-    const playerA = useRef<HTMLAudioElement>(new Audio());
-    const playerB = useRef<HTMLAudioElement>(new Audio());
-
-    const [currentPlayer, setCurrentPlayer] = useState<string>("A");
+    // Not used in the rendering, but it is used to decouple the
+    // preload logic from the animation flow.
     const [tryBuffering, setTryBuffering] = useState(false);
 
-    const nextState = useRef<NextTrackState>({'track' : null, 'hasNext' : true})
+    const timeoutId = useRef<number>(NaN);
+    const players = useRef<HTMLAudioElement[]>([]);
+    const nextState = useRef<NextTrackState>({'nextTrack' : null, 'hasNext' : true})
 
     //-------------------------------------------------
     // Reactive functions
     //-------------------------------------------------
 
     useEffect(() => {
-        // Don't have anything to do, but register an unmount
-        // cleanup function.
-        playerA.current.preload = "auto";
-        playerA.current.id = "A";
-        playerB.current.preload = "auto";
-        playerB.current.id = "B";
 
         return () => {
             console.log("---- CLEANUP ---")
+
+            clean_players();
+
             if ("mediaSession" in navigator) {
                 navigator.mediaSession.metadata = null;
             }
@@ -93,24 +89,24 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
         if (track) {
             if (track.id === nextTrack()?.id) {
                 console.log(`Swapping to preloaded track ${track.id}`);
-                const old_player = getCurrentPlayer();
+                const old_player = players.current.shift();
                 assert(old_player);
 
                 // turn off the old player.
                 console.log("Turning off player", old_player.id);
-                old_player.onplay = null;
-                old_player.onended = null;
                 if (! isNaN(timeoutId.current)) {
                     clearTimeout(timeoutId.current);
                     timeoutId.current = NaN;
                 }
+                old_player.remove();
 
 
-                const player = getNextPlayer();
+
+                const player = getCurrentPlayer();
                 assert(player);
 
                 console.log("Swapping to player", player.id);
-                player.onplay = () => handleAnimation(player.id);
+                player.onplay = handleAnimation;
                 player.onended = ended;
                 player.onerror = event_handler;
                 player.onstalled = event_handler;
@@ -123,16 +119,15 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
                 // clean up
                 setNextTrack(null);
 
-                setCurrentPlayer(currentPlayer === "A" ? "B" : "A")
 
             } else {
-                console.log(`Loading track ${track.id} fresh in player ${currentPlayer}`)
-                const player = getCurrentPlayer();
-                assert(player);
-                player.src = track.src
-                player.pause();
+                console.log(`Loading track ${track.id} fresh in player`)
+                clean_players();
+                const player = create_player(track.src, track.id);
+                add_player(player);
+
                 player.oncanplay = can_play;
-                player.onplay = () => handleAnimation(player.id);
+                player.onplay = handleAnimation;
             }
         } else {
             if ("mediaSession" in navigator) {
@@ -151,7 +146,7 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
         const nt = nextTrack();
 
         if (nt) {
-            console.log("tryBuffering : nextTrack set =", nt.id);
+            console.log("tryBuffering : nextTrack already set =", nt.id);
             return;
         }
 
@@ -167,12 +162,10 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
 
         setNextTrack(next_track);
 
-        const player = getNextPlayer();
+        const player = create_player(next_track.src, next_track.id);
         assert(player);
+        add_player(player);
 
-        player.autoplay = false;
-        player.pause();
-        player.src = next_track.src;
         console.log("Set up to buffer in player", player.id);
 
     }, [tryBuffering]);
@@ -180,7 +173,7 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
     useEffect(() => {
         if (!isPlaying) return;
 
-        handleAnimation(currentPlayer);
+        handleAnimation();
 
     }, [isPlaying]);
 
@@ -243,24 +236,47 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
     }
 
     function setNextTrack(t : PlayerTrackData | null) {
-        getNextState().track = t;
+        getNextState().nextTrack = t;
     }
 
     function nextTrack() : PlayerTrackData | null {
-        return getNextState().track;
+        return getNextState().nextTrack;
     }
 
     function getCurrentPlayer() : HTMLAudioElement | null {
-        return currentPlayer == "A" ? playerA.current : playerB.current;
+        return rad.first(players.current);
     }
 
-    function getNextPlayer() : HTMLAudioElement | null {
-        return currentPlayer == "A" ? playerB.current : playerA.current;
+    function create_player(src : string, id : string) : HTMLAudioElement {
+        const a = new Audio(src);
+        a.autoplay = false;
+        a.preload = "auto";
+        a.id = id;
+        a.pause();
+
+        return a;
     }
 
-    function getPlayer(id : string) : HTMLAudioElement {
-        return id === "A" ? playerA.current : playerB.current;
+    function destroy_player(player : HTMLAudioElement) : void {
+        player.pause();
+        player.volume = 0;
+        player.onplay = null;
+        player.onended = null;
+
+        player.remove();
     }
+
+    function clean_players() : void {
+        while (players.current.length > 0) {
+            const [player] = players.current.splice(0, 1);
+            destroy_player(player);
+        }
+    }
+
+    function add_player(player : HTMLAudioElement) {
+        players.current.push(player);
+    }
+
 
     function setup_media_session(t : PlayerTrackData) {
         if (!("mediaSession" in navigator)) return;
@@ -317,8 +333,8 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
         if (onNext) onNext();
     }
 
-    function handleAnimation(player_id : string | undefined) {
-        const player = player_id ? getPlayer(player_id) : getCurrentPlayer();
+    function handleAnimation() {
+        const player = getCurrentPlayer();
         assert(player);
 
         //console.log("HandleAnimation: on player", player.id)
@@ -343,7 +359,7 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
             });
         }
 
-        timeoutId.current = setTimeout(() => handleAnimation(player_id), ANIMATION_MILLSEC);
+        timeoutId.current = setTimeout(handleAnimation, ANIMATION_MILLSEC);
 
 
         if (hasNext() && getNext && (new_duration - current_time < BUFFER_SECONDS) && ! nextTrack())
