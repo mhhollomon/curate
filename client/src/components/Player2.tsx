@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Button, ProgressBar } from 'react-bootstrap';
-import { Howl, Howler } from 'howler';
+//import { Howl, Howler } from 'howler';
 
 
 import './Player.css'
@@ -60,7 +60,7 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
     const [tryBuffering, setTryBuffering] = useState(false);
 
     const timeoutId = useRef<number>(NaN);
-    const players = useRef<Howl[]>([]);
+    const players = useRef<HTMLAudioElement[]>([]);
     const nextState = useRef<NextTrackState>({'nextTrack' : null, 'hasNext' : true})
 
     // Silence
@@ -71,7 +71,6 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
     //-------------------------------------------------
 
     useEffect(() => {
-        Howler.volume(0.90);
 
         return () => {
             console.log("---- CLEANUP ---")
@@ -99,7 +98,7 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
                 assert(old_player);
 
                 // turn off the old player.
-                console.log("Turning off player", old_player);
+                console.log("Turning off player", old_player.id);
                 if (! isNaN(timeoutId.current)) {
                     clearTimeout(timeoutId.current);
                     timeoutId.current = NaN;
@@ -111,12 +110,12 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
                 assert(player);
 
                 console.log("Swapping to player", player);
-                player.on('play',handleAnimation);
-                player.on('end', ended);
+                player.onplay = handleAnimation;
+                player.onended = ended;
                 setup_media_session(track);
                 player.play();
                 audioElem.current?.play();
-                setDuration(player.duration());
+                setDuration(player.duration);
                 setIsPlaying(true);
 
                 // clean up
@@ -129,8 +128,8 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
                 const player = create_player(track.src);
                 add_player(player);
 
-                player.once('load',can_play);
-                player.on('play', handleAnimation);
+                player.oncanplay = can_play;
+                player.onplay = handleAnimation;
             }
         } else {
             if ("mediaSession" in navigator) {
@@ -184,8 +183,8 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
     // HTMLAudioElement event handlers
     // These will probably need to change when we add the second device.
     //-------------------------------------------------
-    function event_handler(id : any, e : any) {
-        console.log("---+++ Got event from", id, "-", e);
+    function event_handler( e : any) {
+        console.log("---+++ Got event", e);
     }
 
     function can_play(_: any) {
@@ -194,19 +193,21 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
         assert(player);
         assert(track, "INTERNAL : Current track is not defined in can_play");
 
-        setDuration(player.duration());
+        player.oncanplay = null;
+
+        setDuration(player.duration);
         setIsPlaying(true);
 
-        player.on('end', ended);
+        player.onended = ended;
         player.play();
-        audioElem.current?.play();
+        //audioElem.current?.play();
 
         // Set up the MediaSession
         // Initialize  (maybe)
         if ("mediaSession" in navigator) {
             setup_media_session(track);
             navigator.mediaSession.setPositionState({
-                duration: player.duration(),
+                duration: player.duration,
                 position: 0.0,
             });
             // Not true, but will be in a millisecond
@@ -244,35 +245,33 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
         return getNextState().nextTrack;
     }
 
-    function getCurrentPlayer() : Howl | null {
+    function getCurrentPlayer() : HTMLAudioElement | null {
         return rad.first(players.current);
     }
 
-    function create_player(src : string) : Howl {
-        const a = new Howl({
-            src : [src],
-            autoplay : false,
-            // When using html5:true, the standard Audio() is
-            // used under the hood. This has some kind of bug
-            // that makes it unstable with large files (especially the
-            // SECOND large file played)
-            html5 : false,
-            format : 'webm',
-            loop : false,
-            onloaderror : event_handler,
-            onplayerror : event_handler,
-        });
+    function create_player(src : string) : HTMLAudioElement {
+        const a = new Audio(src);
+        a.autoplay = false;
+        a.loop = false;
+        a.volume = 0.90;
+        a.preload = "auto";
+        a.onerror = event_handler;
+        a.onwaiting = event_handler;
+        a.onabort = event_handler;
 
         a.pause();
 
         return a;
     }
 
-    function destroy_player(player : Howl) : void {
-        // player.pause();
-        // player.mute(true);
-        // player.off();
-        player.unload();
+    function destroy_player(player : HTMLAudioElement) : void {
+        player.pause();
+        player.onended = null;
+        player.oncanplay = null;
+        player.onplay = null;
+        player.muted = true;
+        //player.src = '';
+        //player.remove();
 
     }
 
@@ -283,7 +282,7 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
         }
     }
 
-    function add_player(player : Howl) {
+    function add_player(player : HTMLAudioElement) {
         players.current.push(player);
     }
 
@@ -320,10 +319,10 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
         const player = getCurrentPlayer();
         assert(player);
 
-        if (! player.playing()) {
+        if (player.paused) {
             console.log("Playing audio");
             player.play();
-            audioElem.current?.play();
+            //audioElem.current?.play();
 
             setIsPlaying(true);
             if ("mediaSession" in navigator) {
@@ -333,7 +332,7 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
         } else {
             console.log("Pausing audio");
             player.pause();
-            audioElem.current?.pause();
+            //audioElem.current?.pause();
 
             setIsPlaying(false);
             if ("mediaSession" in navigator) {
@@ -355,14 +354,14 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
         if (! player) return;
 
         //console.log("HandleAnimation: on player", player.id)
-        if (! player.playing()) {
+        if (player.paused) {
             console.log("HandleAnimation: player paused");
             timeoutId.current = NaN;
             return;
         }
 
-        const new_duration = player.duration();
-        const current_time = player.seek();
+        const new_duration = player.duration;
+        const current_time = player.currentTime;
 
         const fill_percent = Math.max(0, Math.min(100, (current_time / new_duration) * 100.0));
 
@@ -391,7 +390,7 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
 
         const delta = SEEK_SECONDS * (forward ? +1 : -1);
 
-        player.seek(player.seek() + delta);
+        player.currentTime = player.currentTime + delta;
     }
 
     //-------------------------------------------------
