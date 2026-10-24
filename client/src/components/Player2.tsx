@@ -63,6 +63,9 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
     const players = useRef<Howl[]>([]);
     const nextState = useRef<NextTrackState>({'nextTrack' : null, 'hasNext' : true})
 
+    // Silence
+    const audioElem = useRef<HTMLAudioElement>(null);
+
     //-------------------------------------------------
     // Reactive functions
     //-------------------------------------------------
@@ -111,6 +114,7 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
                 player.on('end', ended);
                 setup_media_session(track);
                 player.play();
+                audioElem.current?.play();
                 setDuration(player.duration());
                 setIsPlaying(true);
 
@@ -194,6 +198,7 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
 
         player.on('end', ended);
         player.play();
+        audioElem.current?.play();
 
         // Set up the MediaSession
         // Initialize  (maybe)
@@ -209,6 +214,8 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
     }
 
     function ended(_: any) {
+        audioElem.current?.pause();
+
         if (onEnd) onEnd();
     }
 
@@ -312,6 +319,8 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
         if (! player.playing()) {
             console.log("Playing audio");
             player.play();
+            audioElem.current?.play();
+
             setIsPlaying(true);
             if ("mediaSession" in navigator) {
                 navigator.mediaSession.playbackState = "playing";
@@ -320,6 +329,8 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
         } else {
             console.log("Pausing audio");
             player.pause();
+            audioElem.current?.pause();
+
             setIsPlaying(false);
             if ("mediaSession" in navigator) {
                 navigator.mediaSession.playbackState = "paused";
@@ -385,6 +396,8 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
 
     return (
         <div className="audio-player mt-2">
+            {/* Can't use the MediaSession except if your playing via an audio element. So, lets play silence. */}
+            <audio autoPlay={false} loop={true} ref={audioElem} src="/api/silence"></audio>
             <ProgressBar now={progPercent} min={0} max={100} />
             {track &&
                 <div className="time-display">

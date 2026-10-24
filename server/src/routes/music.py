@@ -226,3 +226,8 @@ def get_cover(ctype : str, cover_id : str) :
 
     return stream_file(cache_path)
 
+@music_router.get('/silence' )
+def get_silence() :
+    src_path = Path(__file__).parent.parent / 'silence.mp3'
+    print(f"--- silence path = {str(src_path)}")
+    return stream_file(src_path)

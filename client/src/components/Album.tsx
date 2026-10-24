@@ -110,6 +110,8 @@ export default function Album({ album_id }: AlbumProps) {
         if (autoPlay) {
             const t = compute_next_track(1);
             playTrack(t);
+            if (t === undefined)
+                setAutoPlay(false);
         } else {
             playTrack(undefined);
         }
