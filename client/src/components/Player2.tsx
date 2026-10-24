@@ -115,7 +115,7 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
                 player.on('end', ended);
                 setup_media_session(track);
                 player.play();
-                //audioElem.current?.play();
+                audioElem.current?.play();
                 setDuration(player.duration());
                 setIsPlaying(true);
 
@@ -199,7 +199,7 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
 
         player.on('end', ended);
         player.play();
-        //audioElem.current?.play();
+        audioElem.current?.play();
 
         // Set up the MediaSession
         // Initialize  (maybe)
@@ -323,7 +323,7 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
         if (! player.playing()) {
             console.log("Playing audio");
             player.play();
-            //audioElem.current?.play();
+            audioElem.current?.play();
 
             setIsPlaying(true);
             if ("mediaSession" in navigator) {
