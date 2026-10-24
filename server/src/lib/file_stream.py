@@ -17,12 +17,17 @@ def _mtype(ext : str) -> str :
         '.webp' : 'image/webp',
     }[ext]
 
-
-def read_streaming_file(path : Path | str, start_byte : int = 0) :
+def read_streaming_file(path : Path | str, start_byte : int) :
     with open(file=path, mode='br') as f :
+        total = 0
         if start_byte > 0 :
             f.seek(start_byte)
-        yield from f
+
+        for chunk in f :
+            total += len(chunk)
+            yield chunk
+
+    print(f"-- Streamed {total} bytes")
 
 
 def stream_file(path : Path, *,
@@ -33,6 +38,7 @@ def stream_file(path : Path, *,
     content_size = os.path.getsize(path)
 
     if range_header :
+        print("-- Stream range = ", range_header)
         # Range will look like `bytes=<start>-<stop?>`
         start_byte = int(range_header[6:].split('-', 2)[0])
     else :
@@ -45,7 +51,9 @@ def stream_file(path : Path, *,
     if headers is None :
         headers = {}
 
-    headers['Content-Length'] = str(content_size - start_byte)
+    send_length = content_size - start_byte
+
+    headers['Content-Length'] = str(send_length)
 
     print(f"""-- Streaming file
       path = {path}

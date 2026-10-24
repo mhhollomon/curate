@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Button, ProgressBar } from 'react-bootstrap';
+import { Howl } from 'howler';
+
 
 import './Player.css'
 import { play_fill, pause_fill, rewind_fill, fast_forward_fill } from '~/icons'
@@ -40,10 +42,10 @@ function formatTime(seconds: number) {
 }
 
 
-const ANIMATION_MILLSEC = 400;
+const ANIMATION_MILLSEC = 333;
 const SEEK_SECONDS = 10;
 
-// How far for the end of the current track
+// How far from the end of the current track
 // should we start buffering the next track.
 const BUFFER_SECONDS = 30;
 
@@ -58,7 +60,7 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
     const [tryBuffering, setTryBuffering] = useState(false);
 
     const timeoutId = useRef<number>(NaN);
-    const players = useRef<HTMLAudioElement[]>([]);
+    const players = useRef<Howl[]>([]);
     const nextState = useRef<NextTrackState>({'nextTrack' : null, 'hasNext' : true})
 
     //-------------------------------------------------
@@ -93,27 +95,23 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
                 assert(old_player);
 
                 // turn off the old player.
-                console.log("Turning off player", old_player.id);
+                console.log("Turning off player", old_player);
                 if (! isNaN(timeoutId.current)) {
                     clearTimeout(timeoutId.current);
                     timeoutId.current = NaN;
                 }
-                old_player.remove();
-
+                destroy_player(old_player);
 
 
                 const player = getCurrentPlayer();
                 assert(player);
 
-                console.log("Swapping to player", player.id);
-                player.onplay = handleAnimation;
-                player.onended = ended;
-                player.onerror = event_handler;
-                player.onstalled = event_handler;
-                player.onwaiting = event_handler;
+                console.log("Swapping to player", player);
+                player.on('play',handleAnimation);
+                player.on('end', ended);
                 setup_media_session(track);
                 player.play();
-                setDuration(player.duration);
+                setDuration(player.duration());
                 setIsPlaying(true);
 
                 // clean up
@@ -123,11 +121,11 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
             } else {
                 console.log(`Loading track ${track.id} fresh in player`)
                 clean_players();
-                const player = create_player(track.src, track.id);
+                const player = create_player(track.src);
                 add_player(player);
 
-                player.oncanplay = can_play;
-                player.onplay = handleAnimation;
+                player.once('load',can_play);
+                player.on('play', handleAnimation);
             }
         } else {
             if ("mediaSession" in navigator) {
@@ -162,11 +160,11 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
 
         setNextTrack(next_track);
 
-        const player = create_player(next_track.src, next_track.id);
+        const player = create_player(next_track.src);
         assert(player);
         add_player(player);
 
-        console.log("Set up to buffer in player", player.id);
+        console.log("Set up to buffer in player");
 
     }, [tryBuffering]);
 
@@ -181,8 +179,8 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
     // HTMLAudioElement event handlers
     // These will probably need to change when we add the second device.
     //-------------------------------------------------
-    function event_handler(e : any) {
-        console.log("--- Got event type", e.type)
+    function event_handler(id : any, e : any) {
+        console.log("--- Got event from", id, "-", e);
     }
 
     function can_play(_: any) {
@@ -191,15 +189,10 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
         assert(player);
         assert(track, "INTERNAL : Current track is not defined in can_play");
 
-        console.log("can_play: working with player", player.id)
-        setDuration(player.duration);
+        setDuration(player.duration());
         setIsPlaying(true);
-        player.oncanplay = null;
 
-        player.onended = ended;
-        player.onerror = event_handler;
-        player.onstalled = event_handler;
-        player.onwaiting = event_handler;
+        player.on('end', ended);
         player.play();
 
         // Set up the MediaSession
@@ -207,7 +200,7 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
         if ("mediaSession" in navigator) {
             setup_media_session(track);
             navigator.mediaSession.setPositionState({
-                duration: player.duration,
+                duration: player.duration(),
                 position: 0.0,
             });
             // Not true, but will be in a millisecond
@@ -243,27 +236,32 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
         return getNextState().nextTrack;
     }
 
-    function getCurrentPlayer() : HTMLAudioElement | null {
+    function getCurrentPlayer() : Howl | null {
         return rad.first(players.current);
     }
 
-    function create_player(src : string, id : string) : HTMLAudioElement {
-        const a = new Audio(src);
-        a.autoplay = false;
-        a.preload = "auto";
-        a.id = id;
+    function create_player(src : string) : Howl {
+        const a = new Howl({
+            src : [src],
+            autoplay : false,
+            html5 : true,
+            format : 'webm',
+            loop : false,
+            onloaderror : event_handler,
+            onplayerror : event_handler,
+        });
+
         a.pause();
 
         return a;
     }
 
-    function destroy_player(player : HTMLAudioElement) : void {
+    function destroy_player(player : Howl) : void {
         player.pause();
-        player.volume = 0;
-        player.onplay = null;
-        player.onended = null;
+        player.mute(true);
+        player.off();
+        player.unload();
 
-        player.remove();
     }
 
     function clean_players() : void {
@@ -273,7 +271,7 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
         }
     }
 
-    function add_player(player : HTMLAudioElement) {
+    function add_player(player : Howl) {
         players.current.push(player);
     }
 
@@ -307,7 +305,7 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
         const player = getCurrentPlayer();
         assert(player);
 
-        if (player.paused) {
+        if (! player.playing()) {
             console.log("Playing audio");
             player.play();
             setIsPlaying(true);
@@ -335,17 +333,17 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
 
     function handleAnimation() {
         const player = getCurrentPlayer();
-        assert(player);
+        if (! player) return;
 
         //console.log("HandleAnimation: on player", player.id)
-        if (player.paused) {
-            console.log("HandleAnimation: player paused", player.id);
+        if (! player.playing()) {
+            console.log("HandleAnimation: player paused");
             timeoutId.current = NaN;
             return;
         }
 
-        const new_duration = player.duration;
-        const current_time = player.currentTime;
+        const new_duration = player.duration();
+        const current_time = player.seek();
 
         const fill_percent = Math.max(0, Math.min(100, Math.round((current_time / new_duration) * 100.0)));
 
@@ -374,7 +372,7 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
 
         const delta = SEEK_SECONDS * (forward ? +1 : -1);
 
-        player.currentTime = player.currentTime + delta;
+        player.seek(player.seek() + delta);
     }
 
     //-------------------------------------------------

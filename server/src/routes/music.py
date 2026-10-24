@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 import subprocess
 from typing import Annotated
@@ -184,8 +185,11 @@ def play_track(track_id : str, range : Annotated[str | None, Header()] = None) :
         cache_path = CACHE_PATH / f"{track_id}.webm"
         if not cache_path.exists() :
             subprocess.run([FFMPEG, "-i", str(full_path), '-dash', '1', '-v', 'fatal', str(cache_path)] )
+            content_size = os.path.getsize(cache_path)
+            print(f"@@ Created {cache_path} of size {content_size}")
 
         stream_path = cache_path
+
 
     return stream_file(stream_path, range_header=range, headers={'Accept-Ranges' : 'bytes'})
 
