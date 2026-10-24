@@ -180,7 +180,7 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
     // These will probably need to change when we add the second device.
     //-------------------------------------------------
     function event_handler(id : any, e : any) {
-        console.log("--- Got event from", id, "-", e);
+        console.log("---+++ Got event from", id, "-", e);
     }
 
     function can_play(_: any) {
@@ -244,7 +244,11 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
         const a = new Howl({
             src : [src],
             autoplay : false,
-            html5 : true,
+            // When using html5:true, the standard Audio() is
+            // used under the hood. This has some kind of bug
+            // that makes it unstable with large files (especially the
+            // SECOND large file played)
+            html5 : false,
             format : 'webm',
             loop : false,
             onloaderror : event_handler,
@@ -257,9 +261,9 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
     }
 
     function destroy_player(player : Howl) : void {
-        player.pause();
-        player.mute(true);
-        player.off();
+        // player.pause();
+        // player.mute(true);
+        // player.off();
         player.unload();
 
     }
@@ -345,7 +349,7 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
         const new_duration = player.duration();
         const current_time = player.seek();
 
-        const fill_percent = Math.max(0, Math.min(100, Math.round((current_time / new_duration) * 100.0)));
+        const fill_percent = Math.max(0, Math.min(100, (current_time / new_duration) * 100.0));
 
         setProgPercent(fill_percent);
         setCurrentTime(formatTime(current_time));
@@ -381,7 +385,7 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
 
     return (
         <div className="audio-player mt-2">
-            <ProgressBar now={progPercent} />
+            <ProgressBar now={progPercent} min={0} max={100} />
             {track &&
                 <div className="time-display">
                     <span>{currentTime}</span>
