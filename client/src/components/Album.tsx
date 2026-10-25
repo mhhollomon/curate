@@ -174,7 +174,7 @@ export default function Album({ album_id }: AlbumProps) {
                 onEnd={onPlayEnd}
                 onPrevious={onPrevious}
                 onNext={onNext}
-                getNext={getNext} />
+                getNext={autoPlay ? getNext : undefined} />
 
             <Table striped>
                 <thead>
