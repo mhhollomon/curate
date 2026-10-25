@@ -3,9 +3,11 @@ import { Button, Table } from "react-bootstrap"
 import { queueListAtom } from "~/atoms"
 import CoverImage from "./CoverImage"
 import ForwardLink from "~/components/ForwardLink"
-import Player from "~/components/Player"
+import Player2, { type PlayerTrackData } from './Player2'
+
 import type { QueueItem } from "~/types/queue_item"
 import { useState } from "react"
+import { trash3 } from "~/icons"
 
 
 export default function Queue() {
@@ -33,20 +35,49 @@ export default function Queue() {
         setQueueList([]);
     }
 
-    const track_name = currentTrack?.track_name || '';
-    const playSrc = currentTrack ? `/api/play/${currentTrack.track_id}` : null;
+    function track2player_data(q: QueueItem) : PlayerTrackData {
+        return { 'id': q.track_id,
+                'src' : `/api/play/${q.track_id}`,
+                'artist' : q.artist_name,
+                'cover' : q.cover_id ? `/api/cover/media/${q.cover_id}` : undefined,
+                'album' : q.album_name || undefined,
+                'name': q.track_name
+            };
+    }
+
+    function getNext() : PlayerTrackData | null {
+
+        if (queueList.length > 1) {
+            const t = queueList[1];
+            return track2player_data(t);
+        } else {
+            return null;
+        }
+    }
+
+    function handleRemove(id : string) {
+        console.log(`Removing ${id} from list`);
+        const new_queue = queueList.filter(q => q.track_id !== id);
+        setQueueList(new_queue);
+
+
+    }
+
+
+    const playSrc = currentTrack ? track2player_data(currentTrack) : undefined;
     const button_text = currentTrack ? 'Stop' : 'Play';
 
     return (<>
-        <Player src={playSrc} name={track_name} album={currentTrack?.album_name}
-            artist={currentTrack?.artist_name || "unknown"} cover={currentTrack?.cover_id}
+        <Player2 track={playSrc}
             onEnd={next_song}
-            onPrevious={undefined} onNext={next_song} />
+            onNext={next_song}
+            getNext={getNext}
+            />
 
         <Table striped>
             <thead>
                 <tr>
-                    <th colSpan={4}>
+                    <th colSpan={5}>
                         <div className='d-flex gap-2 justify-content-center'>
                             <Button onClick={play_stop} disabled={queueList.length == 0}>{button_text}</Button>
                             <Button onClick={clear_queue} disabled={queueList.length == 0}>Clear Queue</Button>
@@ -62,11 +93,17 @@ export default function Queue() {
             </thead>
             <tbody>
                 {queueList.map((t) =>
-                    <tr>
+                    <tr key={t.track_id}>
                         <td>{t.cover_id ? <CoverImage cover_id={t.cover_id} /> : <>&nbsp;</>}</td>
                         <td>{t.track_name}</td>
                         <td><ForwardLink href={`/artist/${t.artist_id}`} title={t.artist_name} /></td>
                         <td>{t.album_name || ''}</td>
+                        <td>
+                            {t.track_id === currentTrack?.track_id ?
+                                <>&nbsp;</> :
+                                <a className="bare_link" onClick={()=>{handleRemove(t.track_id)}}>{trash3}</a>
+                            }
+                        </td>
                     </tr>
                 )}
             </tbody>

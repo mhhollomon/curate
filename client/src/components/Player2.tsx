@@ -28,9 +28,11 @@ export interface Player2Props {
     getNext?: () => (PlayerTrackData | null);
 }
 
-interface  NextTrackState {
+interface  RunData {
     nextTrack : PlayerTrackData | null;
     hasNext : boolean;
+    currTime : number; // seconds
+    duration : number;
 
 }
 
@@ -42,7 +44,7 @@ function formatTime(seconds: number) {
 }
 
 
-const ANIMATION_MILLSEC = 333;
+const ANIMATION_MILLSEC = 100;
 const SEEK_SECONDS = 10;
 
 // How far from the end of the current track
@@ -61,10 +63,16 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
 
     const timeoutId = useRef<number>(NaN);
     const players = useRef<HTMLAudioElement[]>([]);
-    const nextState = useRef<NextTrackState>({'nextTrack' : null, 'hasNext' : true})
+    const runData = useRef<RunData>({
+        'nextTrack' : null,
+        'hasNext' : true,
+        'currTime' : 0,
+        'duration' : 0
+    })
 
     // Silence
     const audioElem = useRef<HTMLAudioElement>(null);
+    const playerDiv = useRef<HTMLDivElement>(null);
 
     //-------------------------------------------------
     // Reactive functions
@@ -117,6 +125,9 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
                 player.play();
                 //audioElem.current?.play();
                 setDuration(player.duration);
+                if (runData.current) {
+                    runData.current.duration = player.duration;
+                }
                 setIsPlaying(true);
 
                 // clean up
@@ -197,6 +208,9 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
         player.oncanplay = null;
 
         setDuration(player.duration);
+        if (runData.current) {
+            runData.current.duration = player.duration;
+        }
         setIsPlaying(true);
 
         player.onended = ended;
@@ -217,7 +231,7 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
     }
 
     function ended(e: any) {
-        console.log(`--ended fired @ ${currentTime} for player`, e.target);
+        console.log(`--ended fired @ ${runData.current?.currTime} of ${runData.current?.duration} for player`, e.target);
         audioElem.current?.pause();
 
         if (onEnd) onEnd();
@@ -227,8 +241,8 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
     // Utility functions
     //-------------------------------------------------
 
-    function getNextState() : NextTrackState {
-        return nextState.current;
+    function getNextState() : RunData {
+        return runData.current;
     }
 
     function setHasNext(v : boolean) {
@@ -262,6 +276,7 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
         a.onabort = event_handler;
 
         a.pause();
+        playerDiv.current?.appendChild(a);
 
         return a;
     }
@@ -272,8 +287,7 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
         player.oncanplay = null;
         player.onplay = null;
         player.muted = true;
-        //player.src = '';
-        //player.remove();
+        player.remove();
 
     }
 
@@ -365,6 +379,10 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
         const new_duration = player.duration;
         const current_time = player.currentTime;
 
+        if (runData.current) {
+            runData.current.currTime = current_time;
+        }
+
         const fill_percent = Math.max(0, Math.min(100, (current_time / new_duration) * 100.0));
 
         setProgPercent(fill_percent);
@@ -402,7 +420,9 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
     return (
         <div className="audio-player mt-2">
             {/* Can't use the MediaSession except if your playing via an audio element. So, lets play silence. */}
-            <audio autoPlay={false} loop={true} ref={audioElem} src="/api/silence"></audio>
+            <div id="players" hidden aria-hidden ref={playerDiv}>
+                <audio autoPlay={false} loop={true} ref={audioElem} src="/api/silence"></audio>
+            </div>
             <ProgressBar now={progPercent} min={0} max={100} />
             {track &&
                 <div className="time-display">

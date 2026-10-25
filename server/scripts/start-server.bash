@@ -6,4 +6,8 @@ app_dir=${code_home}/..
 
 . ${app_dir}/.venv/bin/activate
 
-exec gunicorn src.main:app -w 1 -k uvicorn.workers.UvicornWorker --chdir ${app_dir}
+exec gunicorn src.main:app -w 1 -k uvicorn.workers.UvicornWorker \
+    --chdir ${app_dir} \
+    --no-control-socket \
+    --access-logfile='-' \
+    --disable-redirect-access-to-syslog
