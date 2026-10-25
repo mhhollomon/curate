@@ -85,13 +85,13 @@ export default function Album({ album_id }: AlbumProps) {
 
         let index = trackList.findIndex((t) => t.id === currentTrack?.id)
         const old_index = index
-        console.log(`compute_next_track : old_index = ${old_index}`)
+        //console.log(`compute_next_track : old_index = ${old_index}`)
         index += delta
         index = index >= trackList.length ? 0 : index
         index = index < 0 ? trackList.length - 1 : index
 
-        console.log(`compute_next_track : index = ${index}`)
-        console.log(`compute_next_track : loopAlbum = ${loopAlbum}`)
+        //console.log(`compute_next_track : index = ${index}`)
+        //console.log(`compute_next_track : loopAlbum = ${loopAlbum}`)
 
         if (!loopAlbum && index != old_index + delta) {
             // we reached the "end"

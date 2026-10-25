@@ -44,12 +44,13 @@ function formatTime(seconds: number) {
 }
 
 
-const ANIMATION_MILLSEC = 100;
 const SEEK_SECONDS = 10;
 
 // How far from the end of the current track
 // should we start buffering the next track.
 const BUFFER_SECONDS = 30;
+
+const PRELOAD = false;
 
 
 export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: Player2Props) {
@@ -61,7 +62,6 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
     // preload logic from the animation flow.
     const [tryBuffering, setTryBuffering] = useState(false);
 
-    const timeoutId = useRef<number>(NaN);
     const players = useRef<HTMLAudioElement[]>([]);
     const runData = useRef<RunData>({
         'nextTrack' : null,
@@ -88,10 +88,6 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
             if ("mediaSession" in navigator) {
                 navigator.mediaSession.metadata = null;
             }
-            if (! isNaN(timeoutId.current)) {
-                clearTimeout(timeoutId.current);
-                timeoutId.current = NaN;
-            }
         }
     }, [])
 
@@ -108,10 +104,10 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
 
                 // turn off the old player.
                 console.log("Turning off player", old_player.id);
-                if (! isNaN(timeoutId.current)) {
-                    clearTimeout(timeoutId.current);
-                    timeoutId.current = NaN;
-                }
+                // if (! isNaN(timeoutId.current)) {
+                //     clearTimeout(timeoutId.current);
+                //     timeoutId.current = NaN;
+                // }
                 destroy_player(old_player);
 
 
@@ -119,7 +115,7 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
                 assert(player);
 
                 console.log("Swapping to player", player);
-                player.onplay = handleAnimation;
+                player.ontimeupdate = handleTimeUpdate;
                 player.onended = ended;
                 setup_media_session(track);
                 player.play();
@@ -141,7 +137,7 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
                 add_player(player);
 
                 player.oncanplay = can_play;
-                player.onplay = handleAnimation;
+                player.ontimeupdate = handleTimeUpdate;
             }
         } else {
             if ("mediaSession" in navigator) {
@@ -184,12 +180,6 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
 
     }, [tryBuffering]);
 
-    useEffect(() => {
-        if (!isPlaying) return;
-
-        handleAnimation();
-
-    }, [isPlaying]);
 
     //-------------------------------------------------
     // HTMLAudioElement event handlers
@@ -215,7 +205,6 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
 
         player.onended = ended;
         player.play();
-        //audioElem.current?.play();
 
         // Set up the MediaSession
         // Initialize  (maybe)
@@ -236,6 +225,46 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
 
         if (onEnd) onEnd();
     }
+
+    function handleTimeUpdate(e : Event) {
+        const player = e.target as HTMLAudioElement;
+        if (player.src !== getCurrentPlayer()?.src) {
+            console.error("Recieved TimeChange event from other than current player:", player);
+            return;
+        }
+
+
+        //console.log("HandleAnimation: on player", player.id)
+        if (player.paused) {
+            console.log("HandleAnimation: player paused", player);
+            return;
+        }
+
+        const new_duration = player.duration;
+        const current_time = player.currentTime;
+
+        if (runData.current) {
+            runData.current.currTime = current_time;
+        }
+
+        const fill_percent = Math.max(0, Math.min(100, (current_time / new_duration) * 100.0));
+
+        setProgPercent(fill_percent);
+        setCurrentTime(formatTime(current_time));
+
+        if ("mediaSession" in navigator) {
+            navigator.mediaSession.setPositionState({
+                duration: new_duration,
+                position: current_time,
+            });
+        }
+
+
+        if (PRELOAD && hasNext() && getNext && (new_duration - current_time < BUFFER_SECONDS) && ! nextTrack())
+           setTryBuffering(true);
+
+    }
+
 
     //-------------------------------------------------
     // Utility functions
@@ -286,6 +315,7 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
         player.onended = null;
         player.oncanplay = null;
         player.onplay = null;
+        player.ontimeupdate = null;
         player.muted = true;
         player.remove();
 
@@ -365,43 +395,6 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
         if (onNext) onNext();
     }
 
-    function handleAnimation() {
-        const player = getCurrentPlayer();
-        if (! player) return;
-
-        //console.log("HandleAnimation: on player", player.id)
-        if (player.paused) {
-            console.log("HandleAnimation: player paused");
-            timeoutId.current = NaN;
-            return;
-        }
-
-        const new_duration = player.duration;
-        const current_time = player.currentTime;
-
-        if (runData.current) {
-            runData.current.currTime = current_time;
-        }
-
-        const fill_percent = Math.max(0, Math.min(100, (current_time / new_duration) * 100.0));
-
-        setProgPercent(fill_percent);
-        setCurrentTime(formatTime(current_time));
-
-        if ("mediaSession" in navigator) {
-            navigator.mediaSession.setPositionState({
-                duration: new_duration,
-                position: current_time,
-            });
-        }
-
-        timeoutId.current = setTimeout(handleAnimation, ANIMATION_MILLSEC);
-
-
-        if (hasNext() && getNext && (new_duration - current_time < BUFFER_SECONDS) && ! nextTrack())
-           setTryBuffering(true);
-
-    }
 
 
     function handleSeek10ButtonClick(forward: boolean) {
