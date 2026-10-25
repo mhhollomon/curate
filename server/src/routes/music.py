@@ -175,14 +175,13 @@ def play_track(track_id : str, range : Annotated[str | None, Header()] = None) :
     except dbTrack.DoesNotExist : # type: ignore
         raise HTTPException(status_code=404, detail="Track not found")
 
-    content_type = f"audio/{track.format}"
     full_path = MUSIC_DIRECTORY / track.path
 
     stream_path = full_path
 
     if track.format in CONVERTABLE_TYPES :
         # be sure to put the extension on it.
-        cache_path = CACHE_PATH / f"{track_id}.mp3"
+        cache_path = CACHE_PATH / 'audio' / f"{track_id}.mp3"
         if not cache_path.exists() :
             subprocess.run([FFMPEG, "-i", str(full_path), '-dash', '1', '-v', 'fatal', str(cache_path)] )
             content_size = os.path.getsize(cache_path)
