@@ -20,7 +20,7 @@ from playhouse.pydantic_utils import to_pydantic
 
 MUSIC_DIRECTORY = Path(get_required_config('MUSIC_DIRECTORY'))
 FFMPEG = get_config('FFMPEG_PATH', "/usr/bin/ffmpeg")
-CACHE_PATH = Path(get_config('CACHE_PATH', "./cache/"))
+CACHE_PATH = Path(get_required_config('CACHE_PATH'))
 DB_FILE = get_required_config("DB_FILE")
 
 print(f"""--- CONFIG ---

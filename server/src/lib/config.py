@@ -8,7 +8,7 @@ def get_config(key : str, default : str ) -> str :
     val = CONFIG.get(key)
     if not val :
         val = default
-    return default
+    return val
 
 def get_required_config (key : str, *, validate : Callable[[str], bool] | None = None) -> str :
     val = CONFIG.get(key)
