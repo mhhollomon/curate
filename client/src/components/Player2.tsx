@@ -88,6 +88,7 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
     }, [])
 
     useEffect(() => {
+        console.log(`track changed to: '${track?.id || 'undefined'}'`)
 
         setHasNext(true);
 
@@ -114,7 +115,7 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
                 player.onended = ended;
                 setup_media_session(track);
                 player.play();
-                audioElem.current?.play();
+                //audioElem.current?.play();
                 setDuration(player.duration);
                 setIsPlaying(true);
 
@@ -123,7 +124,7 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
 
 
             } else {
-                console.log(`Loading track ${track.id} fresh in player`)
+                console.log(`Loading track ${track.id} fresh in new player`)
                 clean_players();
                 const player = create_player(track.src);
                 add_player(player);
@@ -215,7 +216,8 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
         }
     }
 
-    function ended(_: any) {
+    function ended(e: any) {
+        console.log(`--ended fired @ ${currentTime} for player`, e.target);
         audioElem.current?.pause();
 
         if (onEnd) onEnd();

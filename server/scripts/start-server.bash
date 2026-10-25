@@ -6,4 +6,4 @@ app_dir=${code_home}/..
 
 . ${app_dir}/.venv/bin/activate
 
-uvicorn --app-dir ${app_dir} src.main:app
+gunicorn src.main:app -w 1 -k uvicorn.workers.UvicornWorker --chdir ${app_dir}
