@@ -144,6 +144,7 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
                 navigator.mediaSession.metadata = null;
             }
             setProgPercent(0);
+            clean_players();
         }
     }, [track]);
 
@@ -183,15 +184,13 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
 
     //-------------------------------------------------
     // HTMLAudioElement event handlers
-    // These will probably need to change when we add the second device.
     //-------------------------------------------------
     function event_handler( e : any) {
         console.log("---+++ Got event", e);
     }
 
-    function can_play(_: any) {
-        // Appease the type gods
-        const player = getCurrentPlayer();
+    function can_play(e : Event) {
+        const player = e.target as HTMLAudioElement;
         assert(player);
         assert(track, "INTERNAL : Current track is not defined in can_play");
 
