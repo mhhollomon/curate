@@ -1,9 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Button, ProgressBar } from 'react-bootstrap';
-//import { Howl, Howler } from 'howler';
 
 
-import './Player.css'
+import './Player2.css'
 import { play_fill, pause_fill, rewind_fill, fast_forward_fill } from '~/icons'
 import { assert } from "radashi";
 import * as rad from 'radashi';

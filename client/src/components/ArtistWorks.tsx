@@ -1,10 +1,10 @@
 import { useAtom } from "jotai";
-import { useEffect, useState } from "react";
+import { Fragment, useState } from "react";
 import { Button, Overlay, Popover, Table } from "react-bootstrap";
 import { Link } from "wouter";
 import { queueListAtom } from "~/atoms";
 import BackLink from "~/components/BackLink";
-import Player from "~/components/Player";
+import Player2, { type PlayerTrackData } from './Player2'
 import { play_btn_fill, three_dots_vert } from "~/icons";
 import { useProtectedData } from "~/lib/hook";
 import type { ArtistWorks } from "~/types/artist";
@@ -15,15 +15,9 @@ export interface ArtistWorksProps {
     artist_id: string;
 }
 
-interface playTrackData {
-    id: string;
-    name: string;
-}
-
 export default function ArtistWorks({ artist_id }: ArtistWorksProps) {
     const [artistWorks, setArtistWorks] = useState<ArtistWorks | undefined>(undefined)
-    const [playSrc, setPlaySrc] = useState<string | null>(null)
-    const [playTrackDataState, setPlayTrackData] = useState<playTrackData>()
+    const [currentTrack, setCurrentTrack] = useState<PlayerTrackData>();
 
     const [show, setShow] = useState<string>();
     const [target, setTarget] = useState(null);
@@ -37,27 +31,14 @@ export default function ArtistWorks({ artist_id }: ArtistWorksProps) {
         }
     })
 
-    useEffect(() => {
-        if (!playTrackDataState) {
-            console.log("useEffect - nulling out playSrc")
-            setPlaySrc(null)
-        } else {
-            console.log("useEffect - updating playSrc")
-            setPlaySrc(`/api/play/${playTrackDataState.id}`)
-        }
-
-
-    }, [playTrackDataState])
-
 
     function playTrack(t: Track) {
-        setPlayTrackData({ 'id': t.id, 'name': t.name });
+        setCurrentTrack(track2player_data(t));
 
     }
 
     function handleStop() {
-        setPlayTrackData(undefined);
-        setPlaySrc(null);
+        setCurrentTrack(undefined);
     }
 
     function showPopover(e: any, id: string) {
@@ -79,6 +60,15 @@ export default function ArtistWorks({ artist_id }: ArtistWorksProps) {
         const new_queue = [...queueList, new_item];
         SetQueueList(new_queue)
         setShow(undefined)
+    }
+
+    function track2player_data(t: Track) : PlayerTrackData {
+        return { 'id': t.id,
+                'src' : `/api/play/${t.id}`,
+                'artist' : artistWorks?.artist.name || '',
+                'cover' : undefined,
+                'album' : undefined,
+                'name': t.name };
     }
 
     async function add_album_to_queue(album_id: string) {
@@ -107,9 +97,6 @@ export default function ArtistWorks({ artist_id }: ArtistWorksProps) {
     }
 
 
-    const track_name = playTrackDataState?.name || '';
-
-
     return (<>
         <div className="text-start">
             <BackLink />
@@ -119,8 +106,7 @@ export default function ArtistWorks({ artist_id }: ArtistWorksProps) {
                 <span className="fs-3">{artistWorks?.artist.name}</span>
             </div>
 
-            <Player src={playSrc} name={track_name} album={undefined}
-                artist={artistWorks?.artist.name || "unknown"} cover={undefined}
+            <Player2 track={currentTrack}
                 onEnd={undefined}
                 onPrevious={undefined} onNext={undefined} />
 
@@ -136,20 +122,20 @@ export default function ArtistWorks({ artist_id }: ArtistWorksProps) {
                     </tr>
                 </thead>
                 <tbody>
-                    {artistWorks && artistWorks.singles.length > 0 && artistWorks.singles.map(s => <>
-                        <tr key={s.id}>
-                            <td style={{ width: '2rem' }}>{s.id === playTrackDataState?.id ? '>>>' : <a onClick={() => playTrack(s)}>{play_btn_fill}</a>}</td>
+                    {artistWorks && artistWorks.singles.length > 0 && artistWorks.singles.map(s => <Fragment key={s.id}>
+                        <tr key={s.id+'-s'}>
+                            <td style={{ width: '2rem' }}>{s.id === currentTrack?.id ? '>>>' : <a onClick={() => playTrack(s)}>{play_btn_fill}</a>}</td>
                             <td><a onClick={() => playTrack(s)}>{s.name}</a></td>
                             <td><a className="bare-link" onClick={(e) => showPopover(e, s.id)}>{three_dots_vert}</a></td>
                         </tr>
-                        <Overlay key={s.id + "-overlay"} show={show == s.id} target={target} placement="bottom-end">
+                        <Overlay show={show == s.id} target={target} placement="bottom-end">
                             <Popover.Body>
                                 <div className="mx-1">
                                     <a className="bare-link" onClick={() => add_single_to_queue(s)}>Add to Queue</a>
                                 </div>
                             </Popover.Body>
                         </Overlay>
-                    </>
+                    </Fragment>
 
                     )}
                 </tbody>
@@ -167,20 +153,20 @@ export default function ArtistWorks({ artist_id }: ArtistWorksProps) {
                     </tr>
                 </thead>
                 <tbody>
-                    {artistWorks && artistWorks.albums.length > 0 && artistWorks.albums.map(a => <>
-                        <tr key={a.id}>
+                    {artistWorks && artistWorks.albums.length > 0 && artistWorks.albums.map(a => { return <Fragment key={a.id}>
+                        <tr key={a.id + '-a'}>
                             <td style={{ width: '2rem' }}>&nbsp;</td>
                             <td><Link href={`/album/${a.id}`}>{a.name}</Link></td>
                             <td><a className="bare-link" onClick={(e) => showPopover(e, a.id)}>{three_dots_vert}</a></td>
                         </tr>
-                        <Overlay key={a.id + "-overlay"} show={show == a.id} target={target} placement="bottom-end">
+                        <Overlay key={a.id + "-o"} show={show == a.id} target={target} placement="bottom-end">
                             <Popover.Body>
                                 <div className="mx-1">
                                     <a className="bare-link" onClick={() => add_album_to_queue(a.id)}>Add to Queue</a>
                                 </div>
                             </Popover.Body>
                         </Overlay>
-                    </>
+                    </Fragment>}
                     )}
                 </tbody>
             </Table>}

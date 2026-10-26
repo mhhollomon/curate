@@ -22,8 +22,6 @@ output
 # node
 node_modules
 
-uv.lock
-
 server/cache
 
 .env

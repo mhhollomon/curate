@@ -4,7 +4,6 @@ import { useEffect, useState } from "react"
 import { Table } from "react-bootstrap"
 
 import { type respAlbumAlbum, type respAlbumArtist, type respAlbumTrack } from '~/responses'
-// import Player from './Player'
 import Player2, { type PlayerTrackData } from './Player2'
 import Toggle from './Toggle'
 
