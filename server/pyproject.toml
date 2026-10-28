@@ -11,6 +11,7 @@ dependencies = [
     "fastapi-login[asymmetric]>=1.10.3",
     "fastapi[standard]>=0.142.2",
     "flit>=4.1.0",
+    "mutagen>=1.48.1",
     "nanoid>=2.0.0",
     "peewee>=4.5.2",
     "pillow>=12.3.0",

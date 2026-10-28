@@ -10,6 +10,7 @@ import Toggle from './Toggle'
 import { play_btn_fill } from '~/icons'
 
 import { useProtectedData } from "~/lib/hook"
+import { formatTime } from "~/lib/utils";
 
 
 export interface AlbumProps {
@@ -162,7 +163,7 @@ export default function Album({ album_id }: AlbumProps) {
             <Table striped>
                 <thead>
                     <tr>
-                        <th colSpan={2}><div className='d-flex gap-2 justify-content-center'>
+                        <th colSpan={3}><div className='d-flex gap-2 justify-content-center'>
                             <Toggle state={autoPlay} title="Auto" onStateChange={onAutoPlay} />
                             <Toggle title="Loop" state={loopAlbum} onStateChange={changeLoop} />
 
@@ -173,6 +174,7 @@ export default function Album({ album_id }: AlbumProps) {
                 <tbody>
                     {trackList && trackList.map(a => <tr key={a.id}>
                         <td style={{ width: '2rem' }}>{a.id === currentTrack?.id ? '>>>' : <a onClick={() => playTrack(a)}>{play_btn_fill}</a>}</td>
+                        <td style={{ width: '5rem' }}>{formatTime(a.duration)}</td>
                         <td><a onClick={() => playTrack(a)}>{a.name}</a></td>
                     </tr>)}
                 </tbody>

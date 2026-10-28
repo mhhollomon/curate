@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from nanoid import generate
 from pathlib import Path
 from typing import Any, Dict, List, TypeVar
@@ -77,6 +77,7 @@ class MusicFile :
     path   : Path
     format : str # currently one of 'wav' or 'mp3'
     digest : str
+    duration : float
     tags   : Dict[str, Any] | None = None
 
     def __eq__(self, value: object) -> bool:
@@ -87,6 +88,9 @@ class MusicFile :
             self.format == value.format and
             self.digest == value.digest
         )
+
+    def __ne__(self, value : object) -> bool :
+        return not self == value
 
 class Track(BaseClass) :
     def __init__(self, file : MusicFile, name : str,
@@ -112,7 +116,9 @@ class Track(BaseClass) :
                 'sort_name' : self.sort_name,
                 'path' : str(self.file.path),
                 'format' : self.file.format,
-                'digest' : self.file.digest}
+                'digest' : self.file.digest,
+                'duration' : self.file.duration
+            }
 
     def __str__(self) -> str:
         return f"<track name={self.name} sort_name={self.sort_name}, path={self.file.path} format={self.file.format}, digest={self.file.digest}>"
@@ -277,7 +283,7 @@ class TrackManager :
 
         print(f"$$$$$ loading {len(existing)} tracks")
         for e in existing :
-            f = MusicFile(Path(e.path), e.format, e.digest)
+            f = MusicFile(Path(e.path), e.format, e.digest, e.duration)
             t = Track(id=e.id, file=f, name=e.name, sort_name=e.sort_name, status=RECSTAT.OLD)
             self.byid[t.id] = t
             self.paths[f.path] = t

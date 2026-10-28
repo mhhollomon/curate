@@ -9,6 +9,7 @@ import { useProtectedData } from "~/lib/hook";
 import type { ArtistWorks } from "~/types/artist";
 import type { QueueItem } from "~/types/queue_item";
 import type { Track } from "~/types/track";
+import { formatTime } from "~/lib/utils";
 
 export interface ArtistWorksProps {
     artist_id: string;
@@ -109,11 +110,11 @@ export default function ArtistWorks({ artist_id }: ArtistWorksProps) {
             {artistWorks && artistWorks.singles.length > 0 && <Table striped>
                 <thead>
                     <tr>
-                        <th colSpan={3}><span className="fs-4">Singles</span></th>
+                        <th colSpan={4}><span className="fs-4">Singles</span></th>
                     </tr>
                     <tr>
                         <th>&nbsp;<Button onClick={handleStop}>Stop</Button></th>
-                        <th>track</th>
+                        <th colSpan={2}>track</th>
                         <th>&nbsp;</th>
                     </tr>
                 </thead>
@@ -121,6 +122,7 @@ export default function ArtistWorks({ artist_id }: ArtistWorksProps) {
                     {artistWorks && artistWorks.singles.length > 0 && artistWorks.singles.map(s => <Fragment key={s.id}>
                         <tr key={s.id+'-s'}>
                             <td style={{ width: '2rem' }}>{s.id === currentTrack?.id ? '>>>' : <a onClick={() => playTrack(s)}>{play_btn_fill}</a>}</td>
+                            <td style={{ width: '5rem' }}>{formatTime(s.duration)}</td>
                             <td><a onClick={() => playTrack(s)}>{s.name}</a></td>
                             <td><a className="bare-link" onClick={(e) => showPopover(e, s.id)}>{three_dots_vert}</a></td>
                         </tr>

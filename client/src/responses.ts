@@ -4,6 +4,7 @@ export interface respAlbumTrack {
     sort_name : string
     format : string
     position : number
+    duration : number
 }
 
 export interface respAlbumArtist {

@@ -1,5 +1,7 @@
 import os
 
+from mutagen import File
+
 from .types import MusicFile
 from pathlib import Path
 import hashlib
@@ -28,5 +30,6 @@ def read_music_file(read_path : Path, db_path : Path) -> MusicFile :
     tags = {} # for now
     format = read_path.suffix[1:]
     digest = hash_file(read_path)
+    duration = File(read_path).info.length #type: ignore
 
-    return MusicFile(db_path, format, digest, tags)
+    return MusicFile(db_path, format, digest, duration, tags)

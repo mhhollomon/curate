@@ -1,4 +1,4 @@
-from peewee import SqliteDatabase, Model, CharField, TextField, IntegerField
+from peewee import FloatField, SqliteDatabase, Model, CharField, TextField, IntegerField
 
 db = SqliteDatabase(None)
 
@@ -29,6 +29,7 @@ class dbTrack(BaseModel):
     path = TextField()
     format = CharField()
     digest = CharField()
+    duration = FloatField()
 
     class Meta:
         table_name = 'track'

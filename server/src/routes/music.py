@@ -50,6 +50,7 @@ class respAlbumTrack(BaseModel) :
     sort_name : str
     format : str
     position : int
+    duration : float
 
 #
 # Response returned when getting a list of artists.

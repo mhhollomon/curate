@@ -6,6 +6,7 @@ import './Player2.css'
 import { play_fill, pause_fill, rewind_fill, fast_forward_fill } from '~/icons'
 import { assert } from "radashi";
 import * as rad from 'radashi';
+import { formatTime } from "~/lib/utils";
 
 export interface PlayerTrackData {
     id: string; // Track ID - mostly for the use by parent.
@@ -32,12 +33,6 @@ interface  RunData {
 
 }
 
-function formatTime(seconds: number) {
-    if (isNaN(seconds)) return "00:00"; // Handle unloaded audio
-    const minutes = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-}
 
 
 const SEEK_SECONDS = 10;
