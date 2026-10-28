@@ -227,10 +227,6 @@ export default function Player2({ track, onEnd, onPrevious, onNext }: Player2Pro
         getNextState().hasNext = v;
     }
 
-    function hasNext() {
-        return getNextState().hasNext;
-    }
-
     function setNextTrack(t : PlayerTrackData | null) {
         getNextState().nextTrack = t;
     }
