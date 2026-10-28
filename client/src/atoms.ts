@@ -4,6 +4,6 @@ import { type QueueItem } from '~/types/queue_item'
 
 export const nextRouteAtom = atom<string>('/')
 
-export const backURLAtom = atom<string>('/')
+export const backURLAtom = atom<string|null>()
 
 export const queueListAtom = atomWithStorage<QueueItem[]>('curateQueue', [], undefined, {getOnInit : true})

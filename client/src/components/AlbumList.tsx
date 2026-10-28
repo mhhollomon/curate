@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Overlay, Popover, Table } from "react-bootstrap";
 import { type Album } from "~/types/album";
 import { useProtectedData } from "~/lib/hook";
@@ -119,7 +119,7 @@ export default function AlbumList() {
                 </tr>
             </thead>
             <tbody>
-                {albumList && albumList.map(a => <>
+                {albumList && albumList.map(a => <Fragment key={a.id}>
                     <tr key={a.id}>
                         {a.cover ? <td><img src={`/api/cover/thumb/${a.cover}`} width={30} height={30} /></td> : <td><span>&nbsp;</span></td>}
                         <td><ForwardLink href={`/album/${a.id}`} title={a.name} /></td>
@@ -136,7 +136,7 @@ export default function AlbumList() {
                     </Overlay>
 
 
-                </>
+                </Fragment>
                 )}
             </tbody>
         </Table>

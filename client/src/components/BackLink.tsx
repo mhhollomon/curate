@@ -1,13 +1,19 @@
-import { useAtomValue } from "jotai";
+import { useAtom } from "jotai";
 import { Link } from "wouter";
 import { backURLAtom } from "~/atoms";
 import { arrow_left } from "~/icons";
 
 
 export default function BackLink() {
-    const backURL = useAtomValue(backURLAtom)
+    const [backURL, setBackURL] = useAtom(backURLAtom);
+
+    const href = backURL || '/';
+
+    function clickHandler() {
+        setBackURL(null);
+    }
 
     return (<>
-        <Link className="bare-link" href={backURL}><span  className="ms-2">{arrow_left}</span></Link>
+        <Link className="bare-link" href={href} onClick={clickHandler}><span  className="ms-2">{arrow_left}</span></Link>
     </>)
 }

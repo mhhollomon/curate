@@ -98,9 +98,6 @@ export default function ArtistWorks({ artist_id }: ArtistWorksProps) {
 
 
     return (<>
-        <div className="text-start">
-            <BackLink />
-        </div>
         <div className="container d-flex flex-column justify-content-center align-items-center">
             <div className="artistBlock">
                 <span className="fs-3">{artistWorks?.artist.name}</span>

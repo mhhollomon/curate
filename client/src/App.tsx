@@ -1,13 +1,14 @@
 import './App.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+import Layout from '~/Layout';
 import HomeScreen from '~/components/Home';
 import Album from '~/components/Album';
+import ArtistWorks from '~/components/ArtistWorks';
+import Login from '~/components/Login';
 
 import { Route, Redirect, useLocation } from 'wouter';
-import Login from './components/Login';
 import { useEffect, useState } from 'react';
-import ArtistWorks from '~/components/ArtistWorks';
 
 export default function App() {
     const [location, navigate] = useLocation()
@@ -27,9 +28,9 @@ export default function App() {
         }
 
         setRerouted(true)
-
     }, [])
-    return (rerouted && <>
+
+    return (rerouted && <Layout>
         <Route path="/login" >
             <Login msg="Please Login"/>
         </Route>
@@ -52,5 +53,5 @@ export default function App() {
             <HomeScreen tab="queue" />
         </Route>
 
-    </>)
+    </Layout>)
 }
