@@ -7,8 +7,8 @@ import * as rad from 'radashi';
 import { arrow_down, arrow_up, three_dots_vert } from "~/icons";
 import { useAtom } from "jotai";
 import { queueListAtom } from "~/atoms";
-import ForwardLink from "~/components/ForwardLink";
 import type { QueueItem } from "~/types/queue_item";
+import { Link } from "wouter";
 
 interface sorting {
     column: string;
@@ -122,8 +122,8 @@ export default function AlbumList() {
                 {albumList && albumList.map(a => <Fragment key={a.id}>
                     <tr key={a.id}>
                         {a.cover ? <td><img src={`/api/cover/thumb/${a.cover}`} width={30} height={30} /></td> : <td><span>&nbsp;</span></td>}
-                        <td><ForwardLink href={`/album/${a.id}`} title={a.name} /></td>
-                        <td><ForwardLink href={`/artist/${a.artist_id}`} title={a.artist_name} /></td>
+                        <td><Link href={`/album/${a.id}`}>{a.name}</Link></td>
+                        <td><Link href={`/artist/${a.artist_id}`}>{a.artist_name}</Link></td>
                         <td><a className="bare-link" onClick={(e) => showPopover(e, a.id)}>{three_dots_vert}</a></td>
 
                     </tr>

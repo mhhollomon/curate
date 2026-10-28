@@ -2,12 +2,12 @@ import { useAtom } from "jotai"
 import { Button, Table } from "react-bootstrap"
 import { queueListAtom } from "~/atoms"
 import CoverImage from "./CoverImage"
-import ForwardLink from "~/components/ForwardLink"
 import Player2, { type PlayerTrackData } from './Player2'
 
 import type { QueueItem } from "~/types/queue_item"
 import { useState } from "react"
 import { trash3 } from "~/icons"
+import { Link } from "wouter"
 
 
 export default function Queue() {
@@ -59,8 +59,6 @@ export default function Queue() {
         console.log(`Removing ${id} from list`);
         const new_queue = queueList.filter(q => q.track_id !== id);
         setQueueList(new_queue);
-
-
     }
 
 
@@ -96,7 +94,7 @@ export default function Queue() {
                     <tr key={t.track_id}>
                         <td>{t.cover_id ? <CoverImage cover_id={t.cover_id} /> : <>&nbsp;</>}</td>
                         <td>{t.track_name}</td>
-                        <td><ForwardLink href={`/artist/${t.artist_id}`} title={t.artist_name} /></td>
+                        <td><Link href={`/artist/${t.artist_id}`}>{t.artist_name}</Link></td>
                         <td>{t.album_name || ''}</td>
                         <td>
                             {t.track_id === currentTrack?.track_id ?
