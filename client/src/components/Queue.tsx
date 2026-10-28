@@ -45,15 +45,6 @@ export default function Queue() {
             };
     }
 
-    function getNext() : PlayerTrackData | null {
-
-        if (queueList.length > 1) {
-            const t = queueList[1];
-            return track2player_data(t);
-        } else {
-            return null;
-        }
-    }
 
     function handleRemove(id : string) {
         console.log(`Removing ${id} from list`);
@@ -69,7 +60,6 @@ export default function Queue() {
         <Player2 track={playSrc}
             onEnd={next_song}
             onNext={next_song}
-            getNext={getNext}
             />
 
         <Table striped>

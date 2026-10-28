@@ -70,26 +70,15 @@ export default function Album({ album_id }: AlbumProps) {
                 'name': t.name };
     }
 
-    function getNext() : PlayerTrackData | null {
-        const t = compute_next_track(1);
-        if (t) {
-            return track2player_data(t);
-        } else {
-            return null;
-        }
-    }
 
     function compute_next_track(delta: number = 1) : respAlbumTrack | undefined {
 
         let index = trackList.findIndex((t) => t.id === currentTrack?.id)
         const old_index = index
-        //console.log(`compute_next_track : old_index = ${old_index}`)
+
         index += delta
         index = index >= trackList.length ? 0 : index
         index = index < 0 ? trackList.length - 1 : index
-
-        //console.log(`compute_next_track : index = ${index}`)
-        //console.log(`compute_next_track : loopAlbum = ${loopAlbum}`)
 
         if (!loopAlbum && index != old_index + delta) {
             // we reached the "end"
@@ -168,8 +157,7 @@ export default function Album({ album_id }: AlbumProps) {
             <Player2 track={currentTrack}
                 onEnd={onPlayEnd}
                 onPrevious={onPrevious}
-                onNext={onNext}
-                getNext={autoPlay ? getNext : undefined} />
+                onNext={onNext} />
 
             <Table striped>
                 <thead>

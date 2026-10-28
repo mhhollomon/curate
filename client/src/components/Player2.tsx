@@ -22,9 +22,6 @@ export interface Player2Props {
     onPrevious?: () => void; // UI button
     onNext?: () => void; // UI button
 
-    // If defined, the player will try to buffer the next track
-    // shortly before the current track ends.
-    getNext?: () => (PlayerTrackData | null);
 }
 
 interface  RunData {
@@ -45,21 +42,15 @@ function formatTime(seconds: number) {
 
 const SEEK_SECONDS = 10;
 
-// How far from the end of the current track
-// should we start buffering the next track.
-const BUFFER_SECONDS = 30;
-
-const PRELOAD = false;
 
 
-export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: Player2Props) {
+export default function Player2({ track, onEnd, onPrevious, onNext }: Player2Props) {
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(''); // string from formatTime
     const [progPercent, setProgPercent] = useState<number>(0);
     const [duration, setDuration] = useState(0.0);
     // Not used in the rendering, but it is used to decouple the
     // preload logic from the animation flow.
-    const [tryBuffering, setTryBuffering] = useState(false);
 
     const players = useRef<HTMLAudioElement[]>([]);
     const runData = useRef<RunData>({
@@ -103,10 +94,6 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
 
                 // turn off the old player.
                 console.log("Turning off player", old_player.id);
-                // if (! isNaN(timeoutId.current)) {
-                //     clearTimeout(timeoutId.current);
-                //     timeoutId.current = NaN;
-                // }
                 destroy_player(old_player);
 
 
@@ -146,39 +133,6 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
             clean_players();
         }
     }, [track]);
-
-    useEffect(() => {
-        console.log("tryBuffering effect", tryBuffering);
-        if (! tryBuffering) return;
-
-        setTryBuffering(false);
-
-        const nt = nextTrack();
-
-        if (nt) {
-            console.log("tryBuffering : nextTrack already set =", nt.id);
-            return;
-        }
-
-        if (! hasNext() || ! getNext ) return;
-        console.log("Looking into buffering");
-
-        const next_track = getNext();
-        if (! next_track) {
-            console.log("Nothing to buffer");
-            setHasNext(false);
-            return;
-        }
-
-        setNextTrack(next_track);
-
-        const player = create_player(next_track.src);
-        assert(player);
-        add_player(player);
-
-        console.log("Set up to buffer in player");
-
-    }, [tryBuffering]);
 
 
     //-------------------------------------------------
@@ -257,9 +211,6 @@ export default function Player2({ track, onEnd, onPrevious, onNext, getNext }: P
             });
         }
 
-
-        if (PRELOAD && hasNext() && getNext && (new_duration - current_time < BUFFER_SECONDS) && ! nextTrack())
-           setTryBuffering(true);
 
     }
 
