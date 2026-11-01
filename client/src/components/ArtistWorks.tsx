@@ -1,6 +1,10 @@
 import { useAtom } from "jotai";
 import { Fragment, useState } from "react";
-import { Button, Overlay, Popover, Table } from "react-bootstrap";
+import * as Table from "@radix-ui/themes/components/table"
+import { Button } from '@radix-ui/themes/components/button';
+
+import * as Dropdown from '@radix-ui/themes/components/dropdown-menu';
+
 import { Link } from "wouter";
 import { queueListAtom } from "~/atoms";
 import Player2, { type PlayerTrackData } from './Player2'
@@ -62,13 +66,15 @@ export default function ArtistWorks({ artist_id }: ArtistWorksProps) {
         setShow(undefined)
     }
 
-    function track2player_data(t: Track) : PlayerTrackData {
-        return { 'id': t.id,
-                'src' : `/api/play/${t.id}`,
-                'artist' : artistWorks?.artist.name || '',
-                'cover' : undefined,
-                'album' : undefined,
-                'name': t.name };
+    function track2player_data(t: Track): PlayerTrackData {
+        return {
+            'id': t.id,
+            'src': `/api/play/${t.id}`,
+            'artist': artistWorks?.artist.name || '',
+            'cover': undefined,
+            'album': undefined,
+            'name': t.name
+        };
     }
 
     async function add_album_to_queue(album_id: string) {
@@ -107,7 +113,7 @@ export default function ArtistWorks({ artist_id }: ArtistWorksProps) {
                 onEnd={undefined}
                 onPrevious={undefined} onNext={undefined} />
 
-            {artistWorks && artistWorks.singles.length > 0 && <Table striped>
+            {artistWorks && artistWorks.singles.length > 0 && <Table.Root>
                 <thead>
                     <tr>
                         <th colSpan={4}><span className="fs-4">Singles</span></th>
@@ -120,26 +126,30 @@ export default function ArtistWorks({ artist_id }: ArtistWorksProps) {
                 </thead>
                 <tbody>
                     {artistWorks && artistWorks.singles.length > 0 && artistWorks.singles.map(s => <Fragment key={s.id}>
-                        <tr key={s.id+'-s'}>
+                        <tr key={s.id + '-s'}>
                             <td style={{ width: '2rem' }}>{s.id === currentTrack?.id ? '>>>' : <a onClick={() => playTrack(s)}>{play_btn_fill}</a>}</td>
                             <td style={{ width: '5rem' }}>{formatTime(s.duration)}</td>
                             <td><a onClick={() => playTrack(s)}>{s.name}</a></td>
-                            <td><a className="bare-link" onClick={(e) => showPopover(e, s.id)}>{three_dots_vert}</a></td>
+                            <td>
+                                <Dropdown.Root>
+                                    <Dropdown.Trigger>
+                                        <a className="bare-link" onClick={(e) => showPopover(e, s.id)}>{three_dots_vert}</a>
+                                    </Dropdown.Trigger>
+                                    <Dropdown.Content>
+                                        <Dropdown.Item>
+                                            <a className="bare-link" onClick={() => add_single_to_queue(s)}>Add to Queue</a>
+                                        </Dropdown.Item>
+                                    </Dropdown.Content>
+                                </Dropdown.Root>
+                            </td>
                         </tr>
-                        <Overlay show={show == s.id} target={target} placement="bottom-end">
-                            <Popover.Body>
-                                <div className="mx-1">
-                                    <a className="bare-link" onClick={() => add_single_to_queue(s)}>Add to Queue</a>
-                                </div>
-                            </Popover.Body>
-                        </Overlay>
                     </Fragment>
 
                     )}
                 </tbody>
-            </Table>}
+            </Table.Root>}
 
-            {artistWorks && artistWorks.albums.length > 0 && <Table striped>
+            {artistWorks && artistWorks.albums.length > 0 && <Table.Root>
                 <thead>
                     <tr>
                         <th colSpan={3}><span className="fs-4">Albums</span></th>
@@ -151,26 +161,31 @@ export default function ArtistWorks({ artist_id }: ArtistWorksProps) {
                     </tr>
                 </thead>
                 <tbody>
-                    {artistWorks && artistWorks.albums.length > 0 && artistWorks.albums.map(a => { return <Fragment key={a.id}>
-                        <tr key={a.id + '-a'}>
-                            <td style={{ width: '2rem' }}>&nbsp;</td>
-                            <td><Link href={`/album/${a.id}`}>{a.name}</Link></td>
-                            <td><a className="bare-link" onClick={(e) => showPopover(e, a.id)}>{three_dots_vert}</a></td>
-                        </tr>
-                        <Overlay key={a.id + "-o"} show={show == a.id} target={target} placement="bottom-end">
-                            <Popover.Body>
-                                <div className="mx-1">
-                                    <a className="bare-link" onClick={() => add_album_to_queue(a.id)}>Add to Queue</a>
-                                </div>
-                            </Popover.Body>
-                        </Overlay>
-                    </Fragment>}
+                    {artistWorks && artistWorks.albums.length > 0 && artistWorks.albums.map(a => {
+                        return <Fragment key={a.id}>
+                            <tr key={a.id + '-a'}>
+                                <td style={{ width: '2rem' }}>&nbsp;</td>
+                                <td><Link href={`/album/${a.id}`}>{a.name}</Link></td>
+                                <td>
+                                    <Dropdown.Root>
+                                        <Dropdown.Trigger>
+                                            <a className="bare-link" onClick={(e) => showPopover(e, a.id)}>{three_dots_vert}</a>
+                                        </Dropdown.Trigger>
+                                        <Dropdown.Content>
+                                            <Dropdown.Item>
+                                                <a className="bare-link" onClick={() => add_album_to_queue(a.id)}>Add to Queue</a>
+                                            </Dropdown.Item>
+                                        </Dropdown.Content>
+                                    </Dropdown.Root>
+                                </td>
+                            </tr>
+                        </Fragment>
+                    }
                     )}
                 </tbody>
-            </Table>}
+            </Table.Root>}
 
         </div>
-
 
     </>)
 }

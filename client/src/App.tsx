@@ -1,5 +1,6 @@
-import './App.css'
-import 'bootstrap/dist/css/bootstrap.min.css';
+//import './App.css'
+import '@radix-ui/themes/styles.css';
+import { Theme, ThemePanel } from '@radix-ui/themes';
 
 import Layout from '~/Layout';
 import HomeScreen from '~/components/Home';
@@ -20,38 +21,43 @@ export default function App() {
         console.log("window location = ", window.location)
         const hash = window.location.hash;
         console.log("--- raw hash = ", hash)
-        if (hash !== "" ) {
+        if (hash !== "") {
             let loc = hash.replace(/^#\/?/, '');
             loc = '/' + loc;
             console.log(`--- new loc = ${loc}`);
-            navigate(loc, {replace : true})
+            navigate(loc, { replace: true })
         }
 
         setRerouted(true)
     }, [])
 
-    return (rerouted && <Layout>
-        <Route path="/login" >
-            <Login msg="Please Login"/>
-        </Route>
-        <Route path="/" >
-            <Redirect to="/artists" />
-        </Route>
-        <Route path="/artists" >
-            <HomeScreen tab="artists" />
-        </Route>
-        <Route path="/albums" >
-            <HomeScreen tab="albums" />
-        </Route>
-        <Route path="/album/:album_id">
-            {params => <Album album_id={params.album_id}/>}
-        </Route>
-        <Route path="/artist/:artist_id">
-            {params => <ArtistWorks artist_id={params.artist_id}/>}
-        </Route>
-        <Route path="/queue">
-            <HomeScreen tab="queue" />
-        </Route>
+    return (rerouted &&
+        <Theme accentColor="grass">
+        <Layout>
+            <Route path="/login" >
+                <Login msg="Please Login" />
+            </Route>
+            <Route path="/" >
+                <Redirect to="/artists" />
+            </Route>
+            <Route path="/artists" >
+                <HomeScreen tab="artists" />
+            </Route>
+            <Route path="/albums" >
+                <HomeScreen tab="albums" />
+            </Route>
+            <Route path="/album/:album_id">
+                {params => <Album album_id={params.album_id} />}
+            </Route>
+            <Route path="/artist/:artist_id">
+                {params => <ArtistWorks artist_id={params.artist_id} />}
+            </Route>
+            <Route path="/queue">
+                <HomeScreen tab="queue" />
+            </Route>
 
-    </Layout>)
+        </Layout>
+        <ThemePanel />
+        </Theme>
+    );
 }

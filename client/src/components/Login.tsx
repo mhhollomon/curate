@@ -1,6 +1,8 @@
 
 import { useAtom } from 'jotai';
-import { Button, Form } from 'react-bootstrap'
+import { Form } from 'radix-ui'
+import { Button } from '@radix-ui/themes/components/button';
+
 import { useLocation } from 'wouter';
 import { nextRouteAtom } from '~/atoms';
 import { useEffect, useState } from 'react';
@@ -42,25 +44,25 @@ export default function Login({ msg }: loginProps) {
 
     return <>
         <div><span>{message}</span></div>
-        <Form  onSubmit={handleSubmit}>
-            <Form.Group className="mb-3" controlId="username">
+        <Form.Root  onSubmit={handleSubmit}>
+            <Form.Field className="mb-3" name="username">
                 <Form.Label>User Id</Form.Label>
                 <Form.Control type="text" placeholder="User ID"
                     name="username"
                     autoComplete='username'
                     />
-            </Form.Group>
+            </Form.Field>
 
-            <Form.Group className="mb-3" controlId="password">
+            <Form.Field className="mb-3" name="password">
                 <Form.Label>Password</Form.Label>
                 <Form.Control type="password" placeholder="Password"
                     autoComplete='current-password'
                     name="password"
                     />
-            </Form.Group>
-            <Button variant="primary" type="submit">
+            </Form.Field>
+            <Button type="submit">
                 Submit
             </Button>
-        </Form>
+        </Form.Root>
     </>;
 }

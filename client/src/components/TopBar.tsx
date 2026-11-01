@@ -1,11 +1,14 @@
-import { HamburgerMenuIcon } from "@radix-ui/react-icons"
+import { HamburgerMenuIcon } from "@radix-ui/react-icons";
+import { Flex } from "@radix-ui/themes/components/flex";
+import { Box } from "@radix-ui/themes/components/box";
+
 export default function Topbar() {
 
-    return (<div className="bg-primary text-white d-flex justify-content-between mb-3">
-        <div className="d-inline-block">
-            <HamburgerMenuIcon className="mb-1 ms-1" />
-        </div>
-        <div className="d-inline-block">Curate</div>
-        <div className="d-inline-block">&nbsp;</div>
-    </div>)
+    return (<Flex justify="between" mb="3" style={{backgroundColor : "var(--accent-10)", color : "white"}}>
+        <Box display="inline-block" ml="1">
+            <HamburgerMenuIcon />
+        </Box>
+        <Box display="inline-block">Curate</Box>
+        <Box display="inline-block" mr="1">&nbsp;</Box>
+    </Flex>)
 }

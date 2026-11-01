@@ -1,6 +1,8 @@
 import { Fragment, useEffect, useState } from "react";
-import { Overlay, Popover, Table } from "react-bootstrap";
+import * as Table from "@radix-ui/themes/components/table"
 import { type Album } from "~/types/album";
+import * as Dropdown from '@radix-ui/themes/components/dropdown-menu';
+
 import { useProtectedData } from "~/lib/hook";
 import * as rad from 'radashi';
 
@@ -71,9 +73,9 @@ export default function AlbumList() {
 
     }
 
-    function showPopover(e : any, id : string) {
+    function showPopover(e: any, id: string) {
         console.log("Target is currently ", target)
-        if (show === id){
+        if (show === id) {
             setShow(undefined);
         } else {
             setShow(id);
@@ -109,7 +111,7 @@ export default function AlbumList() {
 
     return <>
 
-        <Table striped>
+        <Table.Root>
             <thead>
                 <tr>
                     <th></th>
@@ -124,22 +126,24 @@ export default function AlbumList() {
                         {a.cover ? <td><img src={`/api/cover/thumb/${a.cover}`} width={30} height={30} /></td> : <td><span>&nbsp;</span></td>}
                         <td><Link href={`/album/${a.id}`}>{a.name}</Link></td>
                         <td><Link href={`/artist/${a.artist_id}`}>{a.artist_name}</Link></td>
-                        <td><a className="bare-link" onClick={(e) => showPopover(e, a.id)}>{three_dots_vert}</a></td>
-
+                        <td>
+                            <Dropdown.Root>
+                                <Dropdown.Trigger>
+                                    <a className="bare-link" onClick={(e) => showPopover(e, a.id)}>{three_dots_vert}</a>
+                                </Dropdown.Trigger>
+                                <Dropdown.Content>
+                                    <Dropdown.Item>
+                                        <a className="bare-link" onClick={() => add_to_queue(a.id)}>Add to Queue</a>
+                                    </Dropdown.Item>
+                                </Dropdown.Content>
+                            </Dropdown.Root>
+                        </td>
                     </tr>
-                    <Overlay show={show === a.id} target={target} placement="bottom-end">
-                        <Popover.Body>
-                            <div className="mx-1">
-                                <a className="bare-link" onClick={() => add_to_queue(a.id)}>Add to Queue</a>
-                            </div>
-                        </Popover.Body>
-                    </Overlay>
-
 
                 </Fragment>
                 )}
             </tbody>
-        </Table>
+        </Table.Root>
 
     </>
 }

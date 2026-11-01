@@ -1,7 +1,9 @@
 import './Album.css'
 
-import { useEffect, useState } from "react"
-import { Table } from "react-bootstrap"
+import { useEffect, useState, type ReactNode } from "react"
+import * as Table from "@radix-ui/themes/components/table"
+import { Flex } from "@radix-ui/themes/components/flex";
+import { Box } from "@radix-ui/themes/components/box";
 
 import { type respAlbumAlbum, type respAlbumArtist, type respAlbumTrack } from '~/responses'
 import Player2, { type PlayerTrackData } from './Player2'
@@ -17,6 +19,9 @@ export interface AlbumProps {
     album_id: string
 }
 
+function Span({children, className } : { children : ReactNode, className? : string }) {
+    return <Box as="span" className={className}>{children}</Box>
+}
 
 export default function Album({ album_id }: AlbumProps) {
 
@@ -143,16 +148,16 @@ export default function Album({ album_id }: AlbumProps) {
 
     return (<>
 
-        <div className="container d-flex flex-column justify-content-center align-items-center">
-            <div className="coverBlock mt-2 mb-2">
+        <Flex direction="column" justify="center" align="center">
+            <Box className="coverBlock">
                 {coverId && <img src={`/api/cover/full/${coverId}`} width={300} height={300} />}
-            </div>
+            </Box>
             <div>
-                <span className="fw-bold fs-4">{album?.name}</span>
+                <Span className="fw-bold fs-4">{album?.name}</Span>
             </div>
 
             <div className="artistBlock">
-                <span>{artist?.name}</span>
+                <Span>{artist?.name}</Span>
             </div>
 
             <Player2 track={currentTrack}
@@ -160,27 +165,27 @@ export default function Album({ album_id }: AlbumProps) {
                 onPrevious={onPrevious}
                 onNext={onNext} />
 
-            <Table striped>
-                <thead>
-                    <tr>
-                        <th colSpan={3}><div className='d-flex gap-2 justify-content-center'>
+            <Table.Root>
+                <Table.Header>
+                    <Table.Row>
+                        <Table.ColumnHeaderCell colSpan={3}><Flex gap="2" justify="center">
                             <Toggle state={autoPlay} title="Auto" onStateChange={onAutoPlay} />
                             <Toggle title="Loop" state={loopAlbum} onStateChange={changeLoop} />
 
-                        </div>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {trackList && trackList.map(a => <tr key={a.id}>
-                        <td style={{ width: '2rem' }}>{a.id === currentTrack?.id ? '>>>' : <a onClick={() => playTrack(a)}>{play_btn_fill}</a>}</td>
-                        <td style={{ width: '5rem' }}>{formatTime(a.duration)}</td>
-                        <td><a onClick={() => playTrack(a)}>{a.name}</a></td>
-                    </tr>)}
-                </tbody>
-            </Table>
+                        </Flex>
+                        </Table.ColumnHeaderCell>
+                    </Table.Row>
+                </Table.Header>
+                <Table.Body>
+                    {trackList && trackList.map(a => <Table.Row key={a.id}>
+                        <Table.Cell style={{ width: '2rem' }}>{a.id === currentTrack?.id ? '>>>' : <a onClick={() => playTrack(a)}>{play_btn_fill}</a>}</Table.Cell>
+                        <Table.Cell style={{ width: '5rem' }}>{formatTime(a.duration)}</Table.Cell>
+                        <Table.Cell><a onClick={() => playTrack(a)}>{a.name}</a></Table.Cell>
+                    </Table.Row>)}
+                </Table.Body>
+            </Table.Root>
 
-        </div>
+        </Flex>
 
     </>)
 

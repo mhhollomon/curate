@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { Button, ProgressBar } from 'react-bootstrap';
+import { Button } from '@radix-ui/themes/components/button';
+import { Progress } from '@radix-ui/themes/components/progress';
+import { Flex } from "@radix-ui/themes/components/flex";
 
 
 import './Player2.css'
@@ -356,7 +358,7 @@ export default function Player2({ track, onEnd, onPrevious, onNext }: Player2Pro
             <div id="players" hidden aria-hidden ref={playerDiv}>
                 <audio autoPlay={false} loop={true} ref={audioElem} src="/api/silence"></audio>
             </div>
-            <ProgressBar now={progPercent} min={0} max={100} />
+            <Progress value={progPercent} max={100} />
             {track &&
                 <div className="time-display">
                     <span>{currentTime}</span>
@@ -370,12 +372,12 @@ export default function Player2({ track, onEnd, onPrevious, onNext }: Player2Pro
                 <span className="fs-6">{track?.name || ''}</span>
             </div>
 
-            {track && <div className='d-flex gap-1 justify-content-center'>
+            {track && <Flex gap="1" justify={'center'}>
                 {onPrevious && <Button onClick={handlePreviousButtonClick}>{rewind_fill} Prev</Button>}
                 <Button onClick={handlePlayPauseButtonClick}>
                     {isPlaying ? <>{pause_fill} Pause</> : <>{play_fill} Play</>}</Button>
                 {onNext && <Button onClick={handleNextButtonClick}>{fast_forward_fill} Next</Button>}
-            </div>
+            </Flex>
             }
         </div>
     );

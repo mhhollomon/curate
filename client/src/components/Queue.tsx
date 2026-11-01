@@ -1,13 +1,14 @@
-import { useAtom } from "jotai"
-import { Button, Table } from "react-bootstrap"
-import { queueListAtom } from "~/atoms"
-import CoverImage from "./CoverImage"
-import Player2, { type PlayerTrackData } from './Player2'
+import { useAtom } from "jotai";
+import * as Table from "@radix-ui/themes/components/table";
+import { Button} from '@radix-ui/themes/components/button';
+import { queueListAtom } from "~/atoms";
+import CoverImage from "./CoverImage";
+import Player2, { type PlayerTrackData } from './Player2';
 
-import type { QueueItem } from "~/types/queue_item"
-import { useState } from "react"
-import { trash3 } from "~/icons"
-import { Link } from "wouter"
+import type { QueueItem } from "~/types/queue_item";
+import { useState } from "react";
+import { trash3 } from "~/icons";
+import { Link } from "wouter";
 
 
 export default function Queue() {
@@ -62,7 +63,7 @@ export default function Queue() {
             onNext={next_song}
             />
 
-        <Table striped>
+        <Table.Root>
             <thead>
                 <tr>
                     <th colSpan={5}>
@@ -95,6 +96,6 @@ export default function Queue() {
                     </tr>
                 )}
             </tbody>
-        </Table>
+        </Table.Root>
     </>)
 }

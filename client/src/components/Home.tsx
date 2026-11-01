@@ -1,34 +1,23 @@
-import {Nav } from 'react-bootstrap'
+import * as TabNav from '@radix-ui/themes/components/tab-nav';
+import { Link } from 'wouter';
 
 import ArtistList from './ArtistList';
 import AlbumList from './AlbumList';
-
-import { useLocation } from 'wouter';
 import Queue from '~/components/Queue';
 
 export interface HomeScreenProps {
     tab : string
 }
 export default function HomeScreen({tab} : HomeScreenProps) {
-    const [_, navigate] = useLocation()
-
-    function onTabChange(key : string | null) {
-        if (key && key !== tab) {
-            navigate(`/${key}`)
-        }
-
-
-    }
 
     return <>
             <div className="container" >
-                <Nav activeKey={tab} variant="pills"
-                onSelect={onTabChange}>
-                    <Nav.Link eventKey="artists">Artists</Nav.Link>
-                    <Nav.Link eventKey="albums" >Albums</Nav.Link>
-                    <Nav.Link eventKey="playlists" disabled>Playlists</Nav.Link>
-                    <Nav.Link eventKey="queue">Queue</Nav.Link>
-                </Nav>
+                <TabNav.Root >
+                    <TabNav.Link active={tab === "artists"}><Link href="/artists">Artists</Link></TabNav.Link>
+                    <TabNav.Link active={tab === "albums"} ><Link href="/albums">Albums</Link></TabNav.Link>
+                    <TabNav.Link active={tab === "playlists"}>Playlists</TabNav.Link>
+                    <TabNav.Link active={tab === "queue"}><Link href="/queue">Queue</Link></TabNav.Link>
+                </TabNav.Root>
 
                 {tab === 'artists' && <ArtistList/>}
                 {tab === 'albums' && <AlbumList/>}

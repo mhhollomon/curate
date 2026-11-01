@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Table } from "react-bootstrap";
+import * as Table from "@radix-ui/themes/components/table";
 import { type Artist } from "~/types/artist";
 
 import { useProtectedData } from "~/lib/hook";
@@ -19,14 +19,14 @@ export default function ArtistList() {
 
 return <>
 
-    <Table striped>
-        <thead>
-            <tr><th>name</th></tr>
-        </thead>
-        <tbody>
-            {artistList && artistList.map(a => <tr key={a.id}><td><Link href={`/artist/${a.id}`}>{a.name}</Link></td></tr>)}
-        </tbody>
-    </Table>
+    <Table.Root>
+        <Table.Header>
+            <Table.Row><Table.ColumnHeaderCell>name</Table.ColumnHeaderCell></Table.Row>
+        </Table.Header>
+        <Table.Body>
+            {artistList && artistList.map(a => <Table.Row key={a.id}><Table.Cell><Link href={`/artist/${a.id}`}>{a.name}</Link></Table.Cell></Table.Row>)}
+        </Table.Body>
+    </Table.Root>
 
 </>
 }
