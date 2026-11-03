@@ -7,6 +7,9 @@ interface LayoutProps {
 export default function Layout({children} : LayoutProps) {
 
     return (
-        <div className="topDiv"><TopBar></TopBar>{children}</div>
+        <div className="topDiv theme-light">
+            <TopBar/>
+            {children}
+        </div>
     )
 }

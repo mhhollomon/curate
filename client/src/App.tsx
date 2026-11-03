@@ -1,5 +1,5 @@
+import 'bulma/css/bulma.css';
 import './App.css'
-import 'bootstrap/dist/css/bootstrap.min.css';
 
 import Layout from '~/Layout';
 import HomeScreen from '~/components/Home';

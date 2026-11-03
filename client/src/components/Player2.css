@@ -28,6 +28,6 @@
 .time-display {
   display: flex;
   justify-content: space-between;
-  color: #666;
+  color: black;
   font-size: 0.9rem;
 }

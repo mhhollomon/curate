@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Table } from "react-bootstrap";
 import { type Artist } from "~/types/artist";
 
 import { useProtectedData } from "~/lib/hook";
@@ -19,14 +18,20 @@ export default function ArtistList() {
 
 return <>
 
-    <Table striped>
+    <table className="table is-striped is-fullwidth">
         <thead>
-            <tr><th>name</th></tr>
+            <tr><th className="has-text-centered">name</th></tr>
         </thead>
         <tbody>
-            {artistList && artistList.map(a => <tr key={a.id}><td><Link href={`/artist/${a.id}`}>{a.name}</Link></td></tr>)}
+            {artistList && artistList.map(a => {
+                return (
+                <tr key={a.id}>
+                    <td><Link href={`/artist/${a.id}`}>{a.name}</Link></td>
+                </tr>
+
+                );})}
         </tbody>
-    </Table>
+    </table>
 
 </>
 }

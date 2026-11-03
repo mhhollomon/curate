@@ -1,38 +1,20 @@
-import {Nav } from 'react-bootstrap'
-
 import ArtistList from './ArtistList';
 import AlbumList from './AlbumList';
-
-import { useLocation } from 'wouter';
+import NavBar from '~/components/NavBar';
 import Queue from '~/components/Queue';
 
 export interface HomeScreenProps {
     tab : string
 }
 export default function HomeScreen({tab} : HomeScreenProps) {
-    const [_, navigate] = useLocation()
 
-    function onTabChange(key : string | null) {
-        if (key && key !== tab) {
-            navigate(`/${key}`)
-        }
-
-
-    }
 
     return <>
-            <div className="container" >
-                <Nav activeKey={tab} variant="pills"
-                onSelect={onTabChange}>
-                    <Nav.Link eventKey="artists">Artists</Nav.Link>
-                    <Nav.Link eventKey="albums" >Albums</Nav.Link>
-                    <Nav.Link eventKey="playlists" disabled>Playlists</Nav.Link>
-                    <Nav.Link eventKey="queue">Queue</Nav.Link>
-                </Nav>
+            <NavBar active={tab} />
 
-                {tab === 'artists' && <ArtistList/>}
-                {tab === 'albums' && <AlbumList/>}
-                {tab === 'queue' && <Queue />}
-            </div>
-        </>
+            {tab === 'artists' && <ArtistList/>}
+            {tab === 'albums' && <AlbumList/>}
+            {tab === 'queue' && <Queue />}
+
+        </>;
 }

@@ -1,7 +1,6 @@
 import './Album.css'
 
 import { useEffect, useState } from "react"
-import { Table } from "react-bootstrap"
 
 import { type respAlbumAlbum, type respAlbumArtist, type respAlbumTrack } from '~/responses'
 import Player2, { type PlayerTrackData } from './Player2'
@@ -11,6 +10,7 @@ import { play_btn_fill } from '~/icons'
 
 import { useProtectedData } from "~/lib/hook"
 import { formatTime } from "~/lib/utils";
+import Flex from '~/components/bulma/flex'
 
 
 export interface AlbumProps {
@@ -143,16 +143,16 @@ export default function Album({ album_id }: AlbumProps) {
 
     return (<>
 
-        <div className="container d-flex flex-column justify-content-center align-items-center">
+        <Flex className="is-flex-direction-column is-justify-content-center is-align-items-center">
             <div className="coverBlock mt-2 mb-2">
                 {coverId && <img src={`/api/cover/full/${coverId}`} width={300} height={300} />}
             </div>
             <div>
-                <span className="fw-bold fs-4">{album?.name}</span>
+                <span className="has-text-weight-bold is-size-4 has-text-black">{album?.name}</span>
             </div>
 
             <div className="artistBlock">
-                <span>{artist?.name}</span>
+                <span className="has-text-black">{artist?.name}</span>
             </div>
 
             <Player2 track={currentTrack}
@@ -160,27 +160,28 @@ export default function Album({ album_id }: AlbumProps) {
                 onPrevious={onPrevious}
                 onNext={onNext} />
 
-            <Table striped>
+            <table className="table is-striped is-fullwidth mb-5">
                 <thead>
                     <tr>
-                        <th colSpan={3}><div className='d-flex gap-2 justify-content-center'>
+                        <th colSpan={3}><Flex gap={2} className='is-justify-content-center'>
                             <Toggle state={autoPlay} title="Auto" onStateChange={onAutoPlay} />
                             <Toggle title="Loop" state={loopAlbum} onStateChange={changeLoop} />
 
-                        </div>
+                        </Flex>
                         </th>
                     </tr>
                 </thead>
                 <tbody>
-                    {trackList && trackList.map(a => <tr key={a.id}>
+                    {trackList && trackList.map(a => <tr
+                            className={a.id === currentTrack?.id ? 'has-background-grey-lighter' : ''} key={a.id}>
                         <td style={{ width: '2rem' }}>{a.id === currentTrack?.id ? '>>>' : <a onClick={() => playTrack(a)}>{play_btn_fill}</a>}</td>
                         <td style={{ width: '5rem' }}>{formatTime(a.duration)}</td>
                         <td><a onClick={() => playTrack(a)}>{a.name}</a></td>
                     </tr>)}
                 </tbody>
-            </Table>
+            </table>
 
-        </div>
+        </Flex>
 
     </>)
 

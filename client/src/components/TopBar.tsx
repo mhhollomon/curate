@@ -1,11 +1,15 @@
 import { HamburgerMenuIcon } from "@radix-ui/react-icons"
+import Flex from "~/components/bulma/flex"
+
 export default function Topbar() {
 
-    return (<div className="bg-primary text-white d-flex justify-content-between mb-3">
-        <div className="d-inline-block">
-            <HamburgerMenuIcon className="mb-1 ms-1" />
-        </div>
-        <div className="d-inline-block">Curate</div>
-        <div className="d-inline-block">&nbsp;</div>
-    </div>)
+    return (
+        <Flex className="has-background-primary has-text-white is-justify-content-space-between mb-3">
+            <div className="is-inline-block">
+                <HamburgerMenuIcon className="ml-1" />
+            </div>
+            <div className="is-inline-block">Curate</div>
+            <div className="is-inline-block">&nbsp;</div>
+        </Flex>
+    );
 }

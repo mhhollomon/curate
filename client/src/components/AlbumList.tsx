@@ -1,5 +1,4 @@
-import { Fragment, useEffect, useState } from "react";
-import { Overlay, Popover, Table } from "react-bootstrap";
+import { Fragment, useEffect, useRef, useState} from "react";
 import { type Album } from "~/types/album";
 import { useProtectedData } from "~/lib/hook";
 import * as rad from 'radashi';
@@ -9,6 +8,7 @@ import { useAtom } from "jotai";
 import { queueListAtom } from "~/atoms";
 import type { QueueItem } from "~/types/queue_item";
 import { Link } from "wouter";
+import SuccessPopup from "~/components/SuccessPopup";
 
 interface sorting {
     column: string;
@@ -20,7 +20,9 @@ export default function AlbumList() {
     const [sortStatus, setSortStatus] = useState<sorting>({ column: "name", upward: true });
 
     const [show, setShow] = useState<string>();
-    const [target, setTarget] = useState(null);
+
+    const [showQueue, setShowQueue] = useState(false);
+    const [queueMsg, setQueueMsg] = useState<string>('');
 
     const [queueList, SetQueueList] = useAtom(queueListAtom)
 
@@ -71,13 +73,12 @@ export default function AlbumList() {
 
     }
 
-    function showPopover(e : any, id : string) {
-        console.log("Target is currently ", target)
-        if (show === id){
+    function showPopover(id: string) {
+        if (show === id) {
             setShow(undefined);
         } else {
+            console.log(`showing ${id}`)
             setShow(id);
-            setTarget(e.target);
         }
     }
 
@@ -103,13 +104,18 @@ export default function AlbumList() {
         const new_queue = [...queueList, ...new_items];
         SetQueueList(new_queue);
         setShow(undefined);
-        setTarget(null);
+        setShowQueue(true);
+        setQueueMsg('Album added to queue');
+        setTimeout(() => {
+            console.log('timeout expired');
+            setShowQueue(false);
+        }, 3000);
     }
 
 
     return <>
-
-        <Table striped>
+        <SuccessPopup show={showQueue} message={queueMsg} />
+        <table className="table is-striped is-fullwidth">
             <thead>
                 <tr>
                     <th></th>
@@ -124,22 +130,25 @@ export default function AlbumList() {
                         {a.cover ? <td><img src={`/api/cover/thumb/${a.cover}`} width={30} height={30} /></td> : <td><span>&nbsp;</span></td>}
                         <td><Link href={`/album/${a.id}`}>{a.name}</Link></td>
                         <td><Link href={`/artist/${a.artist_id}`}>{a.artist_name}</Link></td>
-                        <td><a className="bare-link" onClick={(e) => showPopover(e, a.id)}>{three_dots_vert}</a></td>
+                        <td>
+                            <div className={"dropdown is-right" + (show === a.id ? ' is-active' : '')}>
+                                <div className="dropdown-trigger">
+                                <a className="bare-link" onClick={() => showPopover(a.id)} aria-haspopup="true" aria-controls={"dropdown-menu-" + a.id}>{three_dots_vert}</a>
+                                </div>
+                                <div className={"dropdown-menu"} id={"dropdown-menu-" + a.id} role="menu">
+                                    <div className={"dropdown-content"}>
+                                        <a href="#" className="dropdown-item" onClick={() => add_to_queue(a.id)}> Add Album to Queue </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
 
                     </tr>
-                    <Overlay show={show === a.id} target={target} placement="bottom-end">
-                        <Popover.Body>
-                            <div className="mx-1">
-                                <a className="bare-link" onClick={() => add_to_queue(a.id)}>Add to Queue</a>
-                            </div>
-                        </Popover.Body>
-                    </Overlay>
-
 
                 </Fragment>
                 )}
             </tbody>
-        </Table>
+        </table>
 
     </>
 }

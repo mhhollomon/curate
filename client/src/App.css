@@ -8,11 +8,54 @@
     color : inherit;
 }
 
-.popover-body {
-    opacity: 100%;
-    border: 1px solid black;
-    background-color: lightgray;
-    border-radius: 7px;
-    margin: 0.1rem;
-    padding: 0.1rem;
+.no-display {
+    display: none;
+}
+
+
+.queue-note {
+    position: fixed;
+    display : block;
+    top:50%;
+    left:50%;
+    transform:translate(-50%);
+    transform-origin: center center;
+    z-index: 1;
+    max-width: 30em;
+    opacity : 1;
+    transition: opacity 0.5s ease-out, display 0.5s allow-discrete;
+}
+
+.queue-note.no-display {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.5s ease-in, display 0.5s allow-discrete;
+}
+
+.gap-0 {
+    gap : 0;
+}
+
+.gap-1 {
+    gap : 0.25em;
+}
+
+.gap-2 {
+    gap : 0.50em;
+}
+
+.gap-3 {
+    gap : 0.75em;
+}
+
+.gap-4 {
+    gap : 1em;
+}
+
+.gap-5 {
+    gap : 1.5em;
+}
+
+.gap-6 {
+    gap : 3em;
 }
