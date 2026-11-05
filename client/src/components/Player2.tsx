@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { ProgressBar } from 'react-bootstrap';
 
 
 import './Player2.css'

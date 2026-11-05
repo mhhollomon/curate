@@ -1,6 +1,5 @@
 
 import { useAtom } from 'jotai';
-import { Button, Form } from 'react-bootstrap'
 import { useLocation } from 'wouter';
 import { nextRouteAtom } from '~/atoms';
 import { useEffect, useState } from 'react';
@@ -42,25 +41,21 @@ export default function Login({ msg }: loginProps) {
 
     return <>
         <div><span>{message}</span></div>
-        <Form  onSubmit={handleSubmit}>
-            <Form.Group className="mb-3" controlId="username">
-                <Form.Label>User Id</Form.Label>
-                <Form.Control type="text" placeholder="User ID"
+        <form onSubmit={handleSubmit}>
+                <label>User Id</label>
+                <input type="text" placeholder="User ID"
                     name="username"
                     autoComplete='username'
                     />
-            </Form.Group>
 
-            <Form.Group className="mb-3" controlId="password">
-                <Form.Label>Password</Form.Label>
-                <Form.Control type="password" placeholder="Password"
+                <label>Password</label>
+                <input type="password" placeholder="Password"
                     autoComplete='current-password'
                     name="password"
                     />
-            </Form.Group>
-            <Button variant="primary" type="submit">
+            <button className="button is-primary" type="submit">
                 Submit
-            </Button>
-        </Form>
+            </button>
+        </form>
     </>;
 }

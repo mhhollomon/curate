@@ -38,10 +38,8 @@ see [INSTALL.md](./docs/INSTALL.md) for one solution.
 - [nanio](https://github.com/puyuan/py-nanoid)
 
 ### Client
-- [Howler Audio Component](https://github.com/goldfire/howler.js)
 - [React](https://react.dev/)
 - [Wouter](https://www.npmjs.com/package/wouter)
-- [Bootstrap](https://getbootstrap.com/)
-- [react-bootstrap](https://react-bootstrap.github.io/)
+- [Bulma](https://bulma.io/)
 - [jotai](https://jotai.org/)
 - [vite](https://vite.dev/)

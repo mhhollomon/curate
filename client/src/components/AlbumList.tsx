@@ -1,14 +1,18 @@
-import { Fragment, useEffect, useRef, useState} from "react";
+import { Fragment, useEffect, useState } from "react";
 import { type Album } from "~/types/album";
 import { useProtectedData } from "~/lib/hook";
 import * as rad from 'radashi';
 
-import { arrow_down, arrow_up, three_dots_vert } from "~/icons";
+import { arrow_down, arrow_up } from "~/icons";
 import { useAtom } from "jotai";
 import { queueListAtom } from "~/atoms";
 import type { QueueItem } from "~/types/queue_item";
 import { Link } from "wouter";
 import SuccessPopup from "~/components/SuccessPopup";
+import Icon from "~/components/Icon";
+import QueuePopupMenu from "~/components/QueuePopupMenu";
+import { DropdownMenu } from "radix-ui";
+import type { respAlbumTrack } from "~/responses";
 
 interface sorting {
     column: string;
@@ -19,7 +23,6 @@ export default function AlbumList() {
     const [albumList, setAlbumList] = useState<Album[] | undefined>(undefined);
     const [sortStatus, setSortStatus] = useState<sorting>({ column: "name", upward: true });
 
-    const [show, setShow] = useState<string>();
 
     const [showQueue, setShowQueue] = useState(false);
     const [queueMsg, setQueueMsg] = useState<string>('');
@@ -73,54 +76,45 @@ export default function AlbumList() {
 
     }
 
-    function showPopover(id: string) {
-        if (show === id) {
-            setShow(undefined);
-        } else {
-            console.log(`showing ${id}`)
-            setShow(id);
-        }
-    }
-
     async function add_to_queue(album_id: string) {
         console.log(`- Adding album ${album_id} to Queue`)
 
-        const data = await fetch(`/api/album/${album_id}`)
-            .then(response => response.json());
+        fetch(`/api/album/${album_id}`)
+            .then(response => response.json()).then((data) => {
 
-        const new_items: QueueItem[] = []
-        data.tracks.map((t: any) => {
-            const new_item = {
-                track_name: t.name,
-                track_id: t.id,
-                artist_name: data.artist.name || '',
-                artist_id: data.artist.id || '',
-                cover_id: data.album.cover,
-                album_name: data.album.name,
-                album_id: data.album.id
-            }
-            new_items.push(new_item)
-        })
-        const new_queue = [...queueList, ...new_items];
-        SetQueueList(new_queue);
-        setShow(undefined);
-        setShowQueue(true);
-        setQueueMsg('Album added to queue');
-        setTimeout(() => {
-            console.log('timeout expired');
-            setShowQueue(false);
-        }, 3000);
+                const new_items: QueueItem[] = [];
+                (data.tracks as respAlbumTrack[]).map((t: respAlbumTrack) => {
+                    const new_item: QueueItem = {
+                        track_name: t.name,
+                        track_id: t.id,
+                        artist_name: data.artist.name || '',
+                        artist_id: data.artist.id || '',
+                        cover_id: data.album.cover,
+                        album_name: data.album.name,
+                        album_id: data.album.id,
+                        duration: t.duration
+                    }
+                    new_items.push(new_item)
+                })
+                const new_queue = [...queueList, ...new_items];
+                SetQueueList(new_queue);
+                setShowQueue(true);
+                setQueueMsg('Album added to queue');
+            });
     }
 
+    function onOpenChange(open: boolean) {
+        setShowQueue(open);
+    }
 
     return <>
-        <SuccessPopup show={showQueue} message={queueMsg} />
+        <SuccessPopup show={showQueue} message={queueMsg} onOpenChange={onOpenChange} />
         <table className="table is-striped is-fullwidth">
             <thead>
                 <tr>
                     <th></th>
-                    <th><a className="bare-link" onClick={() => sort_change('name')}>name&nbsp;{calc_icon('name')}</a></th>
-                    <th><a className="bare-link" onClick={() => sort_change('artist')}>artist&nbsp;{calc_icon('artist')}</a></th>
+                    <th className="has-text-centered"><a className="bare-link" onClick={() => sort_change('name')}>name&nbsp;<Icon icon={calc_icon('name')} /></a></th>
+                    <th className="has-text-centered"><a className="bare-link" onClick={() => sort_change('artist')}>artist&nbsp;<Icon icon={calc_icon('artist')} /></a></th>
                     <th>&nbsp;</th>
                 </tr>
             </thead>
@@ -131,16 +125,11 @@ export default function AlbumList() {
                         <td><Link href={`/album/${a.id}`}>{a.name}</Link></td>
                         <td><Link href={`/artist/${a.artist_id}`}>{a.artist_name}</Link></td>
                         <td>
-                            <div className={"dropdown is-right" + (show === a.id ? ' is-active' : '')}>
-                                <div className="dropdown-trigger">
-                                <a className="bare-link" onClick={() => showPopover(a.id)} aria-haspopup="true" aria-controls={"dropdown-menu-" + a.id}>{three_dots_vert}</a>
-                                </div>
-                                <div className={"dropdown-menu"} id={"dropdown-menu-" + a.id} role="menu">
-                                    <div className={"dropdown-content"}>
-                                        <a href="#" className="dropdown-item" onClick={() => add_to_queue(a.id)}> Add Album to Queue </a>
-                                    </div>
-                                </div>
-                            </div>
+                            <QueuePopupMenu>
+                                <DropdownMenu.Item>
+                                    <a className="bare-link hover-underline has-text-black" onClick={() => add_to_queue(a.id)}>Add Album to Queue</a>
+                                </DropdownMenu.Item>
+                            </QueuePopupMenu>
                         </td>
 
                     </tr>
@@ -149,6 +138,5 @@ export default function AlbumList() {
                 )}
             </tbody>
         </table>
-
     </>
 }
