@@ -3,6 +3,9 @@ import { useAtom } from 'jotai';
 import { useLocation } from 'wouter';
 import { nextRouteAtom } from '~/atoms';
 import { useEffect, useState } from 'react';
+import { Form } from "radix-ui";
+
+import './Login.css';
 
 export interface loginProps {
     msg: string;
@@ -41,21 +44,20 @@ export default function Login({ msg }: loginProps) {
 
     return <>
         <div><span>{message}</span></div>
-        <form onSubmit={handleSubmit}>
-                <label>User Id</label>
-                <input type="text" placeholder="User ID"
-                    name="username"
-                    autoComplete='username'
-                    />
-
-                <label>Password</label>
-                <input type="password" placeholder="Password"
-                    autoComplete='current-password'
-                    name="password"
-                    />
+        <Form.Root className="form-root" onSubmit={handleSubmit}>
+            <Form.Field name="username" className="field-group">
+                <Form.Label>User ID</Form.Label>
+                <Form.Control autoComplete='username' placeholder='User ID' />
+            </Form.Field>
+            <Form.Field name="password" className="field-group">
+                <Form.Label>Password</Form.Label>
+                <Form.Control autoComplete='current-password' placeholder='Password' />
+            </Form.Field>
+            <Form.Submit asChild>
             <button className="button is-primary" type="submit">
                 Submit
             </button>
-        </form>
+            </Form.Submit>
+        </Form.Root>
     </>;
 }

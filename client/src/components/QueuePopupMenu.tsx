@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
 
 import { DropdownMenu } from "radix-ui";
 import { three_dots_vert } from "~/icons";
@@ -10,12 +10,14 @@ interface QueuePopupMenuProps {
 
 export default function QueuePopupMenu({ children }: QueuePopupMenuProps) {
 
+    const portal = useRef(document.getElementById('root'))
+
     return (
         <DropdownMenu.Root>
-            <DropdownMenu.Trigger>
+            <DropdownMenu.Trigger asChild>
                 <a className="bare-link" aria-label="Add to queue"><Icon size="1.25em" icon={three_dots_vert} /></a>
             </DropdownMenu.Trigger>
-            <DropdownMenu.Portal>
+            <DropdownMenu.Portal container={portal.current}>
                 <DropdownMenu.Content align="end" className="menu-content">
                     {children}
                 </DropdownMenu.Content>
