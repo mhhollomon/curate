@@ -405,9 +405,10 @@ class GenerateData :
 def getargs() -> Namespace :
     parser = ArgumentParser()
 
-    parser.add_argument('--music', default='/mnt/music')
-    parser.add_argument('--rebuild', action=BooleanOptionalAction, default=False)
-    parser.add_argument('--out',  help="Name of file for the database.")
+    parser.add_argument('--music', help="Directory to scan for music files. Uses the path in the .env file by default.")
+    parser.add_argument('--rebuild', action=BooleanOptionalAction, default=False,
+                        help="Rebuild the database from scratch. Does preserve the user table.")
+    parser.add_argument('--out',  help="Name of file for the database. Use path in the .env file by default.")
 
     return parser.parse_args()
 
