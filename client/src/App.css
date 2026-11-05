@@ -21,6 +21,26 @@
     text-decoration: underline solid black 2px;
 }
 
+.table td.thumbnail-cell {
+    padding :  0.25em 0.25em 0.25em 1em;
+    align-content: center;
+    min-width : 30px;
+    min-height : 30px;
+
+}
+
+.table td.name-link {
+    max-width : 50%;
+    & a {
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+        display: inline-block;
+        max-width : 100px;
+    }
+
+}
+
 .gap-0 {
     gap : 0;
 }

@@ -42,8 +42,8 @@ export default function Album({ album_id }: AlbumProps) {
     const [queueMsg, setQueueMsg] = useState<string>('');
 
     useProtectedData({
-        url : '/api/album/' + album_id,
-        data_proc : (data) => {
+        url: '/api/album/' + album_id,
+        data_proc: (data) => {
             const tracks = data.tracks
             if (tracks.length > 0) {
                 setTrackList(tracks)
@@ -66,7 +66,7 @@ export default function Album({ album_id }: AlbumProps) {
 
 
     function playTrack(t: respAlbumTrack | undefined) {
-        if (! t) {
+        if (!t) {
             setCurrentTrack(undefined);
         } else {
             setCurrentTrack(track2player_data(t));
@@ -74,17 +74,19 @@ export default function Album({ album_id }: AlbumProps) {
 
     }
 
-    function track2player_data(t: respAlbumTrack) : PlayerTrackData {
-        return { 'id': t.id,
-                'src' : `/api/play/${t.id}`,
-                'artist' : artist?.name || '',
-                'cover' : `/api/cover/media/${coverId}`,
-                'album' : album?.name,
-                'name': t.name };
+    function track2player_data(t: respAlbumTrack): PlayerTrackData {
+        return {
+            'id': t.id,
+            'src': `/api/play/${t.id}`,
+            'artist': artist?.name || '',
+            'cover': `/api/cover/media/${coverId}`,
+            'album': album?.name,
+            'name': t.name
+        };
     }
 
 
-    function compute_next_track(delta: number = 1) : respAlbumTrack | undefined {
+    function compute_next_track(delta: number = 1): respAlbumTrack | undefined {
 
         let index = trackList.findIndex((t) => t.id === currentTrack?.id)
         const old_index = index
@@ -118,14 +120,14 @@ export default function Album({ album_id }: AlbumProps) {
     }
 
     function onAutoPlay() {
-        if (! autoPlay && ! currentTrack) {
+        if (!autoPlay && !currentTrack) {
             // Start the album if not curently playing something.
             const t = trackList[0];
             playTrack(t);
 
         }
 
-        setAutoPlay(! autoPlay)
+        setAutoPlay(!autoPlay)
     }
 
     function onNext() {
@@ -149,18 +151,18 @@ export default function Album({ album_id }: AlbumProps) {
     }
 
     function changeLoop() {
-        setLoopAlbum(! loopAlbum)
+        setLoopAlbum(!loopAlbum)
     }
 
     function add_track_to_queue(t: respAlbumTrack) {
-        const new_item : QueueItem = {
+        const new_item: QueueItem = {
             track_name: t.name,
             track_id: t.id,
             artist_name: artist?.name || '',
             artist_id: artist?.id || '',
-            album_name : album?.name || undefined,
-            cover_id : album?.cover || undefined,
-            duration : t.duration,
+            album_name: album?.name || undefined,
+            cover_id: album?.cover || undefined,
+            duration: t.duration,
         }
         const new_queue = [...queueList, new_item];
         SetQueueList(new_queue);
@@ -168,25 +170,57 @@ export default function Album({ album_id }: AlbumProps) {
         setQueueMsg("Track added to queue");
     }
 
-    function onOpenChange(open : boolean) {
+    async function add_album_to_queue(album_id: string) {
+        console.log(`- Adding album ${album_id} to Queue`)
+
+        fetch(`/api/album/${album_id}`)
+            .then(response => response.json()).then((data) => {
+
+                const new_items: QueueItem[] = [];
+                (data.tracks as respAlbumTrack[]).map((t: respAlbumTrack) => {
+                    const new_item: QueueItem = {
+                        track_name: t.name,
+                        track_id: t.id,
+                        artist_name: data.artist.name || '',
+                        artist_id: data.artist.id || '',
+                        cover_id: data.album.cover,
+                        album_name: data.album.name,
+                        album_id: data.album.id,
+                        duration: t.duration
+                    }
+                    new_items.push(new_item)
+                })
+                const new_queue = [...queueList, ...new_items];
+                SetQueueList(new_queue);
+                setShowQueue(true);
+                setQueueMsg('Album added to queue');
+            });
+    }
+
+
+    function onOpenChange(open: boolean) {
         setShowQueue(open);
     }
+
+    const flex_dir_class = ((window.screen.width > 700) && currentTrack) ? 'is-flex-direction-row gap-3' : 'is-flex-direction-column';
 
     return (<>
         <SuccessPopup show={showQueue} message={queueMsg} onOpenChange={onOpenChange} />
 
         <Flex className="is-flex-direction-column is-justify-content-center is-align-items-center">
+            <Flex className={flex_dir_class}>
             <div className="coverBlock mt-2 mb-2">
                 {coverId && <img src={`/api/cover/full/${coverId}`} width={300} height={300} />}
             </div>
-            <div>
-                <span className="has-text-weight-bold is-size-4 has-text-black">{album?.name}</span>
-            </div>
-
-            <div className="artistBlock">
-                <span className="has-text-black">{artist?.name}</span>
-            </div>
-
+            <Flex className="is-flex-direction-column">
+                <div>
+                    <span className="has-text-weight-bold is-size-4 has-text-black">{album?.name}</span>
+                </div>
+                <div className="artistBlock">
+                    <span className="has-text-black">{artist?.name}</span>
+                </div>
+            </Flex>
+            </Flex>
             <Player2 track={currentTrack}
                 onEnd={onPlayEnd}
                 onPrevious={onPrevious}
@@ -199,13 +233,16 @@ export default function Album({ album_id }: AlbumProps) {
                             <Flex gap={2} className='is-justify-content-center'>
                                 <Toggle state={autoPlay} title="Auto" onStateChange={onAutoPlay} />
                                 <Toggle title="Loop" state={loopAlbum} onStateChange={changeLoop} />
+                                <button className="button is-primary ml-5"
+                                    onClick={() => add_album_to_queue(album_id)}>Queue
+                                </button>
                             </Flex>
                         </th>
                     </tr>
                 </thead>
                 <tbody>
                     {trackList && trackList.map(t => <tr
-                            className={t.id === currentTrack?.id ? 'has-background-grey-lighter' : ''} key={t.id}>
+                        className={t.id === currentTrack?.id ? 'has-background-grey-lighter' : ''} key={t.id}>
                         <td style={{ width: '2rem' }}>{t.id === currentTrack?.id ? '>>>' : <a onClick={() => playTrack(t)}><Icon size="1.5em" icon={play_btn_fill} /></a>}</td>
                         <td style={{ width: '5rem' }}>{formatTime(t.duration)}</td>
                         <td><a onClick={() => playTrack(t)}>{t.name}</a></td>
