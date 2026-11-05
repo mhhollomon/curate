@@ -3,20 +3,23 @@
 Fun DYI project to stream music.
 
 Scans a music directory structure and uses found index files
-to build a database of music references.
+to build a database of music references. Does **not** use reference
+services such as _musicbrainz_. Does **not** write to the directory
+structure where your music lives (It can be mounted read-only if you want).
 
-**CURRENTLY NO SECURITY** (future though)
+Security is minimal.
 
 - [server](./server/)
 - [client](./client/)
 
 ## Roadmap
-(User visible - in no particular order)
+
+### User visible - in no particular order
 
 1. User based playlists.
-1. Play queue.
+1. Seeking in the audio player.
 
-(internals)
+### Internals
 
 1. Clean up cache periodically.
 1. Fix cache locking.
@@ -40,6 +43,7 @@ see [INSTALL.md](./docs/INSTALL.md) for one solution.
 ### Client
 - [React](https://react.dev/)
 - [Wouter](https://www.npmjs.com/package/wouter)
+- [Radix-ui primitives](https://www.radix-ui.com/primitives)
 - [Bulma](https://bulma.io/)
 - [jotai](https://jotai.org/)
 - [vite](https://vite.dev/)
