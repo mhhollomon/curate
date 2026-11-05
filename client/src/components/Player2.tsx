@@ -65,8 +65,12 @@ export default function Player2({ track, onEnd, onPrevious, onNext }: Player2Pro
 
     useEffect(() => {
 
+        document.addEventListener("keydown", key_down, {capture : true });
+
         return () => {
             console.log("---- CLEANUP ---")
+
+            document.removeEventListener("keydown", key_down, {capture : true });
 
             clean_players();
 
@@ -75,6 +79,18 @@ export default function Player2({ track, onEnd, onPrevious, onNext }: Player2Pro
             }
         }
     }, [])
+
+    function key_down(event : KeyboardEvent) {
+        if (event.code == 'Space') {
+            const player = getCurrentPlayer();
+            if (player) {
+                console.log("Updating...");
+                // Only preventDefault() if we know for sure we are going to handle it.
+                event.preventDefault();
+                handlePlayPauseButtonClick();
+            }
+        }
+    }
 
     useEffect(() => {
         console.log(`track changed to: '${track?.id || 'undefined'}'`)
