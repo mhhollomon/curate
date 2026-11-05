@@ -195,13 +195,12 @@ export default function Album({ album_id }: AlbumProps) {
             <table className="table is-striped is-fullwidth mb-5">
                 <thead>
                     <tr>
-                        <th colSpan={3}>
+                        <th colSpan={4}>
                             <Flex gap={2} className='is-justify-content-center'>
                                 <Toggle state={autoPlay} title="Auto" onStateChange={onAutoPlay} />
                                 <Toggle title="Loop" state={loopAlbum} onStateChange={changeLoop} />
                             </Flex>
                         </th>
-                        <th>&nbsp;</th>
                     </tr>
                 </thead>
                 <tbody>
