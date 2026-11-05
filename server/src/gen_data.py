@@ -1,3 +1,4 @@
+from datetime import datetime
 import re
 
 from .lib.types import *
@@ -35,9 +36,7 @@ class GenerateData :
 
         print(f"Starting on collection {self.directory}")
 
-        level = 0
-        self.tree_top(self.directory, level)
-
+        self.tree_top(self.directory)
 
         print(f"Finished with collection {self.directory}")
 
@@ -95,26 +94,26 @@ class GenerateData :
         return name
 
     ##########################################################
-    def tree_top(self, dir : Path, level : int,  prefix : str = '') -> None :
+    def tree_top(self, dir : Path, prefix : str = '') -> None :
         # Run through subdirectories
         for entry in dir.iterdir() :
             if entry.is_dir() :
                 print(f"{prefix} - artist {entry}")
-                self.artist_dir(dir / entry, level+1, prefix + '  ')
+                self.artist_dir(dir / entry, prefix + '  ')
         # handle the index if there
         print(f"top {dir}")
         self.handle_index(dir, prefix)
 
     ##########################################################
-    def artist_dir(self, dir : Path, level : int,  prefix : str = '') -> None :
+    def artist_dir(self, dir : Path, prefix : str = '') -> None :
 
         if (dir / '.ignore').exists() :
-            print(f"{prefix} -  .ignore")
+            print(f"{prefix} -  .ignore directive")
             return
 
         skipping = (dir / '.skip').exists()
         if skipping :
-            print(f"{prefix} -  .skip")
+            print(f"{prefix} -  .skip directive")
 
         artist_name = dir.name.strip(" -")
         music : list[Path] = []
@@ -122,10 +121,10 @@ class GenerateData :
             if entry.is_dir() :
                 if skipping :
                     print(f"{prefix} - artist {entry}")
-                    self.artist_dir(dir / entry, level+1, prefix + '  ')
+                    self.artist_dir(dir / entry, prefix + '  ')
                 else :
                     print(f"{prefix} - album {entry}")
-                    self.album_dir(dir / entry, level+1, artist_name, prefix + '  ')
+                    self.album_dir(dir / entry, artist_name, prefix + '  ')
             elif self.is_music(entry) :
                 music.append(entry)
 
@@ -138,6 +137,7 @@ class GenerateData :
             return
 
         if (dir / '.album').exists() :
+            print(f"{prefix} - .album directive")
             self.discover_album(dir, music)
             return
 
@@ -150,15 +150,15 @@ class GenerateData :
             artist.add_track(track)
 
     ##########################################################
-    def album_dir(self, dir : Path, level : int,  artist : str, prefix : str) -> None :
+    def album_dir(self, dir : Path, artist : str, prefix : str) -> None :
 
         if (dir / '.ignore').exists() :
-            print(f"{prefix} -  .ignore")
+            print(f"{prefix} -  .ignore directive")
             return
 
         skipping = (dir / '.skip').exists()
         if skipping :
-            print(f"{prefix} -  .skip")
+            print(f"{prefix} -  .skip directive")
 
         album = self.clean_name(dir.name, artist)
         music : list[Path] = []
@@ -166,10 +166,10 @@ class GenerateData :
             if entry.is_dir() :
                 if skipping :
                     print(f"{prefix} - album {entry}")
-                    self.album_dir(dir / entry, level+1, artist, prefix + '  ')
+                    self.album_dir(dir / entry, artist, prefix + '  ')
                 else :
                     print(f"{prefix} - lower {entry}")
-                    self.lower_dir(dir / entry, level+1, prefix + '  ')
+                    self.lower_dir(dir / entry, prefix + '  ')
 
             elif self.is_music(entry) :
                 music.append(entry)
@@ -178,27 +178,28 @@ class GenerateData :
             return
 
         if music :
+            print(f"{prefix} -  album dir - implied")
             # For now, ignore the names passed in
             # and let discover do the parsing.
             self.discover_album(dir, music)
 
 
     ##########################################################
-    def lower_dir(self, dir : Path, level : int,  prefix : str) -> None :
+    def lower_dir(self, dir : Path, prefix : str) -> None :
         if (dir / '.ignore').exists() :
-            print(f"{prefix} -  .ignore")
+            print(f"{prefix} -  .ignore directive")
             return
 
         for entry in dir.iterdir() :
             if entry.is_dir() :
                 print(f"{prefix} - lower {entry}")
-                self.lower_dir(dir / entry, level+1, prefix + '  ')
+                self.lower_dir(dir / entry, prefix + '  ')
 
         self.handle_index(dir, prefix)
 
     ##########################################################
     def find_cover(self, dir : Path) -> Cover | None :
-        for ptype in ('jpg', 'png') :
+        for ptype in ('jpg', 'png', 'webp') :
             file = dir / f"cover.{ptype}";
             if file.exists() :
                 return Cover(path=file.relative_to(self.directory))
@@ -263,10 +264,10 @@ class GenerateData :
 
         index_path = dir / '_index.yml'
         if not index_path.exists() :
-            print(f"{prefix}-- no index. returning")
             return False
 
-        print(f"{prefix}-- has index.")
+        print(f"{prefix} - .index file")
+
         index_data : Dict[str, Any] = self.read_index_file(index_path)
         if index_data['type'] == 'single' :
             self.read_singles_index(dir, index_data, prefix)
@@ -346,15 +347,22 @@ class GenerateData :
                 cover = Cover(path=full_cover_path.relative_to(self.directory))
                 # It may already exist. Let the manager tell us.
                 cover = coverManager.add_cover(cover)
+            else :
+                print(f"ERROR : declared cover file {full_cover_path} does not exist.")
         else :
             cover = self.find_cover(dir)
             if cover :
                 cover = coverManager.add_cover(cover)
+            else :
+                print(f"{prefix} == No cover found.")
+
 
         album = Album(index_data['name'], index_data['sort_name'], cover=cover.id if cover else None)
         album = artist.add_album(album)
 
         if index_data['tracks'] == 'auto' :
+            print(f"{prefix} == tracks set as `auto`")
+
             index = 0
             for entry in dir.iterdir() :
                 if self.is_music(entry) :
@@ -376,6 +384,8 @@ class GenerateData :
                     sort_name = t['sort_name'] if 'sort_name' in t else None
                     track = Track(music_obj, t['name'], sort_name)
                     album.add_track(track, index+1)
+                else :
+                    print(f"ERROR : declared track file {full_path} does not exist.")
 
     ##########################################################
     def read_index_file(self, file : Path) -> Dict[str, Any] :
@@ -418,7 +428,12 @@ def main() :
     database_file = args.out or get_required_config('DB_FILE')
 
     obj = GenerateData(directory=dir, database=database_file, rebuild=args.rebuild)
+
+    start_time = datetime.now()
     retval = obj.launch()
+    if retval == 0 :
+        duration = datetime.now() - start_time
+        print(f"Scan Duration = {duration}")
 
     return retval
 

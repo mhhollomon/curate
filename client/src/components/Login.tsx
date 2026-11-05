@@ -43,15 +43,15 @@ export default function Login({ msg }: loginProps) {
     }
 
     return <>
-        <div><span>{message}</span></div>
+        <div className="mt-5 mb-3"><span className='has-text-black has-background-warning py-2 px-5 form-msg'>{message}</span></div>
         <Form.Root className="form-root" onSubmit={handleSubmit}>
             <Form.Field name="username" className="field-group">
                 <Form.Label>User ID</Form.Label>
-                <Form.Control autoComplete='username' placeholder='User ID' />
+                <Form.Control autoComplete='username' placeholder='User ID' className='input' />
             </Form.Field>
             <Form.Field name="password" className="field-group">
                 <Form.Label>Password</Form.Label>
-                <Form.Control autoComplete='current-password' placeholder='Password' />
+                <Form.Control autoComplete='current-password' placeholder='Password' className='input' />
             </Form.Field>
             <Form.Submit asChild>
             <button className="button is-primary" type="submit">

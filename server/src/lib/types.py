@@ -316,9 +316,14 @@ class TrackManager :
         if track.file.path in self.paths :
             t = self.paths[track.file.path]
             t = self._update_record(t, track)
-        elif track.file.digest in self.digest :
-            t = self.digest[track.file.digest]
-            t = self._update_record(t, track)
+            # Can't check by digest. The same track may
+            # be repackaged as either a single or a track in album.
+            # May need to add a 'context' column to the track in
+            # order to disambiguate.
+            #
+        # elif track.file.digest in self.digest :
+        #     t = self.digest[track.file.digest]
+        #     t = self._update_record(t, track)
         else :
             t = track
             self.byid[t.id] = t
@@ -445,6 +450,15 @@ class AlbumTrackManager :
 
             dbAlbumTrack.insert_many(new_records).execute()
 
+@dataclass
+class track_context :
+    ctype : str
+
+    def same(self, other) -> bool :
+        if not isinstance(other, self.__class__) :
+            return False
+
+        return self.ctype == other.ctype
 
 #############################################
 # Global lists

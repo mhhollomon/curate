@@ -16,7 +16,6 @@
 
 .field-group input {
     background-color: white;
-    font-size : 1.25em;
     color: black
 }
 
@@ -26,4 +25,8 @@
 
 .field-group input::placeholder {
     font-style: italic;
+}
+
+.form-msg {
+    border-radius: 5px;
 }
