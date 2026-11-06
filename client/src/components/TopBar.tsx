@@ -1,6 +1,7 @@
 import { DropdownMenu } from "radix-ui";
 import Flex from "~/components/bulma/flex"
 import Icon from "~/components/Icon";
+import About from "~/components/About";
 import { hamburger } from "~/icons";
 import { navigate } from "wouter/use-browser-location";
 
@@ -28,7 +29,7 @@ export default function Topbar() {
 
             </div>
             <div className="is-inline-block">Curate</div>
-            <div className="is-inline-block">&nbsp;</div>
+            <div className="is-inline-block"><About className="mr-2" /></div>
         </Flex>
     );
 }

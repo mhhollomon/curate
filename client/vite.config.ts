@@ -1,4 +1,6 @@
 import react from '@vitejs/plugin-react';
+import { VitePluginGitVersion } from '@east0422/vite-plugin-git-version';
+
 import { defineConfig } from 'vite';
 import path from "path";
 
@@ -9,7 +11,10 @@ export default defineConfig({
             "~": path.resolve(import.meta.dirname, "src")
         }
     },
-    plugins: [react()],
+    plugins: [
+        react(),
+        VitePluginGitVersion({hiddenHead:true}),
+    ],
     server: {
         proxy: {
             '/api': {
