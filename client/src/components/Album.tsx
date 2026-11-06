@@ -109,14 +109,18 @@ export default function Album({ album_id }: AlbumProps) {
 
     function onPlayEnd() {
         console.log("Playback ended")
-        if (autoPlay) {
-            const t = compute_next_track(1);
-            playTrack(t);
-            if (t === undefined)
-                setAutoPlay(false);
-        } else {
-            playTrack(undefined);
-        }
+
+        setAutoPlay((old) => {
+            if (old) {
+                const t = compute_next_track(1);
+                playTrack(t);
+                if (t === undefined)
+                    return false;
+            } else {
+                playTrack(undefined);
+            }
+            return old;
+        });
     }
 
     function onAutoPlay() {
@@ -127,7 +131,7 @@ export default function Album({ album_id }: AlbumProps) {
 
         }
 
-        setAutoPlay(!autoPlay)
+        setAutoPlay((old) => !old)
     }
 
     function onNext() {
@@ -231,6 +235,8 @@ export default function Album({ album_id }: AlbumProps) {
                     <tr>
                         <th colSpan={4}>
                             <Flex gap={2} className='is-justify-content-center'>
+                                <button className="button is-danger mr-5" disabled={!currentTrack}
+                                    onClick={() => setCurrentTrack(undefined)} >Stop</button>
                                 <Toggle state={autoPlay} title="Auto" onStateChange={onAutoPlay} />
                                 <Toggle title="Loop" state={loopAlbum} onStateChange={changeLoop} />
                                 <button className="button is-primary ml-5"
