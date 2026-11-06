@@ -27,14 +27,15 @@ export default function About({className} : AboutProps) {
             </Dialog.Trigger>
             <Dialog.Portal>
                 <Dialog.Overlay className="DialogOverlay" />
-                <Dialog.Content className="DialogContent">
-                    <Dialog.Title>About</Dialog.Title>
+                <Dialog.Content className="DialogContent theme-light">
+                    <Dialog.Title className="is-size-6">About</Dialog.Title>
+                    <Dialog.Description className="is-size-7 mb-2">Cool Thing&trade; I built.</Dialog.Description>
                     <table className="table is-primary">
                         <tbody>
-                            <tr><td>Version</td><td>{data.projectVersion}</td></tr>
-                            <tr><td>Commit</td><td>{data.commitId}</td></tr>
-                            <tr><td>Branch</td><td>{data.branchName}</td></tr>
-                            <tr><td>Build Time</td><td>{data.buildTime}</td></tr>
+                            <tr><th>Version</th><td>{data.projectVersion}</td></tr>
+                            <tr><th>Commit</th><td>{data.commitId}</td></tr>
+                            <tr><th>Branch</th><td>{data.branchName}</td></tr>
+                            <tr><th>Build Time</th><td>{data.buildTime}</td></tr>
                         </tbody>
                     </table>
                 </Dialog.Content>
