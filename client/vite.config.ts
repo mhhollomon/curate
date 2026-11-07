@@ -1,5 +1,5 @@
 import react from '@vitejs/plugin-react';
-import { VitePluginGitVersion } from '@east0422/vite-plugin-git-version';
+import { buildInfo } from "@mgcrea/vite-plugin-build-info";
 
 import { defineConfig } from 'vite';
 import path from "path";
@@ -13,7 +13,7 @@ export default defineConfig({
     },
     plugins: [
         react(),
-        VitePluginGitVersion({hiddenHead:true}),
+        buildInfo(),
     ],
     server: {
         proxy: {

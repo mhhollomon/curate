@@ -6,20 +6,25 @@ import { useEffect, useState } from 'react';
 import Icon from "~/components/Icon";
 import { question_circle } from "~/icons";
 
+declare const __BUILD_INFO__: {
+  name: string;
+  version: string;
+  commitHash: string;
+  commitShort: string;
+  commitTime: string;
+  branch: string;
+  isDirty: boolean;
+  lastTag: string;
+  commitsSinceTag: number;
+  buildTime: string;
+};
+
 interface AboutProps {
     className? : string;
 }
 
 export default function About({className} : AboutProps) {
-    const [data, setData] = useState<any>({commitId : '', buildTime : '', branchName : '', projectVersion : ''});
-
-    useEffect(() => {
-        fetch('/json/version.json').then((resp) => resp.json()).then((json_data) => {
-            console.log("About data =", json_data)
-            setData(json_data);
-        });
-    }, []);
-
+    const {version, commitShort, isDirty, branch, buildTime} = __BUILD_INFO__;
     return (
         <Dialog.Root>
             <Dialog.Trigger asChild>
@@ -32,10 +37,10 @@ export default function About({className} : AboutProps) {
                     <Dialog.Description className="is-size-7 mb-2">Cool Thing&trade; I built.</Dialog.Description>
                     <table className="table is-primary">
                         <tbody>
-                            <tr><th>Version</th><td>{data.projectVersion}</td></tr>
-                            <tr><th>Commit</th><td>{data.commitId}</td></tr>
-                            <tr><th>Branch</th><td>{data.branchName}</td></tr>
-                            <tr><th>Build Time</th><td>{data.buildTime}</td></tr>
+                            <tr><th>Version</th><td>{version}</td></tr>
+                            <tr><th>Commit</th><td>{commitShort + (isDirty?'+':'')}</td></tr>
+                            <tr><th>Branch</th><td>{branch}</td></tr>
+                            <tr><th>Build Time</th><td>{buildTime}</td></tr>
                         </tbody>
                     </table>
                 </Dialog.Content>
