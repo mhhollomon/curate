@@ -2,7 +2,6 @@
 import { Dialog } from "radix-ui";
 
 import "./About.css";
-import { useEffect, useState } from 'react';
 import Icon from "~/components/Icon";
 import { question_circle } from "~/icons";
 
