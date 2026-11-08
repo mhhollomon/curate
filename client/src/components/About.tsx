@@ -23,7 +23,7 @@ interface AboutProps {
 }
 
 export default function About({className} : AboutProps) {
-    const {version, commitShort, isDirty, branch, buildTime} = __BUILD_INFO__;
+    const {version, commitHash, isDirty, branch, buildTime} = __BUILD_INFO__;
     return (
         <Dialog.Root>
             <Dialog.Trigger asChild>
@@ -37,7 +37,7 @@ export default function About({className} : AboutProps) {
                     <table className="table is-primary">
                         <tbody>
                             <tr><th>Version</th><td>{version}</td></tr>
-                            <tr><th>Commit</th><td>{commitShort + (isDirty?'+':'')}</td></tr>
+                            <tr><th>Commit</th><td>{(commitHash.substring(0, 10)) + (isDirty?'+':'')}</td></tr>
                             <tr><th>Branch</th><td>{branch}</td></tr>
                             <tr><th>Build Time</th><td>{buildTime}</td></tr>
                         </tbody>
