@@ -1,5 +1,5 @@
 {
-  "name": "my-app",
+  "name": "curate",
   "private": true,
   "version": "0.1.0",
   "type": "module",
@@ -10,8 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "jotai": "^3.0.1",
-    "radashi": "^13.0.1",
+    "jotai": "^3.0.2",
+    "radashi": "^13.0.4",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "wouter": "^3.13.0"
@@ -21,10 +21,10 @@
     "@types/node": "^26.6.6",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
-    "@vitejs/plugin-react": "^6.2.1",
-    "oxlint": "^1.91.0",
-    "sass": "^1.108.1",
+    "@vitejs/plugin-react": "^6.3.0",
+    "oxlint": "^1.93.0",
+    "sass": "^1.108.2",
     "typescript": "^7.0.2",
-    "vite": "^8.3.5"
+    "vite": "^8.3.8"
   }
 }
