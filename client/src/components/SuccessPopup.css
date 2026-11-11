@@ -1,3 +1,34 @@
+.success-toast {
+    background-color: var(--clr-success);
+	border-radius: 36px;
+    border-width: 1px;
+    border-color: var(--clr-success);
+    box-shadow: 10px 7px 5px lightgrey;
+	padding: var(--spacing-2);
+    opacity : 0;
+
+    position: fixed;
+	top: 50%;
+	right: 50%;
+    transform: translate(50%);
+
+    transition: opacity 0.75s, overlay 0.75s allow-discrete,
+        display 0.75s allow-discrete;
+
+    &:popover-open {
+        opacity : 1;
+    }
+
+}
+
+@starting-style {
+  .my-popover {
+    &:popover-open {
+      opacity: 0;
+    }
+  }
+}
+
 .ToastViewport {
 	--viewport-padding: 25px;
 	position: fixed;
@@ -18,7 +49,6 @@
 
 
 .ToastRoot {
-	background-color: white;
 	border-radius: 6px;
     box-shadow: 10px 7px 5px gray;
 	padding: 15px;

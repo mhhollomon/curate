@@ -6,8 +6,6 @@ import Album from '~/components/Album';
 import ArtistWorks from '~/components/ArtistWorks';
 import Login from '~/components/Login';
 
-import { Toast } from "radix-ui";
-
 import { Route, Redirect, useLocation } from 'wouter';
 import { useEffect, useState } from 'react';
 
@@ -58,10 +56,9 @@ export default function App() {
         setRerouted(true)
     }, [])
 
-    return (rerouted && <Toast.Provider>
+    return (rerouted &&
         <Layout>
             <RouteConfig />
         </Layout>
-    </Toast.Provider>
     );
 }

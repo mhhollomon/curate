@@ -1,5 +1,4 @@
-
-import { Toast } from "radix-ui";
+import { useEffect, useRef, useState } from "react";
 
 import "./SuccessPopup.css";
 
@@ -11,15 +10,48 @@ interface SuccessPopupProps {
 
 
 export default function SuccessPopup({ show, message, onOpenChange }: SuccessPopupProps) {
+    const [_, setToastOpen] = useState(false);
+
+    const toastRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+
+        let timer : number|undefined = undefined;
+
+        if (show) {
+            setToastOpen((oldOpen) => {
+                if (oldOpen != show) {
+                    toastRef.current?.showPopover();
+                    timer = setTimeout(() => {
+                        toastRef.current?.hidePopover();
+                        onOpenChange(false);},
+                    2000);
+                }
+                return show;
+            });
+
+        } else {
+            setToastOpen((oldOpen) => {
+                if (oldOpen != show) {
+                    toastRef.current?.hidePopover();
+                }
+                return show;
+            });
+
+        }
+
+        return () => {
+            if (timer) {
+                clearTimeout(timer);
+            }
+        };
+
+    }, [show]);
 
     return (<>
 
-        <Toast.Root open={show} onOpenChange={onOpenChange} duration={2000} className="ToastRoot has-background-success p-1">
-            <Toast.Description><span className="has-text-black">{message}</span></Toast.Description>
-            <Toast.Close />
-        </Toast.Root>
+        <div className="success-toast" ref={toastRef} popover="auto"><span>{message}</span></div>
 
-        <Toast.Viewport className="ToastViewport" />
     </>);
 
 }
