@@ -12,7 +12,6 @@ import { formatTime } from "~/lib/utils";
 import Flex from "~/framework/components/flex";
 import Icon from "~/framework/components/Icon";
 import QueuePopupMenu from "~/components/QueuePopupMenu";
-import { DropdownMenu } from "radix-ui";
 import SuccessPopup from "~/components/SuccessPopup";
 
 export interface ArtistWorksProps {
@@ -51,7 +50,7 @@ export default function ArtistWorks({ artist_id }: ArtistWorksProps) {
             track_id: t.id,
             artist_name: artistWorks?.artist.name || '',
             artist_id: artistWorks?.artist.id || '',
-            duration : t.duration,
+            duration: t.duration,
         }
         const new_queue = [...queueList, new_item];
         SetQueueList(new_queue)
@@ -59,7 +58,7 @@ export default function ArtistWorks({ artist_id }: ArtistWorksProps) {
         setQueueMsg('Single added to queue');
     }
 
-    function onOpenChange(open : boolean) {
+    function onOpenChange(open: boolean) {
         setShowQueue(open);
     }
 
@@ -90,7 +89,7 @@ export default function ArtistWorks({ artist_id }: ArtistWorksProps) {
                 cover_id: data.album.cover,
                 album_name: data.album.name,
                 album_id: data.album.id,
-                duration : t.duration,
+                duration: t.duration,
             }
             new_items.push(new_item)
         })
@@ -137,9 +136,7 @@ export default function ArtistWorks({ artist_id }: ArtistWorksProps) {
                             <td><a onClick={() => playTrack(s)}>{s.name}</a></td>
                             <td>
                                 <QueuePopupMenu>
-                                    <DropdownMenu.Item>
-                                        <a className="bare-link hover-underline" onClick={() => add_single_to_queue(s)}>Add Single to Queue</a>
-                                    </DropdownMenu.Item>
+                                    <a className="bare-link hover-underline" onClick={() => add_single_to_queue(s)}>Add Single to Queue</a>
                                 </QueuePopupMenu>
                             </td>
                         </tr>
@@ -166,9 +163,7 @@ export default function ArtistWorks({ artist_id }: ArtistWorksProps) {
                                 <td><Link href={`/album/${a.id}`}>{a.name}</Link></td>
                                 <td>
                                     <QueuePopupMenu>
-                                        <DropdownMenu.Item>
-                                            <a className="bare-link hover-underline" onClick={() => add_album_to_queue(a.id)}>Add Album to Queue</a>
-                                        </DropdownMenu.Item>
+                                        <a className="bare-link hover-underline" onClick={() => add_album_to_queue(a.id)}>Add Album to Queue</a>
                                     </QueuePopupMenu>
                                 </td>
                             </tr>

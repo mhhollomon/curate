@@ -13,7 +13,6 @@ import { formatTime } from "~/lib/utils";
 import Flex from '~/framework/components/flex'
 import Icon from '~/framework/components/Icon'
 import QueuePopupMenu from '~/components/QueuePopupMenu'
-import { DropdownMenu } from "radix-ui";
 import { useAtom } from 'jotai'
 import { queueListAtom } from '~/atoms'
 import type { QueueItem } from '~/types/queue_item'
@@ -254,9 +253,7 @@ export default function Album({ album_id }: AlbumProps) {
                         <td><a onClick={() => playTrack(t)}>{t.name}</a></td>
                         <td>
                             <QueuePopupMenu>
-                                <DropdownMenu.Item>
-                                    <a href="#" className="bare-link hover-underline" onClick={() => add_track_to_queue(t)}> Add Track to Queue </a>
-                                </DropdownMenu.Item>
+                                <a href="#" className="bare-link hover-underline" onClick={() => add_track_to_queue(t)}> Add Track to Queue </a>
                             </QueuePopupMenu>
                         </td>
                     </tr>)}

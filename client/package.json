@@ -12,7 +12,6 @@
   "dependencies": {
     "jotai": "^3.0.1",
     "radashi": "^13.0.1",
-    "radix-ui": "^1.8.1",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "wouter": "^3.13.0"

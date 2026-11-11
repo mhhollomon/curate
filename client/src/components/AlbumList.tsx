@@ -11,7 +11,6 @@ import { Link } from "wouter";
 import SuccessPopup from "~/components/SuccessPopup";
 import Icon from "~/framework/components/Icon";
 import QueuePopupMenu from "~/components/QueuePopupMenu";
-import { DropdownMenu } from "radix-ui";
 import type { respAlbumTrack } from "~/responses";
 
 interface sorting {
@@ -128,9 +127,7 @@ export default function AlbumList() {
                         <td className={name_class}><Link href={`/artist/${a.artist_id}`}>{a.artist_name}</Link></td>
                         <td>
                             <QueuePopupMenu>
-                                <DropdownMenu.Item>
-                                    <a className="bare-link hover-underline" onClick={() => add_to_queue(a.id)}>Add Album to Queue</a>
-                                </DropdownMenu.Item>
+                                <a className="bare-link hover-underline" onClick={() => add_to_queue(a.id)}>Add Album to Queue</a>
                             </QueuePopupMenu>
                         </td>
 

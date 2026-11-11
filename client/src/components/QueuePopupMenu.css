@@ -1,0 +1,7 @@
+.queue-menu__content {
+    top : anchor(bottom);
+    right : anchor(left);
+    border-width : 1px;
+    border-radius: var(--border-radius);
+    padding : var(--spacing-2);
+}

@@ -43,7 +43,6 @@ see [INSTALL.md](./docs/INSTALL.md) for one solution.
 ### Client
 - [React](https://react.dev/)
 - [Wouter](https://www.npmjs.com/package/wouter)
-- [Radix-ui primitives](https://www.radix-ui.com/primitives)
-- [Bulma](https://bulma.io/)
 - [jotai](https://jotai.org/)
 - [vite](https://vite.dev/)
+- [sass](https://sass-lang.com/)
