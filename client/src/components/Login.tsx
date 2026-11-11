@@ -3,7 +3,6 @@ import { useAtom } from 'jotai';
 import { useLocation } from 'wouter';
 import { nextRouteAtom } from '~/atoms';
 import { useEffect, useState } from 'react';
-import { Form } from "radix-ui";
 
 import './Login.css';
 
@@ -43,21 +42,21 @@ export default function Login({ msg }: loginProps) {
     }
 
     return <>
-        <div className="mt-5 mb-3"><span className='has-text-black has-background-warning py-2 px-5 form-msg'>{message}</span></div>
-        <Form.Root className="form-root" onSubmit={handleSubmit}>
-            <Form.Field name="username" className="field-group">
-                <Form.Label>User ID</Form.Label>
-                <Form.Control autoComplete='username' placeholder='User ID' className='input' />
-            </Form.Field>
-            <Form.Field name="password" className="field-group">
-                <Form.Label>Password</Form.Label>
-                <Form.Control autoComplete='current-password' placeholder='Password' className='input' />
-            </Form.Field>
-            <Form.Submit asChild>
+        <div className="mt-5 mb-3"><span className='login-msg py-2 px-5'>{message}</span></div>
+
+        <form name="login-form" className="form-root" onSubmit={(e) => handleSubmit(e)}>
+            <div className="login-field">
+                <label htmlFor="username">UserID</label>
+                <input type="text" name="username" autoComplete='username' required placeholder='User ID' />
+            </div>
+            <div className="login-field">
+                <label htmlFor="password">Password</label>
+                <input type="password" name="password" autoComplete='current-password' required placeholder='Password' />
+            </div>
             <button className="button vrnt-brand" type="submit">
                 Submit
             </button>
-            </Form.Submit>
-        </Form.Root>
+
+        </form>
     </>;
 }
