@@ -21,7 +21,7 @@ export default function Toggle({state, title, onStateChange} : ToggleProps) {
     }
 
     return <div>
-        <button className="button is-primary" onClick={handleStateChange}>
+        <button className="button vrnt-brand" onClick={handleStateChange}>
             {state ? file_check_fill_icon : file_icon}
             &nbsp;
             {title}

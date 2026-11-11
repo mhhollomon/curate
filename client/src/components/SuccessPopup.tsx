@@ -14,7 +14,7 @@ export default function SuccessPopup({ show, message, onOpenChange }: SuccessPop
 
     return (<>
 
-        <Toast.Root open={show} onOpenChange={onOpenChange} duration={2000} className="ToastRoot has-background-success has-text-black p-1">
+        <Toast.Root open={show} onOpenChange={onOpenChange} duration={2000} className="ToastRoot has-background-success p-1">
             <Toast.Description><span className="has-text-black">{message}</span></Toast.Description>
             <Toast.Close />
         </Toast.Root>

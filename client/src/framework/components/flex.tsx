@@ -1,9 +1,7 @@
-import './flex.css';
-
 import { round } from "radashi";
 import type { ReactNode } from "react";
 
-type dirType = "column"|"row";
+type dirType = "col"|"row"|"column";
 
 interface FlexProps {
     children : ReactNode;
@@ -14,7 +12,7 @@ interface FlexProps {
 
 export default function Flex({children, gap, className, dir} : FlexProps) {
 
-    let class_string = 'is-flex';
+    let class_string = 'd-flex';
 
     if (gap) {
         gap = Math.min(Math.max(round(gap), 0), 6);
@@ -22,7 +20,7 @@ export default function Flex({children, gap, className, dir} : FlexProps) {
     }
 
     if (dir) {
-       class_string += ' is-flex-direction-' + dir;
+       class_string += ' flex-dir-' + dir.substring(0,3);
     }
 
     if (Array.isArray(className)) {

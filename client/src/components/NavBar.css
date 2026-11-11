@@ -1,18 +1,23 @@
 .nonactive {
     align-content: baseline;
     padding-top : 5px;
+    text-decoration: none;
+    &:visited { color: black; }
 }
 .active-nav {
-    border-bottom : 4px solid var(--bulma-primary-60);
+    border-bottom : 4px solid var(--clr-brand-vivid);
     font-weight: bold;
     color: black;
     align-content: baseline;
+    text-decoration: none;
+    &:visited { color: black; }
 }
 
 nav.curate {
     display: flex;
-    column-gap: 0.75em;
+    column-gap: var(--spacing-4);
     align-content: center;
     justify-content: center;
     color : black;
+    margin-bottom: var(--spacing-4);
 }

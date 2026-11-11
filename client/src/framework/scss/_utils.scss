@@ -1,0 +1,176 @@
+@use 'sass:list';
+
+/* Sets the different spacings */
+
+$spacing: (
+    0: 0,
+    1: 1,
+    2: 2,
+    3: 3,
+    4: 4,
+    5: 6,
+    6: 12
+);
+
+
+/***********************************************
+ * DISPLAY
+ ***********************************************/
+
+ $display : none, flex, block, inline, inline-block, inline-flex;
+
+ @each $d in $display {
+    .d-#{$d} {
+        display : #{$d} !important;
+    }
+ }
+
+/***********************************************
+ * MARGIN
+ ***********************************************/
+
+ /* create properties for eac of the spacings */
+
+ :root {
+    @each $index, $count in $spacing {
+        --spacing-#{$index} : calc(var(--spacer) * #{$count});
+    }
+ }
+
+@each $index, $count in $spacing {
+    .m-#{$index}  { margin: calc(var(--spacer) * #{$count}); }
+    .mt-#{$index} { margin-block-start: calc(var(--spacer) * #{$count}); }
+    .mb-#{$index} { margin-block-end: calc(var(--spacer) * #{$count}); }
+    .ms-#{$index} { margin-inline-start: calc(var(--spacer) * #{$count}); }
+    .me-#{$index} { margin-inline-end: calc(var(--spacer) * #{$count}); }
+    .my-#{$index} { margin-block: calc(var(--spacer) * #{$count}); }
+    .mx-#{$index} { margin-inline: calc(var(--spacer) * #{$count}); }
+}
+
+/***********************************************
+ * PADDING
+ ***********************************************/
+
+@each $index, $count in $spacing {
+    .p-#{$index}  { padding: calc(var(--spacer) * #{$count}); }
+    .pt-#{$index} { padding-block-start: calc(var(--spacer) * #{$count}); }
+    .pb-#{$index} { padding-block-end: calc(var(--spacer) * #{$count}); }
+    .ps-#{$index} { padding-inline-start: calc(var(--spacer) * #{$count}); }
+    .pe-#{$index} { padding-inline-end: calc(var(--spacer) * #{$count}); }
+    .py-#{$index} { padding-block: calc(var(--spacer) * #{$count}); }
+    .px-#{$index} { padding-inline: calc(var(--spacer) * #{$count}); }
+}
+
+/***********************************************
+ * WIDTH
+ ***********************************************/
+ .w-100 {
+    width : 100%;
+ }
+
+/***********************************************
+ * FONT SIZE
+ ***********************************************/
+
+$font-sizes : (
+    3rem ,
+    2.5rem,
+    2rem ,
+    1.5rem,
+    1.25rem,
+    1rem ,
+    0.75rem
+
+);
+
+:root {
+    @for $i from 1 through list.length($font-sizes) {
+        --font-size-#{$i} : #{list.nth($font-sizes, $i)};
+    }
+}
+
+@for $i from 1 through list.length($font-sizes) {
+
+    .fs-#{$i} { font-size: list.nth($font-sizes, $i); }
+
+}
+
+.fw-bold {
+    font-weight : bold;
+}
+
+.txt-center {
+    text-align : center;
+}
+
+.txt-left {
+    text-align: left;
+}
+
+.italic {
+    font-style : italic;
+}
+
+
+/***********************************************
+ ***********************************************
+ FLEX RELATED
+ ***********************************************
+ ***********************************************/
+
+/***********************************************
+ * FLEX DIRECTION
+ ***********************************************/
+.flex-dir-row {
+    flex-direction: row;
+}
+
+.flex-dir-col {
+    flex-direction: column;
+}
+
+/***********************************************
+ * JUSTIFY-CONTENT
+ ***********************************************/
+
+.justify-content-between {
+    justify-content: space-between;
+}
+
+.justify-content-center {
+    justify-content: center;
+}
+
+/***********************************************
+ * ALIGN-ITEMS
+ ***********************************************/
+
+
+.align-items-center {
+    align-items: center;
+}
+
+.align-items-baseline {
+    align-items: baseline;
+}
+
+/***********************************************
+ * Flex-Wrap
+ ***********************************************/
+.flex-wrap {
+    flex-wrap: wrap;
+}
+
+.flex-nowrap {
+    flex-wrap: nowrap;
+}
+
+/***********************************************
+ * FLEX GAP
+ ***********************************************/
+@each $index, $count in $spacing {
+    .gap-#{$index} {gap: calc(var(--spacer) * #{$count});}
+    .gap-col-#{$index} {column-gap: calc(var(--spacer) * #{$count});}
+    .gap-row-#{$index} {row-gap: calc(var(--spacer) * #{$count});}
+}
+

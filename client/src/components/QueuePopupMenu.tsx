@@ -2,7 +2,7 @@ import { useRef, type ReactNode } from "react";
 
 import { DropdownMenu } from "radix-ui";
 import { three_dots_vert } from "~/icons";
-import Icon from "~/components/Icon";
+import Icon from "~/framework/components/Icon";
 
 interface QueuePopupMenuProps {
     children?: ReactNode; // but really must be one or more DropdownMenu.Item

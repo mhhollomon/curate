@@ -10,8 +10,8 @@ import { play_btn_fill } from '~/icons'
 
 import { useProtectedData } from "~/lib/hook"
 import { formatTime } from "~/lib/utils";
-import Flex from '~/components/bulma/flex'
-import Icon from '~/components/Icon'
+import Flex from '~/framework/components/flex'
+import Icon from '~/framework/components/Icon'
 import QueuePopupMenu from '~/components/QueuePopupMenu'
 import { DropdownMenu } from "radix-ui";
 import { useAtom } from 'jotai'
@@ -206,22 +206,22 @@ export default function Album({ album_id }: AlbumProps) {
         setShowQueue(open);
     }
 
-    const flex_dir_class = ((window.screen.width > 700) && currentTrack) ? 'is-flex-direction-row gap-3' : 'is-flex-direction-column';
+    const flex_dir_class = ((window.screen.width > 700) && currentTrack) ? 'flex-dir-row gap-3' : 'flex-dir-col';
 
     return (<>
         <SuccessPopup show={showQueue} message={queueMsg} onOpenChange={onOpenChange} />
 
-        <Flex className="is-flex-direction-column is-justify-content-center is-align-items-center">
+        <Flex dir='col' className="justify-content-center align-items-center">
             <Flex className={flex_dir_class}>
             <div className="coverBlock mt-2 mb-2">
                 {coverId && <img src={`/api/cover/full/${coverId}`} width={300} height={300} />}
             </div>
-            <Flex className="is-flex-direction-column">
+            <Flex dir='col'>
                 <div>
-                    <span className="has-text-weight-bold is-size-4 has-text-black">{album?.name}</span>
+                    <span className="fw-bold fs-4">{album?.name}</span>
                 </div>
                 <div className="artistBlock">
-                    <span className="has-text-black">{artist?.name}</span>
+                    <span>{artist?.name}</span>
                 </div>
             </Flex>
             </Flex>
@@ -230,16 +230,16 @@ export default function Album({ album_id }: AlbumProps) {
                 onPrevious={onPrevious}
                 onNext={onNext} />
 
-            <table className="table is-striped is-fullwidth mb-5">
+            <table className="table is-striped w-100 mb-5">
                 <thead>
                     <tr>
                         <th colSpan={4}>
-                            <Flex gap={2} className='is-justify-content-center'>
-                                <button className="button is-danger mr-5" disabled={!currentTrack}
+                            <Flex gap={2} className='justify-content-center'>
+                                <button className="button vrnt-danger me-5" disabled={!currentTrack}
                                     onClick={() => setCurrentTrack(undefined)} >Stop</button>
                                 <Toggle state={autoPlay} title="Auto" onStateChange={onAutoPlay} />
                                 <Toggle title="Loop" state={loopAlbum} onStateChange={changeLoop} />
-                                <button className="button is-primary ml-5"
+                                <button className="button vrnt-brand ms-5"
                                     onClick={() => add_album_to_queue(album_id)}>Queue
                                 </button>
                             </Flex>
@@ -248,14 +248,14 @@ export default function Album({ album_id }: AlbumProps) {
                 </thead>
                 <tbody>
                     {trackList && trackList.map(t => <tr
-                        className={t.id === currentTrack?.id ? 'has-background-grey-lighter' : ''} key={t.id}>
-                        <td style={{ width: '2rem' }}>{t.id === currentTrack?.id ? '>>>' : <a onClick={() => playTrack(t)}><Icon size="1.5em" icon={play_btn_fill} /></a>}</td>
+                        className={t.id === currentTrack?.id ? 'bg-mid' : ''} key={t.id}>
+                        <td style={{ width: '2rem' }}>{t.id === currentTrack?.id ? '>>>' : <a onClick={() => playTrack(t)}><Icon className="txt-brand-vivid" size="1.5em" icon={play_btn_fill} /></a>}</td>
                         <td style={{ width: '5rem' }}>{formatTime(t.duration)}</td>
                         <td><a onClick={() => playTrack(t)}>{t.name}</a></td>
                         <td>
                             <QueuePopupMenu>
                                 <DropdownMenu.Item>
-                                    <a href="#" className="bare-link hover-underline has-text-black" onClick={() => add_track_to_queue(t)}> Add Track to Queue </a>
+                                    <a href="#" className="bare-link hover-underline" onClick={() => add_track_to_queue(t)}> Add Track to Queue </a>
                                 </DropdownMenu.Item>
                             </QueuePopupMenu>
                         </td>

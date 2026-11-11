@@ -9,7 +9,7 @@ import { queueListAtom } from "~/atoms";
 import type { QueueItem } from "~/types/queue_item";
 import { Link } from "wouter";
 import SuccessPopup from "~/components/SuccessPopup";
-import Icon from "~/components/Icon";
+import Icon from "~/framework/components/Icon";
 import QueuePopupMenu from "~/components/QueuePopupMenu";
 import { DropdownMenu } from "radix-ui";
 import type { respAlbumTrack } from "~/responses";
@@ -111,12 +111,12 @@ export default function AlbumList() {
 
     return <>
         <SuccessPopup show={showQueue} message={queueMsg} onOpenChange={onOpenChange} />
-        <table className="table is-striped is-fullwidth">
+        <table className="table is-striped w-100">
             <thead>
                 <tr>
                     <th></th>
-                    <th className="has-text-centered"><a className="bare-link" onClick={() => sort_change('name')}>name&nbsp;<Icon icon={calc_icon('name')} /></a></th>
-                    <th className="has-text-centered"><a className="bare-link" onClick={() => sort_change('artist')}>artist&nbsp;<Icon icon={calc_icon('artist')} /></a></th>
+                    <th className="txt-center"><a className="bare-link" onClick={() => sort_change('name')}>name&nbsp;<Icon icon={calc_icon('name')} /></a></th>
+                    <th className="txt-center"><a className="bare-link" onClick={() => sort_change('artist')}>artist&nbsp;<Icon icon={calc_icon('artist')} /></a></th>
                     <th>&nbsp;</th>
                 </tr>
             </thead>
@@ -129,7 +129,7 @@ export default function AlbumList() {
                         <td>
                             <QueuePopupMenu>
                                 <DropdownMenu.Item>
-                                    <a className="bare-link hover-underline has-text-black" onClick={() => add_to_queue(a.id)}>Add Album to Queue</a>
+                                    <a className="bare-link hover-underline" onClick={() => add_to_queue(a.id)}>Add Album to Queue</a>
                                 </DropdownMenu.Item>
                             </QueuePopupMenu>
                         </td>

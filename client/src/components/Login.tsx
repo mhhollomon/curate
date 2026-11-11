@@ -54,7 +54,7 @@ export default function Login({ msg }: loginProps) {
                 <Form.Control autoComplete='current-password' placeholder='Password' className='input' />
             </Form.Field>
             <Form.Submit asChild>
-            <button className="button is-primary" type="submit">
+            <button className="button vrnt-brand" type="submit">
                 Submit
             </button>
             </Form.Submit>

@@ -1,0 +1,92 @@
+/*
+Some cribbed from https://www.joshwcomeau.com/css/custom-css-reset/
+Some from other paces I don't remember.
+Some from my own imagination.
+
+*/
+
+@layer reboot {
+
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+    }
+
+    *:not(dialog) {
+        padding: 0;
+        margin: 0;
+        inset: unset;
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+        html {
+            interpolate-size: allow-keywords;
+        }
+    }
+
+
+    html {
+        -webkit-text-size-adjust: none;
+        text-size-adjust: none;
+        -webkit-font-smoothing: antialiased;
+        block-size: 100%;
+        font-weight: 400;
+    }
+
+    body {
+        line-height: 1.5;
+        font-family: ui-rounded, 'Hiragino Maru Gothic ProN', Quicksand, Comfortaa, Manjari, 'Arial Rounded MT', 'Arial Rounded MT Bold', Calibri, source-sans-pro, sans-serif;
+        color: #212529;
+        background-color: #fff;
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+        min-block-size: 100%;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    input,
+    button,
+    textarea,
+    select {
+        font: inherit;
+    }
+
+    img, picture, video, canvas, svg {
+    display: block;
+    max-width: 100%;
+    }
+
+    button {
+        border-radius: 0;
+        line-height: inherit;
+        border-style: none;
+    }
+
+    table {
+        border-collapse: collapse;
+    }
+
+    :disabled {
+        opacity: 0.8;
+        cursor: not-allowed;
+    }
+
+    :focus-visible {
+        outline-offset: 0.2rem;
+    }
+
+    p, h1, h2, h3, h4, h5, h6 {
+        overflow-wrap: break-word;
+    }
+
+    p {
+    text-wrap: pretty;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+    text-wrap: balance;
+    line-height: 1.2;
+    }
+
+    /* END LAYER reboot */
+}

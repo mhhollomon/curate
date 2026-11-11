@@ -1,35 +1,38 @@
-import { DropdownMenu } from "radix-ui";
-import Flex from "~/components/bulma/flex"
-import Icon from "~/components/Icon";
+import Icon from "~/framework/components/Icon";
 import About from "~/components/About";
 import { hamburger } from "~/icons";
 import { navigate } from "wouter/use-browser-location";
 
+import "./TopBar.css";
+
 export default function Topbar() {
 
     return (
-        <Flex className="has-background-primary has-text-white is-justify-content-space-between mb-3">
-            <div className="is-inline-block">
-                <DropdownMenu.Root>
-                    <DropdownMenu.Trigger>
-                        <a className="bare-link" aria-label="Navigate"><Icon size="20px" icon={hamburger} /></a>
-                    </DropdownMenu.Trigger>
-                    <DropdownMenu.Portal>
-                        <DropdownMenu.Content align="start" className="menu-content">
-                            <DropdownMenu.Label><span className="is-italic">Go To</span></DropdownMenu.Label>
-                            {/* Using `Link` doesn't allow the menu to close after click */}
-                            <DropdownMenu.Item><a className="bare-link hover-underline has-text-black" onClick={() => navigate("/artists")}>Artists</a></DropdownMenu.Item>
-                            <DropdownMenu.Item><a className="bare-link hover-underline has-text-black" onClick={() => navigate("/albums")}>Albums</a></DropdownMenu.Item>
-                            <DropdownMenu.Item><a className="bare-link hover-underline has-text-black" onClick={() => navigate("/queue")}>Queue</a></DropdownMenu.Item>
-                        </DropdownMenu.Content>
-                    </DropdownMenu.Portal>
-
-                </DropdownMenu.Root>
-
+        <header className="d-flex vrnt-brand justify-content-between mb-3 pt-1">
+            <div className="d-inline-block ms-2">
+                <div className="header-menu">
+                    <button className="bare-link menu-trigger"
+                        popoverTarget="header-menu"
+                        popoverTargetAction="toggle"
+                        aria-label="Navigate"><Icon size="20px" icon={hamburger} /></button>
+                    <ul id="header-menu" popover="auto" className="header-menu__content">
+                        <li><button popoverTargetAction="hide"
+                                popoverTarget="header-menu"
+                                className="bare-link hover-underline" onClick={() => navigate("/artists")}>Artists</button></li>
+                        <li><button popoverTargetAction="hide"
+                                popoverTarget="header-menu"
+                                className="bare-link hover-underline" onClick={() => navigate("/albums")}>Albums</button></li>
+                        <li><button popoverTargetAction="hide"
+                                popoverTarget="header-menu"
+                                className="bare-link hover-underline" onClick={() => navigate("/queue")}>Queue</button></li>
+                    </ul>
+                </div>
 
             </div>
+
             <div className="is-inline-block">Curate</div>
-            <div className="is-inline-block"><About className="mr-2" /></div>
-        </Flex>
+
+            <div className="is-inline-block"><About className="me-2" /></div>
+        </header>
     );
 }

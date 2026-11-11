@@ -6,7 +6,8 @@ import { play_fill, pause_fill, rewind_fill, fast_forward_fill } from '~/icons'
 import { assert } from "radashi";
 import * as rad from 'radashi';
 import { formatTime } from "~/lib/utils";
-import Flex from "~/components/bulma/flex";
+import Flex from "~/framework/components/flex";
+import Icon from "~/framework/components/Icon";
 
 export interface PlayerTrackData {
     id: string; // Track ID - mostly for the use by parent.
@@ -372,7 +373,7 @@ export default function Player2({ track, onEnd, onPrevious, onNext }: Player2Pro
             <div id="players" hidden aria-hidden ref={playerDiv}>
                 <audio autoPlay={false} loop={true} ref={audioElem} src="/api/silence"></audio>
             </div>
-            <progress className="progress is-primary mb-0" value={progPercent} max={100} />
+            <progress className="w-100 vrnt-brand mb-0" value={progPercent} max={100} />
             {track &&
                 <div className="time-display">
                     <span>{currentTime}</span>
@@ -383,14 +384,14 @@ export default function Player2({ track, onEnd, onPrevious, onNext }: Player2Pro
             }
 
             <div className="mb-2">
-                <span className="has-text-black is-size-4">{track?.name || ''}</span>
+                <span className="fs-4">{track?.name || ''}</span>
             </div>
 
-            {track && <Flex gap={1} className='is-justify-content-center'>
-                {onPrevious && <button className="button is-primary" onClick={handlePreviousButtonClick}>{rewind_fill} Prev</button>}
-                <button className="button is-primary" onClick={handlePlayPauseButtonClick}>
-                    {isPlaying ? <>{pause_fill} Pause</> : <>{play_fill} Play</>}</button>
-                {onNext && <button className="button is-primary" onClick={handleNextButtonClick}>{fast_forward_fill} Next</button>}
+            {track && <Flex gap={1} className='justify-content-center'>
+                {onPrevious && <button className="button vrnt-brand" onClick={handlePreviousButtonClick}><Icon icon={rewind_fill}/> Prev</button>}
+                <button className="button vrnt-brand" onClick={handlePlayPauseButtonClick}>
+                    {isPlaying ? <><Icon icon={pause_fill} /> Pause</> : <><Icon icon={play_fill}/> Play</>}</button>
+                {onNext && <button className="button vrnt-brand" onClick={handleNextButtonClick}><Icon icon={fast_forward_fill}/> Next</button>}
             </Flex>
             }
         </div>

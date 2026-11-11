@@ -1,4 +1,3 @@
-import 'bulma/css/bulma.css';
 import './App.css'
 
 import Layout from '~/Layout';

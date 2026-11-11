@@ -1,0 +1,23 @@
+.menu-trigger {
+    anchor-name : --menu-trigger;
+    background-color : inherit;
+    border : none;
+}
+
+li button {
+    background-color : inherit;
+    border : none;
+}
+
+ul.header-menu__content {
+    position: fixed;
+    position-anchor: --menu-trigger;
+    top: anchor(bottom);
+    left: anchor(left);
+    color : black;
+    background-color : var(--clr-bg-near);
+    padding : var(--spacing-2);
+    border-radius : var(--border-radius);
+    border-width : 1px;
+    box-shadow : 5px 5px 10px 5px var(--clr-box-shadow);
+}

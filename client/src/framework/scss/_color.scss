@@ -1,0 +1,63 @@
+
+.txt-brand {
+    color : var(--clr-brand);
+}
+
+.txt-brand-vivid {
+    color : var(--clr-brand-vivid);
+}
+
+.txt-white {
+    color: #fff;
+}
+
+.txt-black {
+    color: #000;
+}
+
+.txt-muted {
+    color : var(--clr-text-muted);
+}
+
+/* BACKGROUND COLORS *******************************/
+
+.bg-brand {
+    background-color : var(--clr-brand);
+}
+
+.bg-base {
+    background-color: var(--clr-bg-base);
+}
+
+.bg-mid {
+    background-color : var(--clr-bg-mid);
+}
+
+.bg-near {
+    background-color : var(--clr-bg-near);
+}
+
+.bg-error {
+    background-color: var(--clr-error);
+}
+
+/* VARIANTS ***************************************/
+.vrnt-brand {
+    color : var(--clr-text);
+    background-color : var(--clr-brand);
+}
+
+.vrnt-brand-vivd {
+    color : var(--clr-text);
+    background-color: var(--clr-brand-vivid);
+}
+
+.vrnt-danger {
+    color : white;
+    background-color: var(--clr-error);
+}
+
+/* OTHER STUFF ***************************************/
+.shd-brand {
+    box-shadow: 0 -5px 5px 0px var(--clr-box-shadow);
+}

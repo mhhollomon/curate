@@ -9,8 +9,8 @@ import type { ArtistWorks } from "~/types/artist";
 import type { QueueItem } from "~/types/queue_item";
 import type { Track } from "~/types/track";
 import { formatTime } from "~/lib/utils";
-import Flex from "~/components/bulma/flex";
-import Icon from "~/components/Icon";
+import Flex from "~/framework/components/flex";
+import Icon from "~/framework/components/Icon";
 import QueuePopupMenu from "~/components/QueuePopupMenu";
 import { DropdownMenu } from "radix-ui";
 import SuccessPopup from "~/components/SuccessPopup";
@@ -110,22 +110,22 @@ export default function ArtistWorks({ artist_id }: ArtistWorksProps) {
             <SuccessPopup show={showQueue} message={queueMsg} onOpenChange={onOpenChange} />
 
             <div className="artistBlock">
-                <span className="has-text-black is-size-3">{artistWorks?.artist.name}</span>
+                <span className="has-text-black fs-3">{artistWorks?.artist.name}</span>
             </div>
 
             <Player2 track={currentTrack}
                 onEnd={undefined}
                 onPrevious={undefined} onNext={undefined} />
 
-            {artistWorks && artistWorks.singles.length > 0 && <table className="table is-striped is-fullwidth">
+            {artistWorks && artistWorks.singles.length > 0 && <table className="table is-striped w-100">
                 <thead>
                     <tr>
-                        <th colSpan={4}><span className="is-size-4">Singles</span></th>
+                        <th colSpan={4}><span className="fs-4">Singles</span></th>
                     </tr>
                     <tr>
-                        <th>&nbsp;<button className="button is-primary is-small" onClick={handleStop}>Stop</button></th>
+                        <th>&nbsp;<button className="button vrnt-brand is-small" onClick={handleStop}>Stop</button></th>
                         <th>&nbsp;</th>
-                        <th className="has-text-centered">track</th>
+                        <th className="txt-center">track</th>
                         <th>&nbsp;</th>
                     </tr>
                 </thead>
@@ -138,7 +138,7 @@ export default function ArtistWorks({ artist_id }: ArtistWorksProps) {
                             <td>
                                 <QueuePopupMenu>
                                     <DropdownMenu.Item>
-                                        <a className="bare-link hover-underline has-text-black" onClick={() => add_single_to_queue(s)}>Add Single to Queue</a>
+                                        <a className="bare-link hover-underline" onClick={() => add_single_to_queue(s)}>Add Single to Queue</a>
                                     </DropdownMenu.Item>
                                 </QueuePopupMenu>
                             </td>
@@ -147,14 +147,14 @@ export default function ArtistWorks({ artist_id }: ArtistWorksProps) {
                 </tbody>
             </table>}
 
-            {artistWorks && artistWorks.albums.length > 0 && <table className="table is-striped is-fullwidth">
+            {artistWorks && artistWorks.albums.length > 0 && <table className="table is-striped w-100">
                 <thead>
                     <tr>
-                        <th colSpan={3}><span className="is-size-4">Albums</span></th>
+                        <th colSpan={3}><span className="fs-4">Albums</span></th>
                     </tr>
                     <tr>
                         <th>&nbsp;</th>
-                        <th className="has-text-centered">album</th>
+                        <th className="txt-center">album</th>
                         <th>&nbsp;</th>
                     </tr>
                 </thead>
@@ -167,7 +167,7 @@ export default function ArtistWorks({ artist_id }: ArtistWorksProps) {
                                 <td>
                                     <QueuePopupMenu>
                                         <DropdownMenu.Item>
-                                            <a className="bare-link hover-underline has-text-black" onClick={() => add_album_to_queue(a.id)}>Add Album to Queue</a>
+                                            <a className="bare-link hover-underline" onClick={() => add_album_to_queue(a.id)}>Add Album to Queue</a>
                                         </DropdownMenu.Item>
                                     </QueuePopupMenu>
                                 </td>

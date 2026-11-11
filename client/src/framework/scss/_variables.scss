@@ -1,0 +1,50 @@
+:root {
+    --spacer : 0.25rem;
+
+    --border-radius : .5rem;
+
+    /* THEME VARS */
+
+     /* Same between dark and light */
+    --clr-brand: hsl(199 64% 60.5%);
+
+    --clr-bg-base: hsl(0, 0%, 90%);
+    --clr-bg-mid: hsl(0, 0%, 94%);
+    --clr-bg-near: hsl(0, 0%, 97%);
+
+    --clr-text: hsl(0, 0%, 5%);
+    --clr-text-muted: hsl(0, 0%, 40%);
+
+    --clr-brand-muted: hsl(from var(--clr-brand) h calc(s - 30) calc(l + 20));
+    --clr-brand-vivid: hsl(from var(--clr-brand) h calc(s + 30) calc(l - 20));
+
+    --clr-box-shadow: var(--clr-brand);
+
+    --clr-border : hsl(from var(--clr-bg-base) h s calc(l - 45));
+
+    --clr-error: hsl(from var(--clr-brand) 0 calc(s + 40) l);
+    --clr-warning: hsl(from var(--clr-brand-muted) 30 calc(s + 40) l);
+    --clr-success: hsl(from var(--clr-brand-muted) 120 calc(s + 40) l);
+
+}
+
+[data-theme="dark"] {
+
+
+    --clr-bg-base: hsl(0, 0, 15%);
+    --clr-bg-mid: hsl(0, 0, 20%);
+    --clr-bg-near: hsl(0, 0, 30%);
+
+    --clr-text : hsl(0, 0, 95%);
+    --clr-text-muted: hsl(0, 0, 70%);
+
+    --clr-brand-muted: hsl(from var(--clr-brand) h calc(s + 30) calc(l - 20));
+    --clr-brand-vivid: hsl(from var(--clr-brand) h calc(s - 30) calc(l + 20));
+
+    /* --clr-box-shadow - no change */
+
+    --clr-border : hsl(from var(--clr-bg-base) h s calc(l +10));
+
+    /* semantic colors don't change since they depend on clr-brand-muted */
+
+}

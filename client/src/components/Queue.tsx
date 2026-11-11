@@ -7,8 +7,8 @@ import type { QueueItem } from "~/types/queue_item"
 import { useState } from "react"
 import { trash3 } from "~/icons"
 import { Link } from "wouter"
-import Flex from "~/components/bulma/flex"
-import Icon from "~/components/Icon"
+import Flex from "~/framework/components/flex"
+import Icon from "~/framework/components/Icon"
 
 import { formatTime } from "~/lib/utils"
 
@@ -65,22 +65,22 @@ export default function Queue() {
             onNext={next_song}
             />
 
-        <table className="table is-striped is-fullwidth mb-5">
+        <table className="table is-striped w-100 mb-5">
             <thead>
                 <tr>
                     <th colSpan={6}>
-                        <Flex gap={2} className='is-justify-content-center'>
-                            <button className="button is-primary" onClick={play_stop} disabled={queueList.length == 0}>{button_text}</button>
-                            <button className="button is-primary" onClick={clear_queue} disabled={queueList.length == 0}>Clear Queue</button>
+                        <Flex gap={2} className='justify-content-center'>
+                            <button className="button vrnt-brand" onClick={play_stop} disabled={queueList.length == 0}>{button_text}</button>
+                            <button className="button vrnt-brand" onClick={clear_queue} disabled={queueList.length == 0}>Clear Queue</button>
                         </Flex>
                     </th>
                 </tr>
                 <tr>
                     <th style={{ width: '3em' }}>&nbsp;</th>
                     <th style={{ width: '5em' }}>&nbsp;</th>
-                    <th className="has-text-centered">Name</th>
-                    <th className="has-text-centered">Artist</th>
-                    <th className="has-text-centered">Album</th>
+                    <th className="txt-center">Name</th>
+                    <th className="txt-center">Artist</th>
+                    <th className="txt-center">Album</th>
                     <th>&nbsp;</th>
                 </tr>
             </thead>

@@ -6,7 +6,7 @@ import { Link } from "wouter";
 
 export default function NavBar({active}: { active : string}) {
     function classes(t : string) {
-        return t === active ? 'active-nav is-size-4' : 'nonactive is-size-5'
+        return t === active ? 'active-nav fs-4' : 'nonactive fs-5'
     }
 
     return (
