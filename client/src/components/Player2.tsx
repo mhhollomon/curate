@@ -388,10 +388,10 @@ export default function Player2({ track, onEnd, onPrevious, onNext }: Player2Pro
             </div>
 
             {track && <Flex gap={1} className='justify-content-center'>
-                {onPrevious && <button className="button vrnt-brand" onClick={handlePreviousButtonClick}><Icon icon={rewind_fill}/> Prev</button>}
-                <button className="button vrnt-brand" onClick={handlePlayPauseButtonClick}>
+                {onPrevious && <button className="button vrnt-brand player-button" onClick={handlePreviousButtonClick}><Icon icon={rewind_fill}/> Prev</button>}
+                <button className="button vrnt-brand player-button" onClick={handlePlayPauseButtonClick}>
                     {isPlaying ? <><Icon icon={pause_fill} /> Pause</> : <><Icon icon={play_fill}/> Play</>}</button>
-                {onNext && <button className="button vrnt-brand" onClick={handleNextButtonClick}><Icon icon={fast_forward_fill}/> Next</button>}
+                {onNext && <button className="button vrnt-brand player-button" onClick={handleNextButtonClick}><Icon icon={fast_forward_fill}/> Next</button>}
             </Flex>
             }
         </div>

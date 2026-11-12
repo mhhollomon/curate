@@ -1,0 +1,13 @@
+.toggle-button {
+    display :flex;
+    align-items: center;
+    gap : var(--spacing-1);
+
+    svg {
+        display : inline-block;
+    }
+}
+
+.toggle-icon-wrapper {
+    align-items: center;
+}

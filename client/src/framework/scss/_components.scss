@@ -1,30 +1,33 @@
-.button {
+@layer component {
+    .button {
 
-    border-radius : var(--border-radius);
-    padding-block : var(--spacer);
-    padding-inline : calc(var(--spacer) * 2);
-    margin : var(--spacer);
+        border-radius : var(--border-radius);
+        padding-block : var(--spacer);
+        padding-inline : calc(var(--spacer) * 2);
+        margin : var(--spacer);
 
-}
-
-.table {
-
-    border-top : 2px solid #b0b0b0;
-
-    thead {
-        border-bottom : 2px solid #b0b0b0;
     }
 
-    th, td {
-        padding-block : var(--spacing-2);
+    .table {
+
+        border-top : 2px solid #b0b0b0;
+
+        thead {
+            border-bottom : 2px solid #b0b0b0;
+        }
+
+        th, td {
+            padding-block : var(--spacing-2);
+        }
+
+        tr {
+            border-bottom: 1px solid #b0b0b0;
+        }
+
     }
 
-    tr {
-        border-bottom: 1px solid #b0b0b0;
+    @each $i in 1 through 6 {
+        h#{$i} { font-size : var(--font-size-#{$i}); }
     }
 
-}
-
-@each $i in 1 through 6 {
-    h#{$i} { font-size : var(--font-size-#{$i}); }
 }

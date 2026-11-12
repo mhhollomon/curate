@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 
 import { type respAlbumAlbum, type respAlbumArtist, type respAlbumTrack } from '~/responses'
 import Player2, { type PlayerTrackData } from './Player2'
-import Toggle from './Toggle'
+import Toggle from '../framework/components/Toggle'
 
 import { play_btn_fill } from '~/icons'
 

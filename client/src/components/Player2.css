@@ -28,3 +28,9 @@ progress::-webkit-progress-value {
   color: black;
   font-size: 0.9rem;
 }
+
+.player-button {
+    display : flex;
+    align-items: center;
+    gap : var(--spacing-1);
+}
