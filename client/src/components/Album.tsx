@@ -229,7 +229,7 @@ export default function Album({ album_id }: AlbumProps) {
                 onPrevious={onPrevious}
                 onNext={onNext} />
 
-            <table className="table is-striped w-100 mb-5">
+            <table className="table striped w-100 mb-5">
                 <thead>
                     <tr>
                         <th colSpan={4}>

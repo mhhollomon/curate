@@ -65,7 +65,7 @@ export default function Queue() {
             onNext={next_song}
             />
 
-        <table className="table is-striped w-100 mb-5">
+        <table className="table striped w-100 mb-5">
             <thead>
                 <tr>
                     <th colSpan={6}>

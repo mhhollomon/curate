@@ -103,6 +103,10 @@ export default function ArtistWorks({ artist_id }: ArtistWorksProps) {
         }, 2500);
     }
 
+    async function onEnd() {
+        setCurrentTrack(undefined);
+    }
+
 
     return (<>
         <Flex dir="column" className="justify-content-center align-items-center">
@@ -113,24 +117,24 @@ export default function ArtistWorks({ artist_id }: ArtistWorksProps) {
             </div>
 
             <Player2 track={currentTrack}
-                onEnd={undefined}
+                onEnd={onEnd}
                 onPrevious={undefined} onNext={undefined} />
 
-            {artistWorks && artistWorks.singles.length > 0 && <table className="table is-striped w-100">
+            {artistWorks && artistWorks.singles.length > 0 && <table className="table striped w-100 mt-1">
                 <thead>
                     <tr>
                         <th colSpan={4}><span className="fs-4">Singles</span></th>
                     </tr>
                     <tr>
-                        <th>&nbsp;<button className="button vrnt-brand is-small" onClick={handleStop}>Stop</button></th>
+                        <th>&nbsp;<button className="button vrnt-danger" disabled={!currentTrack} onClick={handleStop}>Stop</button></th>
                         <th>&nbsp;</th>
-                        <th className="txt-center">track</th>
+                        <th className="txt-center fs-5">track</th>
                         <th>&nbsp;</th>
                     </tr>
                 </thead>
                 <tbody>
                     {artistWorks && artistWorks.singles.length > 0 && artistWorks.singles.map(s =>
-                        <tr className={s.id === currentTrack?.id ? 'has-background-grey-lighter' : ''} key={s.id + '-s'}>
+                        <tr className={s.id === currentTrack?.id ? 'bg-mid' : ''} key={s.id + '-s'}>
                             <td style={{ width: '2rem' }}>{s.id === currentTrack?.id ? '>>>' : <a onClick={() => playTrack(s)}><Icon size="1.5em" icon={play_btn_fill} /></a>}</td>
                             <td style={{ width: '5rem' }}>{formatTime(s.duration)}</td>
                             <td><a onClick={() => playTrack(s)}>{s.name}</a></td>
@@ -144,14 +148,14 @@ export default function ArtistWorks({ artist_id }: ArtistWorksProps) {
                 </tbody>
             </table>}
 
-            {artistWorks && artistWorks.albums.length > 0 && <table className="table is-striped w-100">
+            {artistWorks && artistWorks.albums.length > 0 && <table className="table striped w-100">
                 <thead>
                     <tr>
                         <th colSpan={3}><span className="fs-4">Albums</span></th>
                     </tr>
                     <tr>
                         <th>&nbsp;</th>
-                        <th className="txt-center">album</th>
+                        <th className="txt-center fs-5">album</th>
                         <th>&nbsp;</th>
                     </tr>
                 </thead>

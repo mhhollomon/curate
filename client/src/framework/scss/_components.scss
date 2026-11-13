@@ -24,6 +24,13 @@
             border-bottom: 1px solid #b0b0b0;
         }
 
+        /* STRIPED rows */
+
+        &.striped tbody tr:nth-child(even) {
+            background-color: var(--clr-bg-mid);
+        }
+
+
     }
 
     @each $i in 1 through 6 {

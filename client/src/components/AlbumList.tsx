@@ -110,7 +110,7 @@ export default function AlbumList() {
 
     return <>
         <SuccessPopup show={showQueue} message={queueMsg} onOpenChange={onOpenChange} />
-        <table className="table is-striped w-100">
+        <table className="table striped w-100">
             <thead>
                 <tr>
                     <th></th>
