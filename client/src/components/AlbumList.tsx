@@ -106,8 +106,6 @@ export default function AlbumList() {
         setShowQueue(open);
     }
 
-    const name_class = (window.screen.width < 1000) ? 'name-link' : undefined;
-
     return <>
         <SuccessPopup show={showQueue} message={queueMsg} onOpenChange={onOpenChange} />
         <table className="table striped w-100">
@@ -123,8 +121,8 @@ export default function AlbumList() {
                 {albumList && albumList.map(a => <Fragment key={a.id}>
                     <tr key={a.id}>
                         {a.cover ? <td className="thumbnail-cell"><img src={`/api/cover/thumb/${a.cover}`} width={30} height={30} /></td> : <td><span>&nbsp;</span></td>}
-                        <td className={name_class}><Link href={`/album/${a.id}`}>{a.name}</Link></td>
-                        <td className={name_class}><Link href={`/artist/${a.artist_id}`}>{a.artist_name}</Link></td>
+                        <td className='name-link'><Link href={`/album/${a.id}`}>{a.name}</Link></td>
+                        <td className='name-link'><Link href={`/artist/${a.artist_id}`}>{a.artist_name}</Link></td>
                         <td>
                             <QueuePopupMenu>
                                 <a className="bare-link hover-underline" onClick={() => add_to_queue(a.id)}>Add Album to Queue</a>

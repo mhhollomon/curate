@@ -1,9 +1,4 @@
-@use "framework/scss/reset";
-@use "framework/scss/variables";
-@use "framework/scss/color";
-@use "framework/scss/elements";
-@use "framework/scss/components";
-@use "framework/scss/utils";
+@use "framework/scss/framework";
 
 :root {
   color-scheme: light dark;
@@ -12,7 +7,7 @@
 }
 
 /*
-Max-iwdth to the root div so that it looks more "mobile-ish".
+Max-width to the root div so that it looks more "mobile-ish".
 */
 
 #root {

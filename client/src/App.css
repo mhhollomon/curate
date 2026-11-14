@@ -45,13 +45,19 @@
 
 }
 .table td.name-link {
-    max-width : 50%;
     & a {
         text-overflow: ellipsis;
         overflow: hidden;
         white-space: nowrap;
         display: inline-block;
-        max-width : 100px;
+        max-width : 15ch;
+    }
+
+    @media (min-width : 1000px ) {
+        & a {
+            max-width : 100%;
+        }
+
     }
 
 }
