@@ -53,7 +53,7 @@ export default function Login({ msg }: loginProps) {
                 <label htmlFor="password">Password</label>
                 <input type="password" name="password" autoComplete='current-password' required placeholder='Password' />
             </div>
-            <button className="button vrnt-brand" type="submit">
+            <button className="btn vrnt-brand" type="submit">
                 Submit
             </button>
 

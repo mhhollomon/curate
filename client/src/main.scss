@@ -1,8 +1,9 @@
 @use "framework/scss/reset";
 @use "framework/scss/variables";
-@use "framework/scss/utils";
 @use "framework/scss/color";
+@use "framework/scss/elements";
 @use "framework/scss/components";
+@use "framework/scss/utils";
 
 :root {
   color-scheme: light dark;

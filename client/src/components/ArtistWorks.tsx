@@ -125,7 +125,7 @@ export default function ArtistWorks({ artist_id }: ArtistWorksProps) {
                         <th colSpan={4}><span className="fs-4">Singles</span></th>
                     </tr>
                     <tr>
-                        <th>&nbsp;<button className="button vrnt-danger" disabled={!currentTrack} onClick={handleStop}>Stop</button></th>
+                        <th>&nbsp;<button className="btn vrnt-danger" disabled={!currentTrack} onClick={handleStop}>Stop</button></th>
                         <th>&nbsp;</th>
                         <th className="txt-center fs-5">track</th>
                         <th>&nbsp;</th>

@@ -74,17 +74,3 @@
     align-items: center;
     cursor: pointer;
 }
-
-/* Button with an Icon and text
-   Make sure the Icon is centered vertically
-   with the text.
-*/
-.btn-icon-text {
-    display :flex;
-    align-items: center;
-    gap : var(--spacing-1);
-
-    svg {
-        display : inline-block;
-    }
-}

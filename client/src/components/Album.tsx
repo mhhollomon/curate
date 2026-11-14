@@ -233,11 +233,11 @@ export default function Album({ album_id }: AlbumProps) {
                     <tr>
                         <th colSpan={4}>
                             <Flex gap={2} className='justify-content-center'>
-                                <button className="button vrnt-danger me-5" disabled={!currentTrack}
+                                <button className="btn vrnt-danger me-5" disabled={!currentTrack}
                                     onClick={() => setCurrentTrack(undefined)} >Stop</button>
                                 <Toggle state={autoPlay} title="Auto" onStateChange={onAutoPlay} />
                                 <Toggle title="Loop" state={loopAlbum} onStateChange={changeLoop} />
-                                <button className="button vrnt-brand ms-5"
+                                <button className="btn vrnt-brand ms-5"
                                     onClick={() => add_album_to_queue(album_id)}>Queue
                                 </button>
                             </Flex>

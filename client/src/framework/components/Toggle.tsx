@@ -1,4 +1,4 @@
-import Icon from './Icon';
+import IconBtn from '~/framework/components/IconBtn';
 
 const file_icon = <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" className="bi bi-file" viewBox="0 0 16 16">
   <path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1"/>
@@ -16,23 +16,15 @@ export interface ToggleProps {
     className? : string,
 }
 
-export default function Toggle({state, title, variant, className, onStateChange} : ToggleProps) {
+export default function Toggle({state, title, variant='brand', className, onStateChange} : ToggleProps) {
 
     function handleStateChange() {
         onStateChange(!state)
     }
 
-    let classes = 'button btn-icon-text';
-    if (className) {
-        classes += ' ' + className;
-    } else {
-        classes += ' vrnt-' + (variant ? variant : 'brand');
-    }
-
     return(
-        <button className={classes} onClick={handleStateChange}>
-            <Icon icon={state ? file_check_fill_icon : file_icon} />
-            {title}
-        </button>
+        <IconBtn variant={variant} text={title} className={className}
+            icon={state ? file_check_fill_icon : file_icon}
+            onClick={handleStateChange} />
     );
 }

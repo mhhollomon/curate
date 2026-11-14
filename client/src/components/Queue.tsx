@@ -5,12 +5,13 @@ import Player2, { type PlayerTrackData } from './Player2'
 
 import type { QueueItem } from "~/types/queue_item"
 import { useState } from "react"
-import { trash3 } from "~/icons"
+import { play_fill, slash_circle, trash3 } from "~/icons"
 import { Link } from "wouter"
 import Flex from "~/framework/components/flex"
 import Icon from "~/framework/components/Icon"
 
 import { formatTime } from "~/lib/utils"
+import IconBtn from "~/framework/components/IconBtn"
 
 
 export default function Queue() {
@@ -58,6 +59,7 @@ export default function Queue() {
 
     const playSrc = currentTrack ? track2player_data(currentTrack) : undefined;
     const button_text = currentTrack ? 'Stop' : 'Play';
+    const play_icon = currentTrack ? slash_circle : play_fill;
 
     return (<>
         <Player2 track={playSrc}
@@ -70,9 +72,8 @@ export default function Queue() {
                 <tr>
                     <th colSpan={6}>
                         <Flex gap={2} className='justify-content-center'>
-                            <button className="button vrnt-brand" onClick={play_stop} disabled={queueList.length == 0}>{button_text}</button>
-                            <button className="button vrnt-brand btn-icon-text" onClick={clear_queue} disabled={queueList.length == 0}>
-                                <Icon icon={trash3} />Clear Queue</button>
+                            <IconBtn variant="brand" onClick={play_stop} icon={play_icon} text={button_text} disabled={queueList.length == 0} />
+                            <IconBtn variant="brand" onClick={clear_queue} icon={trash3} text="Clear Queue" disabled={queueList.length == 0} />
                         </Flex>
                     </th>
                 </tr>
