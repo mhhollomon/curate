@@ -3,16 +3,15 @@ import { useState } from "react";
 import { Link } from "wouter";
 import { queueListAtom } from "~/atoms";
 import Player2, { type PlayerTrackData } from './Player2'
-import { play_btn_fill } from "~/icons";
 import { useProtectedData } from "~/lib/hook";
 import type { ArtistWorks } from "~/types/artist";
 import type { QueueItem } from "~/types/queue_item";
 import type { Track } from "~/types/track";
 import { formatTime } from "~/lib/utils";
 import Flex from "~/framework/components/flex";
-import Icon from "~/framework/components/Icon";
 import QueuePopupMenu from "~/components/QueuePopupMenu";
 import SuccessPopup from "~/components/SuccessPopup";
+import PlayIcon from "~/components/PlayIcon";
 
 export interface ArtistWorksProps {
     artist_id: string;
@@ -113,7 +112,7 @@ export default function ArtistWorks({ artist_id }: ArtistWorksProps) {
             <SuccessPopup show={showQueue} message={queueMsg} onOpenChange={onOpenChange} />
 
             <div className="artistBlock">
-                <span className="has-text-black fs-3">{artistWorks?.artist.name}</span>
+                <span className="fs-3">{artistWorks?.artist.name}</span>
             </div>
 
             <Player2 track={currentTrack}
@@ -135,9 +134,12 @@ export default function ArtistWorks({ artist_id }: ArtistWorksProps) {
                 <tbody>
                     {artistWorks && artistWorks.singles.length > 0 && artistWorks.singles.map(s =>
                         <tr className={s.id === currentTrack?.id ? 'bg-mid' : ''} key={s.id + '-s'}>
-                            <td style={{ width: '2rem' }}>{s.id === currentTrack?.id ? '>>>' : <a onClick={() => playTrack(s)}><Icon size="1.5em" icon={play_btn_fill} /></a>}</td>
-                            <td style={{ width: '5rem' }}>{formatTime(s.duration)}</td>
-                            <td><a onClick={() => playTrack(s)}>{s.name}</a></td>
+                            <td className="album-tracks-play-cell">{s.id === currentTrack?.id ?
+                                '>>>' :
+                                <a className='album-tracks-play-link' onClick={() => playTrack(s)}><PlayIcon /></a>}
+                            </td>
+                            <td className="album-tracks-time-cell">{formatTime(s.duration)}</td>
+                            <td><a className="bare-link" onClick={() => playTrack(s)}>{s.name}</a></td>
                             <td>
                                 <QueuePopupMenu>
                                     <a className="bare-link hover-underline" onClick={() => add_single_to_queue(s)}>Add Single to Queue</a>
@@ -164,7 +166,7 @@ export default function ArtistWorks({ artist_id }: ArtistWorksProps) {
                         return (
                             <tr key={a.id + '-a'}>
                                 {a.cover ? <td><img src={`/api/cover/thumb/${a.cover}`} width={30} height={30} /></td> : <td><span>&nbsp;</span></td>}
-                                <td><Link href={`/album/${a.id}`}>{a.name}</Link></td>
+                                <td><Link className="bare-link" href={`/album/${a.id}`}>{a.name}</Link></td>
                                 <td>
                                     <QueuePopupMenu>
                                         <a className="bare-link hover-underline" onClick={() => add_album_to_queue(a.id)}>Add Album to Queue</a>

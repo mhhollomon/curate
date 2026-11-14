@@ -12,3 +12,7 @@
     height : 300px;
     min-height : 300px;
 }
+
+.album-tracks-menu-cell {
+    justify-content: center;
+}

@@ -5,3 +5,9 @@
     border-radius: var(--border-radius);
     padding : var(--spacing-2);
 }
+
+.queue-menu__trigger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

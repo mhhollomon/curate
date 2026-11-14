@@ -71,13 +71,14 @@ export default function Queue() {
                     <th colSpan={6}>
                         <Flex gap={2} className='justify-content-center'>
                             <button className="button vrnt-brand" onClick={play_stop} disabled={queueList.length == 0}>{button_text}</button>
-                            <button className="button vrnt-brand" onClick={clear_queue} disabled={queueList.length == 0}>Clear Queue</button>
+                            <button className="button vrnt-brand btn-icon-text" onClick={clear_queue} disabled={queueList.length == 0}>
+                                <Icon icon={trash3} />Clear Queue</button>
                         </Flex>
                     </th>
                 </tr>
                 <tr>
                     <th style={{ width: '3em' }}>&nbsp;</th>
-                    <th style={{ width: '5em' }}>&nbsp;</th>
+                    <th className="album-tracks-time-cell">&nbsp;</th>
                     <th className="txt-center">Name</th>
                     <th className="txt-center">Artist</th>
                     <th className="txt-center">Album</th>
@@ -86,16 +87,19 @@ export default function Queue() {
             </thead>
             <tbody>
                 {queueList.map((t) =>
-                    <tr className={t.track_id === currentTrack?.track_id ? 'has-background-grey-lighter' : ''} key={t.track_id}>
+                    <tr className={t.track_id === currentTrack?.track_id ? 'bg-mid' : ''} key={t.track_id}>
                         <td>{t.cover_id ? <CoverImage cover_id={t.cover_id} /> : <>&nbsp;</>}</td>
-                        <td>{formatTime(t.duration || 0)}</td>
+                        <td className="album-tracks-time-cell">{formatTime(t.duration || 0)}</td>
                         <td>{t.track_name}</td>
-                        <td><Link href={`/artist/${t.artist_id}`}>{t.artist_name}</Link></td>
-                        <td>{t.album_name || ''}</td>
+                        <td><Link className="bare-link" href={`/artist/${t.artist_id}`}>{t.artist_name}</Link></td>
+                        <td>{ t.album_id ?
+                            <Link className="bare-link" href={`/album/${t.album_id}`}>{t.album_name}</Link> :
+                            '&nbsp;'}
+                        </td>
                         <td>
                             {t.track_id === currentTrack?.track_id ?
                                 <>&nbsp;</> :
-                                <a className="bare_link" onClick={()=>{handleRemove(t.track_id)}}><Icon size="1.5em" icon={trash3} /></a>
+                                <a className="bare-link" onClick={()=>{handleRemove(t.track_id)}}><Icon size="1.1em" icon={trash3} /></a>
                             }
                         </td>
                     </tr>

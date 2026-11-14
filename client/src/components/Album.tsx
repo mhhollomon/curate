@@ -6,17 +6,16 @@ import { type respAlbumAlbum, type respAlbumArtist, type respAlbumTrack } from '
 import Player2, { type PlayerTrackData } from './Player2'
 import Toggle from '../framework/components/Toggle'
 
-import { play_btn_fill } from '~/icons'
 
 import { useProtectedData } from "~/lib/hook"
 import { formatTime } from "~/lib/utils";
 import Flex from '~/framework/components/flex'
-import Icon from '~/framework/components/Icon'
 import QueuePopupMenu from '~/components/QueuePopupMenu'
 import { useAtom } from 'jotai'
 import { queueListAtom } from '~/atoms'
 import type { QueueItem } from '~/types/queue_item'
 import SuccessPopup from '~/components/SuccessPopup'
+import PlayIcon from '~/components/PlayIcon'
 
 
 export interface AlbumProps {
@@ -248,10 +247,16 @@ export default function Album({ album_id }: AlbumProps) {
                 <tbody>
                     {trackList && trackList.map(t => <tr
                         className={t.id === currentTrack?.id ? 'bg-mid' : ''} key={t.id}>
-                        <td style={{ width: '2rem' }}>{t.id === currentTrack?.id ? '>>>' : <a onClick={() => playTrack(t)}><Icon className="txt-brand-vivid" size="1.5em" icon={play_btn_fill} /></a>}</td>
-                        <td style={{ width: '5rem' }}>{formatTime(t.duration)}</td>
+                        <td className="album-tracks-play-cell">
+                            {t.id === currentTrack?.id ?
+                                '>>>' :
+                                <a onClick={() => playTrack(t)} className="album-tracks-play-link">
+                                    <PlayIcon/>
+                                </a>}
+                        </td>
+                        <td className="album-tracks-time-cell">{formatTime(t.duration)}</td>
                         <td><a onClick={() => playTrack(t)}>{t.name}</a></td>
-                        <td>
+                        <td className="album-tracks-menu-cell">
                             <QueuePopupMenu>
                                 <a href="#" className="bare-link hover-underline" onClick={() => add_track_to_queue(t)}> Add Track to Queue </a>
                             </QueuePopupMenu>

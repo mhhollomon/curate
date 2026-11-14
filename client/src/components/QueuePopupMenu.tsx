@@ -14,7 +14,7 @@ export default function QueuePopupMenu({ children }: QueuePopupMenuProps) {
 
     return (
         <>
-            <button className="bare-btn"
+            <button className="bare-btn queue-menu__trigger"
                 popoverTarget={popover_id}
                 popoverTargetAction="show"
                 style ={{
