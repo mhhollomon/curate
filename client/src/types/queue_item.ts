@@ -1,5 +1,6 @@
 
 export interface QueueItem {
+    key_id? : string;
     track_id : string;
     track_name : string;
     duration? : number;

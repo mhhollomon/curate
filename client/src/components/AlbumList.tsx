@@ -4,7 +4,7 @@ import { useProtectedData } from "~/lib/hook";
 import * as rad from 'radashi';
 
 import { arrow_down, arrow_up } from "~/icons";
-import { useAtom } from "jotai";
+import { useSetAtom } from "jotai";
 import { queueListAtom } from "~/atoms";
 import type { QueueItem } from "~/types/queue_item";
 import { Link } from "wouter";
@@ -26,7 +26,7 @@ export default function AlbumList() {
     const [showQueue, setShowQueue] = useState(false);
     const [queueMsg, setQueueMsg] = useState<string>('');
 
-    const [queueList, SetQueueList] = useAtom(queueListAtom)
+    const setQueueList = useSetAtom(queueListAtom)
 
     useProtectedData({
         url: '/api/album',
@@ -95,8 +95,7 @@ export default function AlbumList() {
                     }
                     new_items.push(new_item)
                 })
-                const new_queue = [...queueList, ...new_items];
-                SetQueueList(new_queue);
+                setQueueList('add', new_items);
                 setShowQueue(true);
                 setQueueMsg('Album added to queue');
             });

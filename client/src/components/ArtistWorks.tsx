@@ -1,4 +1,4 @@
-import { useAtom } from "jotai";
+import { useSetAtom } from "jotai";
 import { useState } from "react";
 import { Link } from "wouter";
 import { queueListAtom } from "~/atoms";
@@ -21,7 +21,7 @@ export default function ArtistWorks({ artist_id }: ArtistWorksProps) {
     const [artistWorks, setArtistWorks] = useState<ArtistWorks | undefined>(undefined)
     const [currentTrack, setCurrentTrack] = useState<PlayerTrackData>();
 
-    const [queueList, SetQueueList] = useAtom(queueListAtom)
+    const setQueueList = useSetAtom(queueListAtom)
 
     const [showQueue, setShowQueue] = useState(false);
     const [queueMsg, setQueueMsg] = useState<string>('');
@@ -51,8 +51,7 @@ export default function ArtistWorks({ artist_id }: ArtistWorksProps) {
             artist_id: artistWorks?.artist.id || '',
             duration: t.duration,
         }
-        const new_queue = [...queueList, new_item];
-        SetQueueList(new_queue)
+        setQueueList('add', new_item);
         setShowQueue(true);
         setQueueMsg('Single added to queue');
     }
@@ -92,8 +91,7 @@ export default function ArtistWorks({ artist_id }: ArtistWorksProps) {
             }
             new_items.push(new_item)
         })
-        const new_queue = [...queueList, ...new_items];
-        SetQueueList(new_queue);
+        setQueueList('add', new_items);
         setShowQueue(true);
         setQueueMsg('Album added to queue');
         setTimeout(() => {

@@ -11,11 +11,11 @@ import { useProtectedData } from "~/lib/hook"
 import { formatTime } from "~/lib/utils";
 import Flex from '~/framework/components/flex'
 import QueuePopupMenu from '~/components/QueuePopupMenu'
-import { useAtom } from 'jotai'
 import { queueListAtom } from '~/atoms'
 import type { QueueItem } from '~/types/queue_item'
 import SuccessPopup from '~/components/SuccessPopup'
 import PlayIcon from '~/components/PlayIcon'
+import { useSetAtom } from 'jotai'
 
 
 export interface AlbumProps {
@@ -32,9 +32,8 @@ export default function Album({ album_id }: AlbumProps) {
     const [autoPlay, setAutoPlay] = useState<boolean>(false);
     const [loopAlbum, setLoopAlbum] = useState<boolean>(false);
 
+    const setQueueList = useSetAtom(queueListAtom);
     const [currentTrack, setCurrentTrack] = useState<PlayerTrackData>();
-
-    const [queueList, SetQueueList] = useAtom(queueListAtom)
 
     const [showQueue, setShowQueue] = useState(false);
     const [queueMsg, setQueueMsg] = useState<string>('');
@@ -53,13 +52,13 @@ export default function Album({ album_id }: AlbumProps) {
 
             console.log(JSON.stringify(data.album))
         }
-    })
+    });
 
 
     useEffect(() => {
         if (album === undefined || album.cover === null) return;
         setCoverId(album.cover)
-    }, [album])
+    }, [album]);
 
 
 
@@ -129,7 +128,7 @@ export default function Album({ album_id }: AlbumProps) {
 
         }
 
-        setAutoPlay((old) => !old)
+        setAutoPlay((old) => !old);
     }
 
     function onNext() {
@@ -137,7 +136,7 @@ export default function Album({ album_id }: AlbumProps) {
             const t = compute_next_track(1);
             playTrack(t);
         } else {
-            playTrack(undefined)
+            playTrack(undefined);
         }
 
     }
@@ -147,13 +146,13 @@ export default function Album({ album_id }: AlbumProps) {
             const t = compute_next_track(-1);
             playTrack(t);
         } else {
-            playTrack(undefined)
+            playTrack(undefined);
         }
 
     }
 
     function changeLoop() {
-        setLoopAlbum(!loopAlbum)
+        setLoopAlbum(!loopAlbum);
     }
 
     function add_track_to_queue(t: respAlbumTrack) {
@@ -166,8 +165,8 @@ export default function Album({ album_id }: AlbumProps) {
             cover_id: album?.cover || undefined,
             duration: t.duration,
         }
-        const new_queue = [...queueList, new_item];
-        SetQueueList(new_queue);
+
+        setQueueList('add', new_item);
         setShowQueue(true);
         setQueueMsg("Track added to queue");
     }
@@ -189,11 +188,10 @@ export default function Album({ album_id }: AlbumProps) {
                         album_name: data.album.name,
                         album_id: data.album.id,
                         duration: t.duration
-                    }
-                    new_items.push(new_item)
-                })
-                const new_queue = [...queueList, ...new_items];
-                SetQueueList(new_queue);
+                    };
+                    new_items.push(new_item);
+                });
+                setQueueList('add', new_items);
                 setShowQueue(true);
                 setQueueMsg('Album added to queue');
             });
