@@ -1,5 +1,7 @@
+import * as rad from 'radashi';
+
 import { useSetAtom } from "jotai";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import { queueListAtom } from "~/atoms";
 import Player2, { type PlayerTrackData } from './Player2'
@@ -12,6 +14,9 @@ import Flex from "~/framework/components/flex";
 import QueuePopupMenu from "~/components/QueuePopupMenu";
 import SuccessPopup from "~/components/SuccessPopup";
 import PlayIcon from "~/components/PlayIcon";
+import { arrow_down, arrow_up } from "~/icons";
+import Icon from "~/framework/components/Icon";
+import { type Album } from '~/types/album';
 
 export interface ArtistWorksProps {
     artist_id: string;
@@ -20,6 +25,8 @@ export interface ArtistWorksProps {
 export default function ArtistWorks({ artist_id }: ArtistWorksProps) {
     const [artistWorks, setArtistWorks] = useState<ArtistWorks | undefined>(undefined)
     const [currentTrack, setCurrentTrack] = useState<PlayerTrackData>();
+    const [albumSort, setAlbumSort] = useState('up');
+    const [albumList, setAlbumList] = useState<Album[]|undefined>();
 
     const setQueueList = useSetAtom(queueListAtom)
 
@@ -29,15 +36,31 @@ export default function ArtistWorks({ artist_id }: ArtistWorksProps) {
     useProtectedData({
         url: `/api/artist/${artist_id}`,
         data_proc: (data) => {
-            setArtistWorks(data)
+            setArtistWorks(data);
+            setAlbumList(data.albums);
         }
     });
 
 
+    useEffect(() => {
+        if (!albumList || albumList.length < 1 ) return;
+
+        const new_list = rad.alphabetical(albumList, (r) => r.sort_name, albumSort === 'up' ? 'asc' : 'desc');
+        setAlbumList(new_list);
+
+
+    }, [albumSort, albumList]);
+
+
+
     function playTrack(t: Track) {
         setCurrentTrack(track2player_data(t));
-
     }
+
+    function flipSort() {
+        setAlbumSort((old) => old === 'up' ? 'down' : 'up' );
+    }
+
 
     function handleStop() {
         setCurrentTrack(undefined);
@@ -104,6 +127,8 @@ export default function ArtistWorks({ artist_id }: ArtistWorksProps) {
         setCurrentTrack(undefined);
     }
 
+    const sortIcon = albumSort === 'up' ?  arrow_up : arrow_down;
+
 
     return (<>
         <Flex dir="column" className="justify-content-center align-items-center">
@@ -130,7 +155,7 @@ export default function ArtistWorks({ artist_id }: ArtistWorksProps) {
                     </tr>
                 </thead>
                 <tbody>
-                    {artistWorks && artistWorks.singles.length > 0 && artistWorks.singles.map(s =>
+                    {artistWorks.singles.map(s =>
                         <tr className={s.id === currentTrack?.id ? 'bg-mid' : ''} key={s.id + '-s'}>
                             <td className="album-tracks-play-cell">{s.id === currentTrack?.id ?
                                 '>>>' :
@@ -148,19 +173,14 @@ export default function ArtistWorks({ artist_id }: ArtistWorksProps) {
                 </tbody>
             </table>}
 
-            {artistWorks && artistWorks.albums.length > 0 && <table className="table striped w-100">
+            {albumList && albumList.length > 0 && <table className="table striped w-100">
                 <thead>
                     <tr>
-                        <th colSpan={3}><span className="fs-4">Albums</span></th>
-                    </tr>
-                    <tr>
-                        <th>&nbsp;</th>
-                        <th className="txt-center fs-5">album</th>
-                        <th>&nbsp;</th>
+                        <th colSpan={3} className="txt-center fs-4 clickable" onClick={() => flipSort()}>Albums<Icon size="0.75em" icon={sortIcon}/></th>
                     </tr>
                 </thead>
                 <tbody>
-                    {artistWorks && artistWorks.albums.length > 0 && artistWorks.albums.map(a => {
+                    {albumList.map(a => {
                         return (
                             <tr key={a.id + '-a'}>
                                 {a.cover ? <td><img src={`/api/cover/thumb/${a.cover}`} width={30} height={30} /></td> : <td><span>&nbsp;</span></td>}
