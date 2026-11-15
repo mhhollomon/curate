@@ -109,11 +109,15 @@ def get_artist_works(artist_id : str) :
 
             singles = list(dbTrack.select(dbTrack).join(
                 dbArtistAssociation, on=(dbArtistAssociation.item == dbTrack.id)
-            ).where(dbArtistAssociation.artist == artist_id).dicts())
+            ).where(
+                dbArtistAssociation.artist == artist_id
+            ).order_by(dbTrack.sort_name).dicts())
 
             albums = list(dbAlbum.select(dbAlbum).join(
                 dbArtistAssociation, on=(dbArtistAssociation.item == dbAlbum.id)
-            ).where(dbArtistAssociation.artist == artist_id).dicts())
+            ).where(
+                dbArtistAssociation.artist == artist_id
+            ).order_by(dbAlbum.sort_name).dicts())
 
     except dbArtist.DoesNotExist : # type: ignore
         raise HTTPException(status_code=404, detail="Item not found")
