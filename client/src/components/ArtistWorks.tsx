@@ -164,7 +164,7 @@ export default function ArtistWorks({ artist_id }: ArtistWorksProps) {
 
             {singleList && singleList.length > 0 &&
                 <Grid columns={4} colspec="3em 5em 1fr 3em" className="striped">
-                    <GRow header={true} className="py-3">
+                    <GRow header className="py-3 bd-bottom-2">
                         <GCell span={4} className='txt-center'>
                             <Flex className="justify-content-between">
                                 <button className="btn vrnt-danger" disabled={!currentTrack} onClick={handleStop}>Stop</button>
@@ -191,32 +191,29 @@ export default function ArtistWorks({ artist_id }: ArtistWorksProps) {
             }
 
 
-            {albumList && albumList.length > 0 && <table className="table striped w-100">
-                <thead>
-                    <tr>
-                        <th colSpan={3} className="txt-center fs-4 clickable" onClick={() => flipAlbumSort()}>Albums<Icon size="0.75em" icon={sortIcon}/></th>
-                    </tr>
-                </thead>
-                <tbody>
+            {albumList && albumList.length > 0 &&
+                <Grid columns={3} colspec="35px 1fr 3em" className="striped">
+                    <GRow header className="py-3 bd-bottom-2">
+                        <GCell span={3} className="txt-center fs-4 clickable" onClick={() => flipAlbumSort()}>Albums<Icon size="0.75em" icon={sortIcon}/></GCell>
+                    </GRow>
                     {albumList.map(a => {
                         return (
-                            <tr key={a.id + '-a'}>
-                                {a.cover ? <td><img src={`/api/cover/thumb/${a.cover}`} width={30} height={30} /></td> : <td><span>&nbsp;</span></td>}
-                                <td><Link className="bare-link" href={`/album/${a.id}`}>{a.name}</Link></td>
-                                <td>
+                            <GRow className='ps-2 py-2 bd-bottom-1' key={a.id + '-a'}>
+                                {a.cover ? <GCell><img src={`/api/cover/thumb/${a.cover}`} width={30} height={30} /></GCell> : <GCell><span>&nbsp;</span></GCell>}
+                                <GCell><Link className="bare-link" href={`/album/${a.id}`}>{a.name}</Link></GCell>
+                                <GCell>
                                     <QueuePopupMenu>
                                         <a className="bare-link hover-underline" onClick={() => add_album_to_queue(a.id)}>Add Album to Queue</a>
                                     </QueuePopupMenu>
-                                </td>
-                            </tr>
+                                </GCell>
+                            </GRow>
                         )
                     }
                     )}
-                </tbody>
-            </table>}
+                </Grid>
+            }
 
         </Flex>
-
 
     </>)
 }

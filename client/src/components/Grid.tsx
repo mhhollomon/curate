@@ -59,14 +59,15 @@ interface GCellProps {
     children? : ReactNode;
     className? : string;
     span? : number;
+    onClick ? : (arg0: any) => void;
 }
 
-export function GCell({children, className='', span} : GCellProps) {
+export function GCell({children, className='', span, onClick} : GCellProps) {
     const styles = {
         ...(span? { gridColumn : 'auto / span ' + rad.round(span)} : {}),
     };
 
-    return (<div style={styles} className={className}>
+    return (<div style={styles} className={className} onClick={onClick}>
         {children}
     </div>);
 }
