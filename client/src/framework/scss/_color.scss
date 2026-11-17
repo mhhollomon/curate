@@ -22,31 +22,31 @@
 /* BACKGROUND COLORS *******************************/
 
 .bg-brand {
-    background-color : var(--clr-brand);
+    background-color : var(--clr-brand) !important;
 }
 
 .bg-base {
-    background-color: var(--clr-bg-base);
+    background-color: var(--clr-bg-base) !important;
 }
 
 .bg-mid {
-    background-color : var(--clr-bg-mid);
+    background-color : var(--clr-bg-mid) !important;
 }
 
 .bg-near {
-    background-color : var(--clr-bg-near);
+    background-color : var(--clr-bg-near) !important;
 }
 
 .bg-error {
-    background-color: var(--clr-error);
+    background-color: var(--clr-error) !important;
 }
 
 .bg-success {
-    background-color: var(--clr-success);
+    background-color: var(--clr-success) !important;
 }
 
 .bg-warning {
-    background-color: var(--clr-warning);
+    background-color: var(--clr-warning) !important;
 }
 
 /* VARIANTS ***************************************/

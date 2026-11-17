@@ -80,3 +80,7 @@
     align-items: center;
     cursor: pointer;
 }
+
+.grid-parent.striped .grid-row:nth-child(even) {
+    background-color: var(--clr-bg-far);
+}

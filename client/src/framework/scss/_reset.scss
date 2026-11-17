@@ -5,7 +5,7 @@ Some from my own imagination.
 
 */
 
-@layer reboot {
+@layer reset {
 
     *,
     *::before,
@@ -86,6 +86,10 @@ Some from my own imagination.
     h1, h2, h3, h4, h5, h6 {
     text-wrap: balance;
     line-height: 1.2;
+    }
+
+    div {
+        border-width: 0;
     }
 
     /* END LAYER reboot */

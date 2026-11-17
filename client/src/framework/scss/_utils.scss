@@ -111,6 +111,42 @@ $font-sizes : (
     font-style : italic;
 }
 
+/***********************************************
+ * BORDER
+ ***********************************************/
+@for $i from 1 through 5 {
+    .bd-top-#{$i} {
+        border-block-start-width: #{$i}px;
+        border-style: solid;
+    }
+    .bd-bottom-#{$i} {
+        border-block-end-width: #{$i}px;
+        border-style: solid;
+    }
+    .bd-left-#{$i} {
+        border-inline-start-width: #{$i}px;
+        border-style: solid;
+    }
+    .bd-right-#{$i} {
+        border-inline-end-width: #{$i}px;
+        border-style: solid;
+    }
+    .bd-x-#{$i} {
+        border-block-start-width: #{$i}px;
+        border-block-end-width: #{$i}px;
+        border-style: solid;
+    }
+    .bd-y-#{$i} {
+        border-inline-start-width: #{$i}px;
+        border-inline-end-width: #{$i}px;
+        border-style: solid;
+    }
+    .bd-#{$i} {
+        border-width : #{$i}px;
+        border-style: solid;
+    }
+}
+
 
 /***********************************************
  ***********************************************

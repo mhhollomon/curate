@@ -17,6 +17,7 @@ import PlayIcon from "~/components/PlayIcon";
 import { arrow_down, arrow_up } from "~/icons";
 import Icon from "~/framework/components/Icon";
 import { type Album } from '~/types/album';
+import { GCell, Grid, GRow } from '~/components/Grid';
 
 export interface ArtistWorksProps {
     artist_id: string;
@@ -25,8 +26,12 @@ export interface ArtistWorksProps {
 export default function ArtistWorks({ artist_id }: ArtistWorksProps) {
     const [artistWorks, setArtistWorks] = useState<ArtistWorks | undefined>(undefined)
     const [currentTrack, setCurrentTrack] = useState<PlayerTrackData>();
+
     const [albumSort, setAlbumSort] = useState('up');
     const [albumList, setAlbumList] = useState<Album[]|undefined>();
+
+    const [singleSort, setSingleSort] = useState('up');
+    const [singleList, setSingleList] = useState<Track[]|undefined>();
 
     const setQueueList = useSetAtom(queueListAtom)
 
@@ -38,6 +43,7 @@ export default function ArtistWorks({ artist_id }: ArtistWorksProps) {
         data_proc: (data) => {
             setArtistWorks(data);
             setAlbumList(data.albums);
+            setSingleList(data.singles);
         }
     });
 
@@ -49,7 +55,16 @@ export default function ArtistWorks({ artist_id }: ArtistWorksProps) {
         setAlbumList(new_list);
 
 
-    }, [albumSort, albumList]);
+    }, [albumSort]);
+
+    useEffect(() => {
+        if (!singleList || singleList.length < 1 ) return;
+
+        const new_list = rad.alphabetical(singleList, (r) => r.sort_name, singleSort === 'up' ? 'asc' : 'desc');
+        setSingleList(new_list);
+
+
+    }, [singleSort]);
 
 
 
@@ -57,8 +72,12 @@ export default function ArtistWorks({ artist_id }: ArtistWorksProps) {
         setCurrentTrack(track2player_data(t));
     }
 
-    function flipSort() {
+    function flipAlbumSort() {
         setAlbumSort((old) => old === 'up' ? 'down' : 'up' );
+    }
+
+    function flipSingleSort() {
+        setSingleSort((old) => old === 'up' ? 'down' : 'up' );
     }
 
 
@@ -128,6 +147,7 @@ export default function ArtistWorks({ artist_id }: ArtistWorksProps) {
     }
 
     const sortIcon = albumSort === 'up' ?  arrow_up : arrow_down;
+    const singleIcon = singleSort === 'up' ?  arrow_up : arrow_down;
 
 
     return (<>
@@ -142,41 +162,39 @@ export default function ArtistWorks({ artist_id }: ArtistWorksProps) {
                 onEnd={onEnd}
                 onPrevious={undefined} onNext={undefined} />
 
-            {artistWorks && artistWorks.singles.length > 0 && <table className="table striped w-100 mt-1">
-                <thead>
-                    <tr>
-                        <th colSpan={4}><span className="fs-4">Singles</span></th>
-                    </tr>
-                    <tr>
-                        <th>&nbsp;<button className="btn vrnt-danger" disabled={!currentTrack} onClick={handleStop}>Stop</button></th>
-                        <th>&nbsp;</th>
-                        <th className="txt-center fs-5">track</th>
-                        <th>&nbsp;</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {artistWorks.singles.map(s =>
-                        <tr className={s.id === currentTrack?.id ? 'bg-mid' : ''} key={s.id + '-s'}>
-                            <td className="album-tracks-play-cell">{s.id === currentTrack?.id ?
-                                '>>>' :
-                                <a className='album-tracks-play-link' onClick={() => playTrack(s)}><PlayIcon /></a>}
-                            </td>
-                            <td className="album-tracks-time-cell">{formatTime(s.duration)}</td>
-                            <td><a className="bare-link" onClick={() => playTrack(s)}>{s.name}</a></td>
-                            <td>
-                                <QueuePopupMenu>
-                                    <a className="bare-link hover-underline" onClick={() => add_single_to_queue(s)}>Add Single to Queue</a>
-                                </QueuePopupMenu>
-                            </td>
-                        </tr>
-                    )}
-                </tbody>
-            </table>}
+            {singleList && singleList.length > 0 &&
+                <Grid columns={4} colspec="3em 5em 1fr 3em" className="striped">
+                    <GRow header={true} className="py-3">
+                        <GCell span={4} className='txt-center'>
+                            <Flex className="justify-content-between">
+                                <button className="btn vrnt-danger" disabled={!currentTrack} onClick={handleStop}>Stop</button>
+                                <div className="fs-4 clickable" onClick={() => flipSingleSort()}>Singles<Icon size="0.75em" icon={singleIcon}/></div>
+                                <div className="mx-5">&nbsp;</div>
+                            </Flex>
+                        </GCell>
+                    </GRow>
+                {singleList.map(s => (
+                    <GRow className={ 'ps-2 py-2 bd-bottom-1' + (s.id === currentTrack?.id ? 'bg-mid' : '')} key={s.id + '-s'}>
+                        <GCell className="album-tracks-play-cell">{s.id === currentTrack?.id ?
+                            '>>>' :
+                            <a className='album-tracks-play-link' onClick={() => playTrack(s)}><PlayIcon /></a>}
+                        </GCell>
+                        <GCell className="album-tracks-time-cell">{formatTime(s.duration)}</GCell>
+                        <GCell><a className="bare-link" onClick={() => playTrack(s)}>{s.name}</a></GCell>
+                        <GCell>
+                            <QueuePopupMenu>
+                                <a className="bare-link hover-underline" onClick={() => add_single_to_queue(s)}>Add Single to Queue</a>
+                            </QueuePopupMenu>
+                        </GCell>
+                    </GRow>))}
+                </Grid>
+            }
+
 
             {albumList && albumList.length > 0 && <table className="table striped w-100">
                 <thead>
                     <tr>
-                        <th colSpan={3} className="txt-center fs-4 clickable" onClick={() => flipSort()}>Albums<Icon size="0.75em" icon={sortIcon}/></th>
+                        <th colSpan={3} className="txt-center fs-4 clickable" onClick={() => flipAlbumSort()}>Albums<Icon size="0.75em" icon={sortIcon}/></th>
                     </tr>
                 </thead>
                 <tbody>

@@ -6,18 +6,18 @@
         display : inline-block;
     }
 
-/* Button with an Icon and text
-   Make sure the Icon is centered vertically
-   with the text.
-*/
-.btn-icon-text {
-    display :flex;
-    align-items: center;
-    gap : var(--spacing-1);
+    /* Button with an Icon and text
+    Make sure the Icon is centered vertically
+    with the text.
+    */
+    .btn-icon-text {
+        display :flex;
+        align-items: center;
+        gap : var(--spacing-1);
 
-    svg {
-        display : inline-block;
+        svg {
+            display : inline-block;
+        }
     }
-}
 
 }
