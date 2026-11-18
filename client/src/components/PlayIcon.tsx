@@ -1,4 +1,4 @@
-import Icon from "~/framework/components/Icon";
+import Icon from "~/styleworks/components/Icon";
 import { play_btn_fill } from "~/icons";
 
 export default function PlayIcon() {

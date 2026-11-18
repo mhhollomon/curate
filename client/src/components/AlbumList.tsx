@@ -9,7 +9,7 @@ import { queueListAtom } from "~/atoms";
 import type { QueueItem } from "~/types/queue_item";
 import { Link } from "wouter";
 import SuccessPopup from "~/components/SuccessPopup";
-import Icon from "~/framework/components/Icon";
+import Icon from "~/styleworks/components/Icon";
 import QueuePopupMenu from "~/components/QueuePopupMenu";
 import type { respAlbumTrack } from "~/responses";
 

@@ -7,11 +7,11 @@ import type { QueueItem } from "~/types/queue_item"
 import { useState } from "react"
 import { play_fill, slash_circle, trash3 } from "~/icons"
 import { Link } from "wouter"
-import Flex from "~/framework/components/flex"
-import Icon from "~/framework/components/Icon"
+import Flex from "~/styleworks/components/flex"
+import Icon from "~/styleworks/components/Icon"
 
 import { formatTime } from "~/lib/utils"
-import IconBtn from "~/framework/components/IconBtn"
+import IconBtn from "~/styleworks/components/IconBtn"
 
 
 export default function Queue() {

@@ -1,5 +1,5 @@
 import "./About.css";
-import Icon from "~/framework/components/Icon";
+import Icon from "~/styleworks/components/Icon";
 import { question_circle } from "~/icons";
 import { useEffect, useRef, useState } from "react";
 

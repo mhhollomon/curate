@@ -6,8 +6,8 @@ import { play_fill, pause_fill, rewind_fill, fast_forward_fill } from '~/icons'
 import { assert } from "radashi";
 import * as rad from 'radashi';
 import { formatTime } from "~/lib/utils";
-import Flex from "~/framework/components/flex";
-import Icon from "~/framework/components/Icon";
+import Flex from "~/styleworks/components/flex";
+import Icon from "~/styleworks/components/Icon";
 
 export interface PlayerTrackData {
     id: string; // Track ID - mostly for the use by parent.

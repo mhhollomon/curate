@@ -10,12 +10,12 @@ import type { ArtistWorks } from "~/types/artist";
 import type { QueueItem } from "~/types/queue_item";
 import type { Track } from "~/types/track";
 import { formatTime } from "~/lib/utils";
-import Flex from "~/framework/components/flex";
+import Flex from "~/styleworks/components/flex";
 import QueuePopupMenu from "~/components/QueuePopupMenu";
 import SuccessPopup from "~/components/SuccessPopup";
 import PlayIcon from "~/components/PlayIcon";
 import { arrow_down, arrow_up } from "~/icons";
-import Icon from "~/framework/components/Icon";
+import Icon from "~/styleworks/components/Icon";
 import { type Album } from '~/types/album';
 import { GCell, Grid, GRow } from '~/components/Grid';
 

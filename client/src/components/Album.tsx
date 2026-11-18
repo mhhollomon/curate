@@ -4,12 +4,12 @@ import { useEffect, useState } from "react"
 
 import { type respAlbumAlbum, type respAlbumArtist, type respAlbumTrack } from '~/responses'
 import Player2, { type PlayerTrackData } from './Player2'
-import Toggle from '../framework/components/Toggle'
+import Toggle from '../styleworks/components/Toggle'
 
 
 import { useProtectedData } from "~/lib/hook"
 import { formatTime } from "~/lib/utils";
-import Flex from '~/framework/components/flex'
+import Flex from '~/styleworks/components/flex'
 import QueuePopupMenu from '~/components/QueuePopupMenu'
 import { queueListAtom } from '~/atoms'
 import type { QueueItem } from '~/types/queue_item'

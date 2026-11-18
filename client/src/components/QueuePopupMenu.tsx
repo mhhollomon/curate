@@ -1,6 +1,6 @@
 import React, { type ReactNode, Children, isValidElement, useId } from "react";
 import { three_dots_vert } from "~/icons";
-import Icon from "~/framework/components/Icon";
+import Icon from "~/styleworks/components/Icon";
 
 import "./QueuePopupMenu.css";
 

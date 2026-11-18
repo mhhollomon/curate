@@ -5,7 +5,7 @@ import { useProtectedData } from "~/lib/hook";
 
 import * as rad from 'radashi';
 import { arrow_down, arrow_up } from "~/icons";
-import Icon from "~/framework/components/Icon";
+import Icon from "~/styleworks/components/Icon";
 import { navigate } from "wouter/use-browser-location";
 
 export default function ArtistList() {

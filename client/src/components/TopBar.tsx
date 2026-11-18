@@ -1,4 +1,4 @@
-import Icon from "~/framework/components/Icon";
+import Icon from "~/styleworks/components/Icon";
 import About from "~/components/About";
 import { hamburger } from "~/icons";
 import { navigate } from "wouter/use-browser-location";
